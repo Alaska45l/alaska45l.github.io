@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="author" content="Alaska González">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alaska E. González — Portafolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <!-- Para redes sociales -->
+  <meta property="og:title" content="Portafolio — Alaska González">
+  <meta property="og:description" content="Descubre mis proyectos y habilidades como desarrolladora web.">
+  <meta property="og:image" content="https://alaska45l.github.io/assets/profile.webp">
+  <meta property="og:url" content="https://alaska45l.github.io">
+  <meta name="twitter:card" content="summary_large_image">
+
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="logo">
+        @alaska45l
+      </a>
+      
+      <nav class="nav">
+        <a href="#sobre">Sobre mí</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#estudios">Estudios</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+
+      <!-- Toggle de modo oscuro -->
+      <button class="theme-toggle-desktop" onclick="toggleDarkMode()" title="Cambiar tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <button class="theme-toggle" onclick="toggleDarkMode(); closeMobileMenu();" style="width: 100%; text-align: left; padding: 0.75rem; margin-top: 0.5rem;">
+          <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
+        </button>
+        <a href="#sobre" onclick="closeMobileMenu()">Sobre mí</a>
+        <a href="#proyectos" onclick="closeMobileMenu()">Proyectos</a>
+        <a href="#estudios" onclick="closeMobileMenu()">Estudios</a>
+        <a href="#contacto" onclick="closeMobileMenu()">Contacto</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero card">
+      <div class="hero-content">
+        <div class="hero-left">
+          <img class="hero-avatar" src="assets/profile.webp" alt="Foto de Alaska" />
+        </div>
+        <div class="hero-text">
+          <h1>Alaska ELaina González</h1>
+          <p class="hero-subtitle">Atención al público · Soporte IT · Diseño y redes</p>
+          <p class="hero-description">
+            Me defino por mi adaptabilidad, rapidez para aprender y capacidad de resolver con criterio.
+            Busco aportar valor uniendo habilidades técnicas, creatividad y buen trato interpersonal.
+          </p>
+        </div>
+        <div class="hero-right">
+          <div class="cta-buttons">
+            <a href="/assets/Alaska_CV.pdf" class="btn btn-primary" download>
+              <i class="fas fa-download"></i> Descargar CV
+            </a>
+            <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+              <i class="fab fa-instagram"></i> Instagram
+            </a>
+            <a href="https://x.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+              <i class="fab fa-x-twitter"></i> X (Twitter)
+            </a>
+            <a href="https://linkedin.com/in/alaska45l" class="social-link" target="_blank" rel="noopener">
+              <i class="fab fa-linkedin-in"></i> LinkedIn
+            </a>
+            <a href="#contacto" class="btn btn-secondary">Contactar</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-grid">
+      <!-- Main Content Column -->
+      <div>
+        <!-- About Section -->
+        <section id="sobre" class="card">
+          <h2 class="section-title">Sobre mí</h2>
+          <p style="margin-bottom: 1.5rem;">
+            Tengo experiencia en atención al público, soporte técnico, Diseño gráfico y gestión de redes sociales.
+            Me destaco por resolver problemas con criterio, adaptarme rápido a entornos nuevos y asumir responsabilidades con seriedad.
+            Sé cómo manejar herramientas digitales, tratar con distintos tipos de personas y moverme en contextos laborales diversos.
+            Busco aportar valor real, no solo cumplir tareas.
+            Trabajo con enfoque, pensamiento crítico y compromiso.
+          </p>
+          
+          <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Conocimientos y habilidades técnicas</h3>
+          <ul style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            <li><strong>Lenguajes y programación:</strong> JavaScript (con TypeScript), PHP, SQL, Python, HTML5, CSS3, nociones de C y Bash scripting.</li>
+            <li><strong>Sistemas y redes:</strong> Linux (Debian, Fedora, Parrot), Windows, configuración de redes domésticas y pequeñas oficinas, mantenimiento de hardware y software, recuperación de datos.</li>
+            <li><strong>Diseño gráfico:</strong> Experiencia en herramientas como Adobe Photoshop, Illustrator y Figma.</li>
+            <li><strong>Gestión de redes sociales:</strong> Estrategias de contenido, análisis de métricas y atención al cliente.</li>
+            <li><strong>Herramientas de oficina:</strong> Microsoft 365 (Word, Excel, Outlook, PowerPoint), Google Workspace (Docs, Sheets, Drive, Meet).</li>
+            <li><strong>Gestión digital:</strong> Community management, programación de publicaciones, edición de contenido para redes sociales, optimización de imágenes y videos para web.</li>
+            <li><strong>Otros:</strong> Manejo de TPV y software de gestión (Morphi), habilidades de atención al cliente y trabajo en equipo.</li>
+          </ul>
+
+          <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Tecnologías y habilidades</h3>
+          <div class="project-tags">
+            <span class="tag">HTML5</span>
+            <span class="tag">CSS3</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">PHP</span>
+            <span class="tag">Java</span>
+            <span class="tag">Python</span>
+            <span class="tag">SQL</span>
+            <span class="tag">Bash</span>
+            <span class="tag">Linux (Debian, Fedora, Parrot OS)</span>
+            <span class="tag">Windows</span>
+            <span class="tag">SystemRescue</span>
+            <span class="tag">Medicat USB</span>
+            <span class="tag">Adobe Photoshop</span>
+            <span class="tag">GIMP</span>
+            <span class="tag">Krita</span>
+            <span class="tag">Inkscape</span>
+            <span class="tag">Canva</span>
+            <span class="tag">Photopea</span>
+            <span class="tag">Kittl</span>
+            <span class="tag">Davinci Resolve</span>
+            <span class="tag">vMix</span>
+            <span class="tag">Community Management</span>
+            <span class="tag">Microsoft 365</span>
+            <span class="tag">Google Workspace</span>
+            <span class="tag">TPV/Morphi</span>
+          </div>
+        </section>
+
+      <section id="sobre" class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Conocimientos</h2>
+           <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Perfil académico y técnico autodidacta</h3>
+            <p style="margin-bottom: 1.5rem;">
+             Tengo conocimientos sólidos en física, matemática y biología, áreas que me interesan tanto académica como personalmente. 
+             A eso se suma mi lado más autodidacta, enfocado en tecnología y sistemas.
+            </p>
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Programación y herramientas digitales</h3>
+            <p style="margin-bottom: 1.5rem;">
+              Me gusta meter mano en hardware y software: desde armar o reparar PCs hasta optimizar su rendimiento o recuperar equipos que muchos ya dan por perdidos.<br>
+              También manejo sistemas operativos Linux, con experiencia en distribuciones como Debian, Fedora y otros más especializados como Medicat USB (WinPE) o Parrot OS, y sistemas orientados a recuperación de datos y discos dañados, como SystemRescue.<br>
+              En programación, tengo experiencia con lenguajes web como JavaScript y PHP, además de otros más generales como Java, Python y TypeScript. Aunque no tenga proyectos activos, los sigo utilizando para automatización y resolver problemas diarios.<br>
+              También tengo un perfil artístico más ligado al diseño gráfico y audiovisual. Manejo programas como Photoshop, GIMP, Krita e Inkscape, o herramientas de edición como Canva, Photopea y Kittl para diseño.<br>
+              Además, uso Davinci Resolve para edición de video y vMix para proyección en vivo y control de escenas/múltiples pantallas.<br>
+              Todo esto lo fui aprendiendo como hobby.
+            </p>
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Experiencia en atención al público</h3>
+            <p style="margin-bottom: 1.5rem;">
+             Por otro lado, trabajé en atención al público como barista en un café al paso y también como moza, incluyendo manejo de bandeja, trato directo con clientes y momentos de alta demanda.<br>
+             En ese contexto, aprendí a usar sistemas de caja y software gastronómico como Morphi, adaptándome rápido a lo que el momento requería.
+            </p>
+
+        </section>
+
+        <!-- Projects Section -->
+        <!--
+        <section id="proyectos" class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Proyectos destacados</h2>
+            <div class="projects-grid" style="grid-template-columns: 1fr 1fr;">
+            <div class="project-card">
+              <h3 class="project-title">Dashboard educativo</h3>
+              <p class="project-description">
+              Visualizaciones interactivas para seguimiento académico con filtros temporales 
+              y sistema de autenticación SSO integrado.
+              </p>
+              <div class="project-tags">
+              <span class="tag">Next.js</span>
+              <span class="tag">D3.js</span>
+              <span class="tag">SSO</span>
+              </div>
+              <a href="#" class="btn btn-secondary" style="display: inline-block; margin-top: 1rem;">
+              <i class="fas fa-external-link-alt"></i> Ver Demo
+              </a>
+            </div>
+
+            <div class="project-card">
+              <h3 class="project-title">Landing & Branding</h3>
+              <p class="project-description">
+              Desarrollo de landing pages y experiencias micro-UX para pequeñas empresas 
+              y profesionales independientes.
+              </p>
+              <div class="project-tags">
+              <span class="tag">UI/UX</span>
+              <span class="tag">SEO</span>
+              <span class="tag">Responsive</span>
+              </div>
+              <a href="#" class="btn btn-secondary" style="display: inline-block; margin-top: 1rem;">
+              <i class="fas fa-palette"></i> Portfolio gráfico
+              </a>
+            </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contacto" class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Contacto</h2>
+          
+          <div class="contact-grid">
+
+            <!-- Contact Form -->
+            <div>
+              <h3 style="margin-bottom: 1rem;">Enviar mensaje</h3>
+              <form class="contact-form" onsubmit="handleContactForm(event)">
+                <div class="form-group">
+                  <label for="name">Nombre *</label>
+                  <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="message">Mensaje *</label>
+                  <textarea id="message" name="message" required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-paper-plane"></i> Enviar mensaje
+                </button>
+              </form>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="contact-info">
+              <h3 style="margin-bottom: 1rem;">Vías de contacto</h3>
+              <p style="margin-bottom: 0.5;"><i class="fas fa-briefcase"></i>
+                Mail de trabajo</p>              
+              <a href="mailto:alaskagonzalez@outlook.com" class="contact-box" target="_blank">
+                 <strong>alaskagonzalez@outlook.com</strong>
+              </a>
+              <p style="margin-bottom: 0.5rem;"><i class="fas fa-envelope"></i>
+                Mail personal</p>
+              <a href="mailto:alaska45l@hotmail.com" class="contact-box" target="_blank">
+              <strong>alaska45l@hotmail.com</strong>
+              </a>
+              
+              <a href="mailto:alaska45lgon@gmail.com" class="contact-box" target="_blank">
+              <strong>alaska45lgon@gmail.com</strong>
+              </a>
+
+              <a href="https://wa.me/542262633652" class="whatsapp-btn" target="_blank">
+                <i class="fab fa-whatsapp"></i> Escribime por WhatsApp
+              </a>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <aside>
+        <!-- Education -->
+        <section id="estudios" class="card">
+          <h2 class="section-title">Estudios</h2>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <strong style="color: var(--text-primary);">2024 - Presente</strong>
+              <p style="color: var(--text-secondary); margin: 0.25rem 0;">Carrera de Medicina</p>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Universidad Nacional de Mar del Plata</p>
+            </div>
+            
+            <div>
+              <strong style="color: var(--text-primary);">2022 - 2023</strong>
+              <p style="color: var(--text-secondary); margin: 0.25rem 0;">Técnicatura en Desarrollo de Software</p>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Universidad Nacional del Centro de Buenos Aires</p>
+            </div>
+            
+            <div>
+              <strong style="color: var(--text-primary);">2015 - 2021</strong>
+              <p style="color: var(--text-secondary); margin: 0.25rem 0;">Bachiller en Ciencias Naturales</p>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Escuela Secundaria Nº2 "Florentino Ameghino"</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Redes sociales y plataformas</h2>
+            <div class="social-links">
+              <a href="https://steamcommunity.com/id/alaska45l" class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-steam"></i> Steam
+              </a>
+              <a href="https://discord.com/users/465393703935016960" class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-discord"></i> Discord
+              </a>
+              <a href="https://youtube.com/c/alaska45l" class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-youtube"></i> YouTube
+              </a>
+              <a href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk&si=A8eJ28RaoOUJxa_P" class="social-link" target="_blank" rel="noopener">
+                <i class="fas fa-music"></i> YT Playlist
+              </a>
+              <a href="https://twitch.tv/alaska45l" class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-twitch"></i> Twitch
+              </a>
+              <a href="https://reddit.com/user/alaska45l" class="social-link" target="_blank" rel="noopener">
+                <i class="fab fa-reddit"></i> Reddit
+              </a>
+            </a>
+          </div>
+        </section>
+
+        <!-- Support -->
+        <section class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Apoyo ♥</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+            Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.
+          </p>
+          
+          <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-small); margin-bottom: 1rem;">
+            <strong style="display: block; margin-bottom: 0.5rem;">CVU:</strong>
+            <code style="background: white; padding: 0.5rem; border-radius: 6px; display: block; font-size: 0.9rem; word-break: break-all;">0000003100053873247568</code>
+          </div>
+          
+          <div style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-small);">
+            <strong style="display: block; margin-bottom: 0.5rem;">Alias:</strong>
+            <code style="background: white; padding: 0.5rem; border-radius: 6px; display: block; font-weight: bold;">AlaskaE45l</code>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top: var(--spacing);">
+          <h2 class="section-title">Proyectos de páginas web</h2>
+          <div class="projects-grid" style="grid-template-columns: 1fr;"></div>
+            <div class="project-card">
+              <h3 class="project-title">Portfolio Personal</h3>
+              <p class="project-description">
+          Sitio web responsive para mostrar experiencia, estudios y contacto profesional. Incluye modo oscuro y formulario de contacto.
+              </p>
+              <div class="project-tags">
+          <span class="tag">HTML5</span>
+          <span class="tag">CSS3</span>
+          <span class="tag">JavaScript</span>
+              </div>
+              <a href="https://alaska45l.github.io/portfolio" class="btn btn-secondary" target="_blank">
+          <i class="fas fa-external-link-alt"></i> Ver sitio
+              </a>
+            </div>
+            <div class="project-card">
+              <h3 class="project-title">Landing para emprendimiento</h3>
+              <p class="project-description">
+                Página de presentación para un emprendimiento para creación de paginas web.
+              </p>
+              <div class="project-tags">
+          <span class="tag">Bootstrap</span>
+          <span class="tag">SEO</span>
+          <span class="tag">Responsive</span>
+              </div>
+              <a href="https://alaska45l.github.io/portfolio" class="btn btn-secondary" target="_blank">
+          <i class="fas fa-external-link-alt"></i> Ver sitio
+              </a>
+            </div>
+            <div class="project-card">
+              <h3 class="project-title">Blog técnico</h3>
+              <p class="project-description">
+          Blog Personal.
+              </p>
+              <div class="project-tags">
+          <span class="tag">PHP</span>
+          <span class="tag">Diseño gráfico</span>
+              </div>
+              <a href="https://alaska45l.github.io/portfolio" class="btn btn-secondary" target="_blank">
+          <i class="fas fa-external-link-alt"></i> Ver sitio
+              </a>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 Alaska E. González — Diseñado con ♥ y café</p>
+  </footer>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="script.js"></script>
+</body>
+</html>
