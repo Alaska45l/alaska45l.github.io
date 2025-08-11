@@ -19,17 +19,6 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Contact form handler
-function handleContactForm(event) {
-    event.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const message = document.getElementById('message').value;
-
-    alert(`Mensaje enviado:\nNombre: ${name}\nEmail: ${email}\nMensaje: ${message}`);
-    document.querySelector('.contact-form').reset();
-}
-
 // Dark mode — detección inicial y carga de preferencia
 document.addEventListener('DOMContentLoaded', () => {
     const themeIcon = document.getElementById('themeIcon');

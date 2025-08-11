@@ -28,7 +28,7 @@
       
       <nav class="nav">
         <a href="#sobre">Sobre mí</a>
-        <a href="#proyectos">Proyectos</a>
+        <!-- <a href="#proyectos">Proyectos</a> -->
         <a href="#estudios">Estudios</a>
         <a href="#contacto">Contacto</a>
       </nav>
@@ -47,7 +47,7 @@
           <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
         </button>
         <a href="#sobre" onclick="closeMobileMenu()">Sobre mí</a>
-        <a href="#proyectos" onclick="closeMobileMenu()">Proyectos</a>
+        <!-- <a href="#proyectos" onclick="closeMobileMenu()">Proyectos</a> -->
         <a href="#estudios" onclick="closeMobileMenu()">Estudios</a>
         <a href="#contacto" onclick="closeMobileMenu()">Contacto</a>
       </div>
@@ -72,8 +72,8 @@
         </div>
         <div class="hero-right">
           <div class="cta-buttons">
-            <a href="/assets/Alaska_CV.pdf" class="btn btn-primary" download>
-              <i class="fas fa-download"></i> Descargar CV
+            <a href="/assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
+              <i class="fas fa-external-link"></i> Ver  CV
             </a>
             <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-instagram"></i> Instagram
@@ -215,30 +215,31 @@
           
           <div class="contact-grid">
 
-            <!-- Contact Form -->
-            <div>
-              <h3 style="margin-bottom: 1rem;">Enviar mensaje</h3>
-              <form class="contact-form" onsubmit="handleContactForm(event)">
-                <div class="form-group">
-                  <label for="name">Nombre *</label>
-                  <input type="text" id="name" name="name" required>
-                </div>
-                
-                <div class="form-group">
-                  <label for="email">Email *</label>
-                  <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                  <label for="message">Mensaje *</label>
-                  <textarea id="message" name="message" required></textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-paper-plane"></i> Enviar mensaje
-                </button>
-              </form>
-            </div>
+          <!-- Contact Form -->
+          <div>
+            <h3 style="margin-bottom: 1rem;">Enviar mensaje</h3>
+            <form class="contact-form" action="https://formspree.io/f/xqalwwvp" method="POST">
+              <div class="form-group">
+                <label for="name">Nombre *</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="_replyto" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="message">Mensaje *</label>
+                <textarea id="message" name="message" required></textarea>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Enviar mensaje
+              </button>
+            </form>
+          </div>
+
 
             <!-- Contact Info -->
             <div class="contact-info">
@@ -337,7 +338,7 @@
           </div>
         </section>
 
-        <section class="card" style="margin-top: var(--spacing);">
+        <!-- <section class="card" style="margin-top: var(--spacing);">
           <h2 class="section-title">Proyectos de páginas web</h2>
           <div class="projects-grid" style="grid-template-columns: 1fr;"></div>
             <div class="project-card">
@@ -382,7 +383,8 @@
               </a>
             </div>
           </div>
-        </section>
+        </section> -->
+        
       </aside>
     </div>
   </main>
