@@ -1,4 +1,4 @@
-// Mobile menu functionality
+// Funcionalidad del Mobile menu
 function toggleMobileMenu() {
     const menu = document.getElementById('mobileMenu');
     menu.classList.toggle('active');

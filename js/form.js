@@ -1,7 +1,6 @@
 // Form functionality
-// Este archivo está preparado para agregar funcionalidad de formularios
 
-// Ejemplo de validación de formulario
+// Validación de formulario
 function validateForm(formId) {
     const form = document.getElementById(formId);
     const inputs = form.querySelectorAll('input[required], textarea[required]');
@@ -19,7 +18,7 @@ function validateForm(formId) {
     return isValid;
 }
 
-// Ejemplo de manejo de envío de formulario
+// manejo de envío de formulario
 function handleFormSubmit(event, formId) {
     event.preventDefault();
     

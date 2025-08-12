@@ -2,7 +2,7 @@
     --bg-primary: #fef6fb;
     --bg-secondary: #fff0f6;
     --card-bg: #ffffff;
-    --primary-color: #f8c6d8;
+    --primary-color: #f3a9c4;
     --secondary-color: #cce5ff;
     --accent-color: #e6e0ff;
     --text-primary: #333;
@@ -312,7 +312,7 @@ z-index: -1;
 
 /* Hero section */
 .hero {
-    margin: 2rem 0;
+    margin-top: 2rem;
 }
 
 .hero-content {
@@ -488,10 +488,10 @@ z-index: -1;
 }
 
 /* Contact section */
-.contact-grid {
-    display: grid;
+.contact-flex {
+    display: flexbox;
     gap: 2rem;
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
 }
 
 .contact-info {
@@ -546,7 +546,6 @@ z-index: -1;
     text-decoration: none;
     font-weight: 500;
     box-shadow: var(--shadow-soft);
-    margin-bottom: 0.75rem;
     transition: all 0.3s ease;
 }
 
@@ -561,7 +560,7 @@ z-index: -1;
     transform: translateY(-2px);
 }
 
-/* Botón gigante de WhatsApp */
+/* Botón de WhatsApp */
     .whatsapp-btn {
     display: flex;
     align-items: center;
@@ -576,7 +575,6 @@ z-index: -1;
     text-decoration: none;
     box-shadow: var(--shadow-hover);
     transition: background 0.3s ease, transform 0.3s ease;
-    margin-top: 1rem;
     }
 
     .whatsapp-btn i {
@@ -590,6 +588,19 @@ z-index: -1;
 
 
 /* Contact form */
+
+.contact-form-container {
+    margin: 1rem 0;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border-light);
+    padding: 1rem;
+}
+
+.contact-form-container:focus-within {
+    border-color: var(--primary-color);
+}
+
 .contact-form {
     display: flex;
     flex-direction: column;
@@ -687,6 +698,10 @@ z-index: -1;
 
 .payment-alias {
   font-weight: bold;
+}
+
+.fa-heart {
+  color: var(--primary-color);
 }
 
 /* Footer */
