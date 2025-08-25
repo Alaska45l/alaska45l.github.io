@@ -91,16 +91,16 @@
         </div>
         <div class="hero-right">
           <div class="cta-buttons">
-            <a href="/assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
+            <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
               <i class="fas fa-external-link"></i> Ver CV
             </a>
-            <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://instagram.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-instagram"></i> Instagram
             </a>
-            <a href="https://x.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://x.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-x-twitter"></i> X (Twitter)
             </a>
-            <a href="https://linkedin.com/in/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://linkedin.com/in/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-linkedin-in"></i> LinkedIn
             </a>
             <a href="#contacto" class="btn btn-secondary">Contactar</a>
@@ -277,26 +277,98 @@
             </div>
         </section>
 
+        <section id="proyectos" class="card">
+          <h2 class="section-title">Proyectos</h2>
+          
+          <div class="projects-grid">
+            <!-- Proyecto 45l -->
+            <div class="project-card">
+              <div class="project-header">
+                <h3 class="project-title">45l Studio (en desarrollo) </h3>
+                <div class="project-status">
+                  <span class="status-badge in-development">
+                    <i class="fas fa-code"></i> Desarrollo de Paginas Webs.
+                  </span>
+                </div>
+              </div>
+              
+              <p class="project-description">
+                Plataforma web para la creación y gestión de sitios web de forma intuitiva. 
+                Proyecto en desarrollo activo que combina tecnologías modernas para ofrecer 
+                una experiencia de usuario optimizada.
+              </p>
+              
+              <div class="project-tags">
+                <span class="tag">Vine</span>
+                <span class="tag">React</span>
+                <span class="tag">HTML5</span>
+              </div>
+              
+              <div class="project-actions">
+                <button class="btn btn-secondary" onclick="window.open('https://45l.netlify.app/', '_blank')">
+                  <i class="fa-solid fa-up-right-from-square"></i> Pagina Web
+                </button>
+              </div>
+            </div>
+
+            <!-- Proyectos de Diseño Gráfico -->
+            <div class="project-card">
+              <div class="project-header">
+                <h3 class="project-title">Diseño Gráfico</h3>
+                <div class="project-status">
+                  <span class="status-badge completed">
+                    <i class="fas fa-palette"></i> Portfolio
+                  </span>
+                </div>
+              </div>
+              
+              <p class="project-description">
+                Colección de trabajos de diseño gráfico que incluye logotipos, branding, 
+                diseños para redes sociales y material publicitario. Explora mi proceso 
+                creativo y diferentes estilos visuales.
+              </p>
+              
+              <div class="project-tags">
+                <span class="tag">Photoshop</span>
+                <span class="tag">Illustrator</span>
+                <span class="tag">Da vinci Resolve</span>
+                <span class="tag">Canva</span>
+                <span class="tag">Branding</span>
+                <span class="tag">Social Media</span>
+              </div>
+              
+              <div class="project-actions">
+                <a href="./pages/graphic_design.html" class="btn btn-secondary">
+                  <i class="fas fa-images"></i> Ver Portfolio
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Social Links -->
         <section class="card section-spacing">
           <h2 class="section-title">Redes sociales y plataformas</h2>
           <div class="social-links">
-            <a href="https://steamcommunity.com/id/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a class="social-link" onclick="window.open('https://github.com/Alaska45l', '_blank')">
+              <i class="fab fa-github"></i> github
+            </a>
+            <a class="social-link" onclick="window.open('https://steamcommunity.com/id/alaska45l', '_blank')">
               <i class="fab fa-steam"></i> Steam
             </a>
-            <a href="https://discord.com/users/465393703935016960" class="social-link" target="_blank" rel="noopener">
+            <a class="social-link" onclick="window.open('https://discord.com/users/465393703935016960', '_blank')">
               <i class="fab fa-discord"></i> Discord
             </a>
-            <a href="https://youtube.com/@alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://youtube.com/@alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-youtube"></i> YouTube
             </a>
-            <a href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fas fa-music"></i> YT Playlist
             </a>
-            <a href="https://twitch.tv/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://twitch.tv/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-twitch"></i> Twitch
             </a>
-            <a href="https://reddit.com/user/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <a onclick="window.open('https://reddit.com/user/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
               <i class="fab fa-reddit"></i> Reddit
             </a>
           </div>

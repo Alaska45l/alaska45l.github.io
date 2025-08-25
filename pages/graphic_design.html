@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Alaska González">
+  <meta name="description" content="Portfolio de diseño gráfico de Alaska E. González - Explora mis trabajos en branding, redes sociales y diseño visual.">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://alaska45l.github.io/pages/diseño_grafico.html">
+  <meta property="og:title" content="Portfolio de Diseño Gráfico - Alaska E. González">
+  <meta property="og:description" content="Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.">
+  <meta property="og:image" content="https://alaska45l.github.io/assets/profile.webp">
+  <meta property="og:locale" content="es_ES">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://alaska45l.github.io/pages/diseño_grafico.html">
+  <meta name="twitter:title" content="Portfolio de Diseño Gráfico - Alaska E. González">
+  <meta name="twitter:description" content="Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.">
+  <meta name="twitter:image" content="https://alaska45l.github.io/assets/profile.webp">
+  
+  <title>Portfolio de Diseño Gráfico - Alaska E. González</title>
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <!-- Favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="../assets/favicon/site.webmanifest">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="../index.html" class="logo">
+        @alaska45l
+      </a>
+      
+      <nav class="nav">
+        <a href="../index.html">Inicio</a>
+        <a href="../index.html#sobre">Sobre mí</a>
+        <a href="../index.html#estudios">Estudios</a>
+        <a href="../index.html#contacto">Contacto</a>
+      </nav>
+
+      <!-- Toggle de modo oscuro -->
+      <button class="theme-toggle-desktop" onclick="toggleDarkMode()" title="Cambiar tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <a href="../index.html" onclick="closeMobileMenu()">Inicio</a>
+        <a href="../index.html#sobre" onclick="closeMobileMenu()">Sobre mí</a>
+        <a href="../index.html#estudios" onclick="closeMobileMenu()">Estudios</a>
+        <a href="../index.html#contacto" onclick="closeMobileMenu()">Contacto</a>
+        <button class="theme-toggle mobile-theme-btn" onclick="toggleDarkMode(); closeMobileMenu();">
+          <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero card">
+      <div class="portfolio-hero">
+        <h1>Portfolio de Diseño Gráfico</h1>
+        <p class="portfolio-subtitle">
+          Explora mi trabajo en branding, diseño visual y contenido para redes sociales. 
+          Cada proyecto refleja mi pasión por la creatividad y la comunicación visual efectiva.
+        </p>
+        <a href="../index.html" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Volver al inicio
+        </a>
+      </div>
+    </section>
+
+    <!-- Portfolio Gallery -->
+    <section class="card">
+      <h2 class="section-title">Galería de Trabajos</h2>
+      
+      <!-- Carousel Container -->
+      <div class="carousel-container">
+        <div class="carousel-wrapper">
+          <div class="carousel-slides" id="carouselSlides">
+            
+            <!-- Proyecto 1 -->
+            <div class="carousel-slide active">
+              <div class="portfolio-item">
+                <div class="portfolio-image">
+                  <img src="../assets/graphic_page/workLinkedin.jpg" alt="Contenido para LinkedIn" loading="lazy">
+                  <div class="portfolio-overlay">
+                    <div class="portfolio-tools">
+                      <span class="tool-tag">Canva</span>
+                      <span class="tool-tag">Krita</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="portfolio-content">
+                  <h3>Flyer para Linkedin</h3>
+                    <p>Durante mi búsqueda laboral, diseñé diversos flyers optimizados para redes sociales, adaptando el contenido y formato a cada plataforma. Este ejemplo está orientado a LinkedIn, priorizando una comunicación profesional y visualmente atractiva.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proyecto 2 -->
+            <div class="carousel-slide">
+              <div class="portfolio-item">
+                <div class="portfolio-image">
+                  <img src="../assets/graphic_page/workFb.jpg" alt="Contenido para Facebook" loading="lazy">
+                  <div class="portfolio-overlay">
+                    <div class="portfolio-tools">
+                      <span class="tool-tag">Canva</span>
+                      <span class="tool-tag">Krita</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="portfolio-content">
+                  <h3>Flyer para Facebook</h3>
+                  <p>Este ejemplo está orientado a Facebook.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Proyecto 3 -->
+            <div class="carousel-slide">
+              <div class="portfolio-item">
+                <div class="portfolio-image">
+                  <img src="../assets/graphic_page/flyer1.jpg" alt="Material Publicitario" loading="lazy">
+                  <div class="portfolio-overlay">
+                    <div class="portfolio-tools">
+                      <span class="tool-tag">Canva</span>
+                      <span class="tool-tag">Photoshop</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="portfolio-content">
+                  <h3>Folleto educativo</h3>
+                  <p>Diseño de un folleto informativo para una campaña educativa. Incluye gráficos atractivos y contenido claro para facilitar la comprensión.</p>
+                </div>
+              </div>
+            </div>
+
+        <!-- Navigation buttons -->
+        <button class="carousel-btn carousel-btn-prev" id="prevBtn">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="carousel-btn carousel-btn-next" id="nextBtn">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <!-- Indicators -->
+        <div class="carousel-indicators" id="indicators">
+          <button class="indicator active" data-slide="0"></button>
+          <button class="indicator" data-slide="1"></button>
+          <button class="indicator" data-slide="2"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Media Content Section -->
+    <section class="card">
+      <h2 class="section-title">Redes Sociales donde Creo Contenido</h2>
+      <p class="social-intro">
+        Además de crear diseños para clientes, también genero contenido propio en diferentes plataformas. 
+        Aquí puedes seguir mi trabajo y ver mis últimas creaciones.
+      </p>
+      
+      <div class="social-content-grid">
+
+        <div class="social-content-item">
+          <div class="social-icon twitter">
+            <i class="fab fa-x-twitter"></i>
+          </div>
+          <div class="social-content-info">
+            <h3>X (Twitter)</h3>
+            <p>De uso personal.Comparto memes y edits creados en su mayoría por mí.</p>
+            <a href="https://x.com/alaska45l" class="social-content-link" target="_blank" rel="noopener">
+              <i class="fas fa-external-link"></i> Visitar perfil
+            </a>
+          </div>
+        </div>
+
+        <div class="social-content-item">
+          <div class="social-icon youtube">
+            <i class="fab fa-youtube"></i>
+          </div>
+          <div class="social-content-info">
+            <h3>YouTube</h3>
+            <p>Principalmente comparto memes, aunque la actividad en el canal es menos frecuente.</p>
+            <a href="https://youtube.com/@alaska45l" class="social-content-link" target="_blank" rel="noopener">
+              <i class="fas fa-external-link"></i> Visitar canal
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 Alaska E. González – Diseñado con ♥ y café</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../js/menu.js"></script>
+  <script src="../js/theme.js"></script>
+  <script>
+    // Carrusel
+    class Carousel {
+      constructor() {
+        this.currentSlide = 0;
+        this.slides = document.querySelectorAll('.carousel-slide');
+        this.indicators = document.querySelectorAll('.indicator');
+        this.totalSlides = this.slides.length;
+        this.autoSlideInterval = null;
+        
+        this.init();
+      }
+
+      init() {
+        // Event listeners para botones
+        document.getElementById('prevBtn').addEventListener('click', () => this.prevSlide());
+        document.getElementById('nextBtn').addEventListener('click', () => this.nextSlide());
+        
+        // Event listeners para indicadores
+        this.indicators.forEach((indicator, index) => {
+          indicator.addEventListener('click', () => this.goToSlide(index));
+        });
+
+        // Touch/swipe support
+        this.setupTouchEvents();
+        
+        // Auto-advance
+        this.startAutoSlide();
+        
+        // Pause auto-slide on hover
+        const container = document.querySelector('.carousel-container');
+        container.addEventListener('mouseenter', () => this.stopAutoSlide());
+        container.addEventListener('mouseleave', () => this.startAutoSlide());
+      }
+
+      showSlide(index) {
+        // Remove active class from all slides and indicators
+        this.slides.forEach(slide => slide.classList.remove('active'));
+        this.indicators.forEach(indicator => indicator.classList.remove('active'));
+
+        // Add active class to current slide and indicator
+        this.slides[index].classList.add('active');
+        this.indicators[index].classList.add('active');
+
+        // Update current slide index
+        this.currentSlide = index;
+      }
+
+      nextSlide() {
+        const next = (this.currentSlide + 1) % this.totalSlides;
+        this.showSlide(next);
+      }
+
+      prevSlide() {
+        const prev = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+        this.showSlide(prev);
+      }
+
+      goToSlide(index) {
+        this.showSlide(index);
+      }
+
+      startAutoSlide() {
+        this.stopAutoSlide(); // Clear any existing interval
+        this.autoSlideInterval = setInterval(() => this.nextSlide(), 5000);
+      }
+
+      stopAutoSlide() {
+        if (this.autoSlideInterval) {
+          clearInterval(this.autoSlideInterval);
+          this.autoSlideInterval = null;
+        }
+      }
+
+      setupTouchEvents() {
+        let startX = 0;
+        let endX = 0;
+        const container = document.querySelector('.carousel-container');
+
+        container.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        });
+
+        container.addEventListener('touchend', (e) => {
+          endX = e.changedTouches[0].clientX;
+          this.handleSwipe(startX, endX);
+        });
+      }
+
+      handleSwipe(startX, endX) {
+        const threshold = 50;
+        const diff = startX - endX;
+
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) {
+            this.nextSlide();
+          } else {
+            this.prevSlide();
+          }
+        }
+      }
+    }
+
+    // Initialize carousel when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      new Carousel();
+    });
+
+  </script>
+</body>
+</html>
