@@ -12,7 +12,7 @@ class SPARouter {
     // Configurar rutas
     this.addRoute('/', './pages/home.html');
     this.addRoute('/index.html', './pages/home.html');
-    this.addRoute('/design', './pages/graphic_design.html');
+    this.addRoute('/design', './pages/design.html');
 
     // Si estamos en desarrollo local, cargar contenido embebido
     if (this.isLocalDevelopment) {
