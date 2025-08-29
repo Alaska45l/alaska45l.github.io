@@ -1,4 +1,4 @@
-// Router SPA para GitHub Pages - Versión con soporte para desarrollo local
+// Router SPA para GitHub Pages - Versión optimizada
 class SPARouter {
   constructor() {
     this.routes = {};
@@ -14,11 +14,9 @@ class SPARouter {
     this.addRoute('/index.html', './pages/home.html');
     this.addRoute('/design', './pages/design.html');
 
-    // Si estamos en desarrollo local, cargar contenido embebido
+    // Si estamos en desarrollo local, mostrar aviso
     if (this.isLocalDevelopment) {
-      console.warn('Desarrollo local detectado. Usando contenido embebido.');
-      this.loadEmbeddedContent();
-      return;
+      console.warn('Desarrollo local detectado. Algunas funciones pueden no estar disponibles.');
     }
 
     // Manejar navegación del navegador
@@ -27,148 +25,48 @@ class SPARouter {
     });
 
     // Manejar clics en enlaces con data-router-link
-    document.addEventListener('click', (e) => {
-      if (e.target.matches('[data-router-link]') || e.target.closest('[data-router-link]')) {
-        e.preventDefault();
-        const link = e.target.matches('[data-router-link]') ? e.target : e.target.closest('[data-router-link]');
-        const href = link.getAttribute('href');
-        
-        console.log('Navegando a:', href);
-        
-        // Manejar anclas en la misma página
-        if (href.includes('#') && (href.startsWith('/') || href.startsWith('#'))) {
-          const [path, hash] = href.split('#');
-          if (path === '/' || path === '' || path === '/index.html') {
-            this.navigateTo('/');
-            if (hash) {
-              setTimeout(() => {
-                const element = document.getElementById(hash);
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }, 100);
-            }
-          }
-        } else {
-          this.navigateTo(href);
-        }
-      }
-    });
-
+    this.setupLinkHandlers();
+    
     // Cargar ruta inicial
     this.handleRoute();
   }
 
-  // Contenido embebido para desarrollo local
-  loadEmbeddedContent() {
-    const appElement = document.getElementById('app');
-    if (appElement) {
-      // Contenido de home embebido para desarrollo local
-      appElement.innerHTML = `
-        <section class="hero">
-          <div class="hero-content">
-            <h1>¡Hola! Soy <span class="highlight">Alaska González</span></h1>
-            <p class="hero-description">
-              Desarrolladora web y diseñadora gráfica apasionada por crear experiencias digitales únicas
-            </p>
-            <div class="hero-buttons">
-              <a href="#sobre" class="btn primary">Conoce más</a>
-              <a href="/design" data-router-link class="btn secondary">Ver diseños</a>
-            </div>
-          </div>
-        </section>
+  setupLinkHandlers() {
+    document.addEventListener('click', (e) => {
+      const link = e.target.matches('[data-router-link]') 
+        ? e.target 
+        : e.target.closest('[data-router-link]');
+      
+      if (!link) return;
+      
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      
+      console.log('Navegando a:', href);
+      
+      // Manejar anclas en la misma página
+      if (href.includes('#')) {
+        this.handleAnchorNavigation(href);
+      } else {
+        this.navigateTo(href);
+      }
+    });
+  }
 
-        <section id="sobre" class="section">
-          <div class="container">
-            <h2>Sobre mí</h2>
-            <div class="about-grid">
-              <div class="about-text">
-                <p>
-                  Soy una profesional con experiencia en desarrollo web, diseño gráfico, 
-                  soporte técnico y atención al cliente. Me apasiona crear soluciones 
-                  digitales que combinen funcionalidad y estética.
-                </p>
-                <p>
-                  Actualmente me especializo en desarrollo frontend y diseño de interfaces, 
-                  siempre buscando maneras de mejorar la experiencia del usuario.
-                </p>
-              </div>
-              <div class="skills">
-                <h3>Habilidades técnicas</h3>
-                <ul>
-                  <li>HTML5, CSS3, JavaScript</li>
-                  <li>React, Vue.js</li>
-                  <li>Adobe Creative Suite</li>
-                  <li>Figma, Sketch</li>
-                  <li>Git, GitHub</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="estudios" class="section">
-          <div class="container">
-            <h2>Estudios y Certificaciones</h2>
-            <div class="studies-grid">
-              <div class="study-item">
-                <h3>Desarrollo Web Full Stack</h3>
-                <p>Bootcamp intensivo - 2023</p>
-              </div>
-              <div class="study-item">
-                <h3>Diseño Gráfico Digital</h3>
-                <p>Certificación Adobe - 2022</p>
-              </div>
-              <div class="study-item">
-                <h3>UX/UI Design</h3>
-                <p>Curso especializado - 2023</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="contacto" class="section">
-          <div class="container">
-            <h2>Contacto</h2>
-            <div class="contact-grid">
-              <div class="contact-info">
-                <h3>¡Hablemos!</h3>
-                <p>Estoy disponible para proyectos freelance y oportunidades laborales.</p>
-                <div class="contact-methods">
-                  <a href="mailto:alaska@ejemplo.com" class="contact-method">
-                    <i class="fas fa-envelope"></i>
-                    alaska@ejemplo.com
-                  </a>
-                  <a href="https://linkedin.com/in/alaska" class="contact-method">
-                    <i class="fab fa-linkedin"></i>
-                    LinkedIn
-                  </a>
-                  <a href="https://github.com/alaska45l" class="contact-method">
-                    <i class="fab fa-github"></i>
-                    GitHub
-                  </a>
-                </div>
-              </div>
-              <form class="contact-form">
-                <div class="form-group">
-                  <input type="text" placeholder="Tu nombre" required>
-                </div>
-                <div class="form-group">
-                  <input type="email" placeholder="Tu email" required>
-                </div>
-                <div class="form-group">
-                  <textarea placeholder="Tu mensaje" rows="5" required></textarea>
-                </div>
-                <button type="submit" class="btn primary">Enviar mensaje</button>
-              </form>
-            </div>
-          </div>
-        </section>
-      `;
-    }
+  handleAnchorNavigation(href) {
+    const [path, hash] = href.split('#');
     
-    this.updateNavigation('/');
-    this.updateMetaTags('/');
+    if (path === '/' || path === '' || path === '/index.html') {
+      this.navigateTo('/');
+      if (hash) {
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    }
   }
 
   addRoute(path, htmlFile) {
@@ -178,76 +76,11 @@ class SPARouter {
   navigateTo(path) {
     if (this.isLoading) return;
     
-    // Scroll to top cuando se navega a cualquier página
     this.scrollToTop();
-    
-    // En desarrollo local, simular navegación
-    if (this.isLocalDevelopment) {
-      if (path === '/design') {
-        this.loadDesignContent();
-      } else {
-        this.loadEmbeddedContent();
-      }
-      return;
-    }
     
     console.log('Navegando a:', path);
     history.pushState(null, '', path);
     this.handleRoute();
-  }
-
-  // Contenido de diseño embebido para desarrollo local
-  loadDesignContent() {
-    const appElement = document.getElementById('app');
-    if (appElement) {
-      appElement.innerHTML = `
-        <section class="design-hero">
-          <div class="container">
-            <h1>Portfolio de Diseño Gráfico</h1>
-            <p>Explora mis trabajos en branding, redes sociales y diseño visual</p>
-          </div>
-        </section>
-
-        <section class="design-gallery">
-          <div class="container">
-            <h2>Proyectos Destacados</h2>
-            <div class="gallery-grid">
-              <div class="gallery-item">
-                <div class="placeholder-image">
-                  <i class="fas fa-image"></i>
-                  <p>Logo Design</p>
-                </div>
-              </div>
-              <div class="gallery-item">
-                <div class="placeholder-image">
-                  <i class="fas fa-palette"></i>
-                  <p>Branding</p>
-                </div>
-              </div>
-              <div class="gallery-item">
-                <div class="placeholder-image">
-                  <i class="fas fa-mobile-alt"></i>
-                  <p>Social Media</p>
-                </div>
-              </div>
-              <div class="gallery-item">
-                <div class="placeholder-image">
-                  <i class="fas fa-print"></i>
-                  <p>Print Design</p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="back-link">
-              <a href="/" data-router-link class="btn secondary">← Volver al inicio</a>
-            </div>
-          </div>
-        </section>
-      `;
-    }
-    
-    this.updateNavigation('/design');
-    this.updateMetaTags('/design');
   }
 
   normalizeRoute(path) {
@@ -263,11 +96,7 @@ class SPARouter {
       return '/design';
     }
     
-    if (this.routes[path]) {
-      return path;
-    }
-    
-    return '/';
+    return this.routes[path] ? path : '/';
   }
 
   async handleRoute() {
@@ -290,6 +119,7 @@ class SPARouter {
     if (this.routes[route]) {
       await this.loadPage(this.routes[route], route);
       
+      // Manejar scroll a ancla después de cargar la página
       if (hash) {
         setTimeout(() => {
           const element = document.getElementById(hash.replace('#', ''));
@@ -300,6 +130,7 @@ class SPARouter {
       }
     } else {
       console.warn('Ruta no encontrada:', route);
+      // Fallback a página principal
       if (this.routes['/']) {
         await this.loadPage(this.routes['/'], '/');
       }
@@ -310,7 +141,7 @@ class SPARouter {
 
   async loadPage(htmlFile, route) {
     try {
-      console.log('Intentando cargar:', htmlFile, 'para ruta:', route);
+      console.log('Cargando:', htmlFile, 'para ruta:', route);
       
       const response = await fetch(htmlFile);
       if (!response.ok) {
@@ -320,13 +151,15 @@ class SPARouter {
       const html = await response.text();
       
       const appElement = document.getElementById('app');
-      if (appElement) {
-        appElement.innerHTML = html;
-        console.log('Contenido cargado exitosamente para:', route);
-      } else {
+      if (!appElement) {
         console.error('Elemento #app no encontrado');
+        return;
       }
       
+      appElement.innerHTML = html;
+      console.log('Contenido cargado exitosamente para:', route);
+      
+      // Ejecutar tareas post-carga
       this.updateNavigation(route);
       this.updateMetaTags(route);
       this.executePageScripts(route);
@@ -334,20 +167,22 @@ class SPARouter {
       
     } catch (error) {
       console.error('Error loading page:', error);
-      console.error('Archivo no encontrado:', htmlFile);
-      
-      const appElement = document.getElementById('app');
-      if (appElement) {
-        appElement.innerHTML = `
-          <div style="text-align: center; padding: 4rem 2rem; color: var(--text-secondary);">
-            <h2>Página no encontrada</h2>
-            <p>No se pudo cargar el contenido solicitado.</p>
-            <a href="/" data-router-link style="color: var(--primary-color); text-decoration: none;">
-              ← Volver al inicio
-            </a>
-          </div>
-        `;
-      }
+      this.showNotFoundPage();
+    }
+  }
+
+  showNotFoundPage() {
+    const appElement = document.getElementById('app');
+    if (appElement) {
+      appElement.innerHTML = `
+        <div style="text-align: center; padding: 4rem 2rem; color: var(--text-secondary);">
+          <h2>Página no encontrada</h2>
+          <p>No se pudo cargar el contenido solicitado.</p>
+          <a href="/" data-router-link style="color: var(--primary-color); text-decoration: none;">
+            ← Volver al inicio
+          </a>
+        </div>
+      `;
     }
   }
 
@@ -381,38 +216,52 @@ class SPARouter {
   updateMetaTags(route) {
     const baseUrl = 'https://alaska45l.github.io';
     
-    const titleEl = document.getElementById('page-title');
-    const descEl = document.getElementById('meta-description');
-    const ogUrl = document.getElementById('meta-og-url');
-    const ogTitle = document.getElementById('meta-og-title');
-    const ogDesc = document.getElementById('meta-og-description');
-    const twitterUrl = document.getElementById('meta-twitter-url');
-    const twitterTitle = document.getElementById('meta-twitter-title');
-    const twitterDesc = document.getElementById('meta-twitter-description');
+    const metaUpdates = {
+      '/design': {
+        title: 'Portfolio de Diseño Gráfico - Alaska E. González',
+        description: 'Portfolio de diseño gráfico de Alaska E. González - Explora mis trabajos en branding, redes sociales y diseño visual.',
+        ogTitle: 'Portfolio de Diseño Gráfico - Alaska E. González',
+        ogDesc: 'Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.',
+        url: `${baseUrl}/design`
+      },
+      '/': {
+        title: 'Alaska E. González – Portafolio',
+        description: 'Portafolio profesional de Alaska E. González: experiencia en desarrollo web, diseño gráfico, soporte IT y atención al público. Descubre mis proyectos, estudios y formas de contacto.',
+        ogTitle: 'Alaska E. González – Portafolio profesional',
+        ogDesc: 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional en desarrollo web, diseño y soporte IT.',
+        url: baseUrl
+      }
+    };
+
+    const config = metaUpdates[route] || metaUpdates['/'];
     
-    if (route === '/design') {
-      if (titleEl) titleEl.textContent = 'Portfolio de Diseño Gráfico - Alaska E. González';
-      if (descEl) descEl.setAttribute('content', 'Portfolio de diseño gráfico de Alaska E. González - Explora mis trabajos en branding, redes sociales y diseño visual.');
-      if (ogUrl) ogUrl.setAttribute('content', `${baseUrl}/design`);
-      if (ogTitle) ogTitle.setAttribute('content', 'Portfolio de Diseño Gráfico - Alaska E. González');
-      if (ogDesc) ogDesc.setAttribute('content', 'Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.');
-      if (twitterUrl) twitterUrl.setAttribute('content', `${baseUrl}/design`);
-      if (twitterTitle) twitterTitle.setAttribute('content', 'Portfolio de Diseño Gráfico - Alaska E. González');
-      if (twitterDesc) twitterDesc.setAttribute('content', 'Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.');
-    } else {
-      if (titleEl) titleEl.textContent = 'Alaska E. González — Portafolio';
-      if (descEl) descEl.setAttribute('content', 'Portafolio profesional de Alaska E. González: experiencia en desarrollo web, diseño gráfico, soporte IT y atención al público. Descubre mis proyectos, estudios y formas de contacto.');
-      if (ogUrl) ogUrl.setAttribute('content', baseUrl);
-      if (ogTitle) ogTitle.setAttribute('content', 'Alaska E. González — Portafolio profesional');
-      if (ogDesc) ogDesc.setAttribute('content', 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional en desarrollo web, diseño y soporte IT.');
-      if (twitterUrl) twitterUrl.setAttribute('content', baseUrl);
-      if (twitterTitle) twitterTitle.setAttribute('content', 'Alaska E. González — Portafolio profesional');
-      if (twitterDesc) twitterDesc.setAttribute('content', 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional en desarrollo web, diseño y soporte IT.');
-    }
+    // Actualizar meta tags
+    const updates = [
+      { id: 'page-title', prop: 'textContent', value: config.title },
+      { id: 'meta-description', prop: 'content', value: config.description },
+      { id: 'meta-og-url', prop: 'content', value: config.url },
+      { id: 'meta-og-title', prop: 'content', value: config.ogTitle },
+      { id: 'meta-og-description', prop: 'content', value: config.ogDesc },
+      { id: 'meta-twitter-url', prop: 'content', value: config.url },
+      { id: 'meta-twitter-title', prop: 'content', value: config.ogTitle },
+      { id: 'meta-twitter-description', prop: 'content', value: config.ogDesc }
+    ];
+
+    updates.forEach(({ id, prop, value }) => {
+      const element = document.getElementById(id);
+      if (element) {
+        if (prop === 'textContent') {
+          element.textContent = value;
+        } else {
+          element.setAttribute(prop, value);
+        }
+      }
+    });
   }
 
   executePageScripts(route) {
     if (route === '/design') {
+      // Inicializar carousel con delay para asegurar que el DOM esté listo
       setTimeout(() => {
         this.initCarousel();
       }, 100);
@@ -420,6 +269,7 @@ class SPARouter {
   }
 
   initCarousel() {
+    // Destruir instancia anterior si existe
     if (window.carouselInstance) {
       window.carouselInstance.destroy();
     }
@@ -438,6 +288,15 @@ class SPARouter {
       }
 
       init() {
+        this.setupEventListeners();
+        this.setupTouchEvents();
+        this.startAutoSlide();
+        this.setupHoverEvents();
+        
+        console.log('Carousel inicializado con', this.totalSlides, 'slides');
+      }
+
+      setupEventListeners() {
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
         
@@ -447,17 +306,44 @@ class SPARouter {
         this.indicators.forEach((indicator, index) => {
           indicator.addEventListener('click', () => this.goToSlide(index));
         });
+      }
 
-        this.setupTouchEvents();
-        this.startAutoSlide();
-        
+      setupHoverEvents() {
         const container = document.querySelector('.carousel-container');
         if (container) {
           container.addEventListener('mouseenter', () => this.stopAutoSlide());
           container.addEventListener('mouseleave', () => this.startAutoSlide());
         }
+      }
 
-        console.log('Carousel inicializado con', this.totalSlides, 'slides');
+      setupTouchEvents() {
+        let startX = 0;
+        let endX = 0;
+        const container = document.querySelector('.carousel-container');
+
+        if (container) {
+          container.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+          });
+
+          container.addEventListener('touchend', (e) => {
+            endX = e.changedTouches[0].clientX;
+            this.handleSwipe(startX, endX);
+          });
+        }
+      }
+
+      handleSwipe(startX, endX) {
+        const threshold = 50;
+        const diff = startX - endX;
+
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) {
+            this.nextSlide();
+          } else {
+            this.prevSlide();
+          }
+        }
       }
 
       showSlide(index) {
@@ -496,36 +382,6 @@ class SPARouter {
         }
       }
 
-      setupTouchEvents() {
-        let startX = 0;
-        let endX = 0;
-        const container = document.querySelector('.carousel-container');
-
-        if (container) {
-          container.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-          });
-
-          container.addEventListener('touchend', (e) => {
-            endX = e.changedTouches[0].clientX;
-            this.handleSwipe(startX, endX);
-          });
-        }
-      }
-
-      handleSwipe(startX, endX) {
-        const threshold = 50;
-        const diff = startX - endX;
-
-        if (Math.abs(diff) > threshold) {
-          if (diff > 0) {
-            this.nextSlide();
-          } else {
-            this.prevSlide();
-          }
-        }
-      }
-
       destroy() {
         this.stopAutoSlide();
       }
@@ -534,7 +390,6 @@ class SPARouter {
     window.carouselInstance = new Carousel();
   }
 
-  // Función para hacer scroll to top suave
   scrollToTop() {
     window.scrollTo({
       top: 0,
