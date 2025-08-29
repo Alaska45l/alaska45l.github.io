@@ -90,11 +90,9 @@ class SPARouter {
   navigateTo(path) {
     if (this.isLoading) return;
     
-    this.scrollToTop();
-    
     console.log('Navegando a:', path);
     history.pushState(null, '', path);
-    this.handleRoute();
+    this.handleRoute(true); // Pasar flag indicando navegación programática
   }
 
   normalizeRoute(path) {
@@ -113,7 +111,7 @@ class SPARouter {
     return this.routes[path] ? path : '/';
   }
 
-  async handleRoute() {
+  async handleRoute(isProgrammaticNavigation = false) {
     if (this.isLoading) return;
     this.isLoading = true;
 
@@ -125,13 +123,16 @@ class SPARouter {
     let route = this.normalizeRoute(path);
     console.log('Ruta normalizada:', route);
 
-    // Scroll to top al cambiar de ruta (excepto si hay hash)
-    if (!hash) {
-      this.scrollToTop();
-    }
-
     if (this.routes[route]) {
       await this.loadPage(this.routes[route], route);
+      
+      // Hacer scroll DESPUÉS de cargar el contenido
+      if (isProgrammaticNavigation && !hash) {
+        // Usar setTimeout para asegurar que el DOM se haya actualizado completamente
+        setTimeout(() => {
+          this.scrollToTop();
+        }, 10);
+      }
       
       // Manejar scroll a ancla después de cargar la página
       if (hash) {
@@ -207,12 +208,14 @@ class SPARouter {
     if (!nav || !mobileMenu) return;
     
     const navLinks = `
+      <a href="/" data-router-link>Inicio</a>
       <a href="/#sobre" data-router-link>Sobre mí</a>
       <a href="/#estudios" data-router-link>Estudios</a>
       <a href="/#contacto" data-router-link>Contacto</a>
     `;
     
     const mobileLinks = `
+      <a href="/" data-router-link onclick="closeMobileMenu()">Inicio</a>
       <a href="/#sobre" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
       <a href="/#estudios" data-router-link onclick="closeMobileMenu()">Estudios</a>
       <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
@@ -403,16 +406,14 @@ class SPARouter {
   }
 
   scrollToTop() {
-    // Forzar scroll inmediato y luego suave
-    window.scrollTo(0, 0);
+    // Método más robusto para scroll to top
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     
-    // Usar requestAnimationFrame para el comportamiento suave
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
+    // Fallback adicional
+    if (window.scrollY !== 0) {
+      window.scrollTo(0, 0);
+    }
   }
 }
 
