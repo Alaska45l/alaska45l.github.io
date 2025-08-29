@@ -14,6 +14,9 @@ class SPARouter {
     this.addRoute('/index.html', './pages/home.html');
     this.addRoute('/design', './pages/design.html');
 
+    // Manejar redirección desde 404.html
+    this.handleRedirect();
+
     // Si estamos en desarrollo local, mostrar aviso
     if (this.isLocalDevelopment) {
       console.warn('Desarrollo local detectado. Algunas funciones pueden no estar disponibles.');
@@ -29,6 +32,17 @@ class SPARouter {
     
     // Cargar ruta inicial
     this.handleRoute();
+  }
+
+  handleRedirect() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get('redirect');
+    
+    if (redirect) {
+      // Limpiar el parámetro redirect de la URL
+      const newUrl = window.location.origin + redirect + window.location.hash;
+      history.replaceState(null, '', redirect + window.location.hash);
+    }
   }
 
   setupLinkHandlers() {
@@ -193,14 +207,12 @@ class SPARouter {
     if (!nav || !mobileMenu) return;
     
     const navLinks = `
-      <a href="/" data-router-link>Inicio</a>
       <a href="/#sobre" data-router-link>Sobre mí</a>
       <a href="/#estudios" data-router-link>Estudios</a>
       <a href="/#contacto" data-router-link>Contacto</a>
     `;
     
     const mobileLinks = `
-      <a href="/" data-router-link onclick="closeMobileMenu()">Inicio</a>
       <a href="/#sobre" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
       <a href="/#estudios" data-router-link onclick="closeMobileMenu()">Estudios</a>
       <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
@@ -391,9 +403,15 @@ class SPARouter {
   }
 
   scrollToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
+    // Forzar scroll inmediato y luego suave
+    window.scrollTo(0, 0);
+    
+    // Usar requestAnimationFrame para el comportamiento suave
+    requestAnimationFrame(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     });
   }
 }

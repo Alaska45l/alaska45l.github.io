@@ -13,11 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Aplicar la preferencia guardada
     if (darkMode === 'enabled') {
         document.body.classList.add('dark-mode');
-        themeIcon.className = 'fas fa-sun';
-        themeIconMobile.className = 'fas fa-sun';
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-sun';
+        }
+        if (themeIconMobile) {
+            themeIconMobile.className = 'fas fa-sun';
+        }
     } else {
-        themeIcon.className = 'fas fa-moon';
-        themeIconMobile.className = 'fas fa-moon';
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-moon';
+        }
+        if (themeIconMobile) {
+            themeIconMobile.className = 'fas fa-moon';
+        }
     }
 });
 
@@ -29,12 +37,20 @@ function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
 
     if (document.body.classList.contains('dark-mode')) {
-        themeIcon.className = 'fas fa-sun';
-        themeIconMobile.className = 'fas fa-sun';
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-sun';
+        }
+        if (themeIconMobile) {
+            themeIconMobile.className = 'fas fa-sun';
+        }
         localStorage.setItem('darkMode', 'enabled');
     } else {
-        themeIcon.className = 'fas fa-moon';
-        themeIconMobile.className = 'fas fa-moon';
+        if (themeIcon) {
+            themeIcon.className = 'fas fa-moon';
+        }
+        if (themeIconMobile) {
+            themeIconMobile.className = 'fas fa-moon';
+        }
         localStorage.setItem('darkMode', 'disabled');
     }
 }
