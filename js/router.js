@@ -208,14 +208,12 @@ class SPARouter {
     if (!nav || !mobileMenu) return;
     
     const navLinks = `
-      <a href="/" data-router-link>Inicio</a>
       <a href="/#sobre" data-router-link>Sobre mí</a>
       <a href="/#estudios" data-router-link>Estudios</a>
       <a href="/#contacto" data-router-link>Contacto</a>
     `;
     
     const mobileLinks = `
-      <a href="/" data-router-link onclick="closeMobileMenu()">Inicio</a>
       <a href="/#sobre" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
       <a href="/#estudios" data-router-link onclick="closeMobileMenu()">Estudios</a>
       <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
