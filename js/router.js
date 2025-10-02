@@ -12,7 +12,8 @@ class SPARouter {
     // Configurar rutas
     this.addRoute('/', './pages/home.html');
     this.addRoute('/index.html', './pages/home.html');
-    this.addRoute('/design', './pages/design.html');
+    this.addRoute('/home', './pages/home.html');
+    this.addRoute('/experience', './pages/experience.html');
 
     // Manejar redirección desde 404.html
     this.handleRedirect();
@@ -70,7 +71,7 @@ class SPARouter {
   handleAnchorNavigation(href) {
     const [path, hash] = href.split('#');
     
-    if (path === '/' || path === '' || path === '/index.html') {
+    if (path === '/' || path === '' || path === '/index.html' || path === '/home') {
       this.navigateTo('/');
       if (hash) {
         setTimeout(() => {
@@ -100,12 +101,16 @@ class SPARouter {
       path = path.slice(0, -1);
     }
     
-    if (path === '' || path === '/' || path === '/index.html') {
+    if (path === '' || path === '/' || path === '/index.html' || path === '/home') {
       return '/';
     }
     
     if (path === '/design' || path.includes('design')) {
       return '/design';
+    }
+    
+    if (path === '/experience' || path.includes('experience')) {
+      return '/experience';
     }
     
     return this.routes[path] ? path : '/';
@@ -208,14 +213,14 @@ class SPARouter {
     if (!nav || !mobileMenu) return;
     
     const navLinks = `
-      <a href="/#sobre" data-router-link>Sobre mí</a>
-      <a href="/#estudios" data-router-link>Estudios</a>
+      <a href="/" data-router-link>Sobre mí</a>
+      <a href="/experience" data-router-link>Experiencia</a>
       <a href="/#contacto" data-router-link>Contacto</a>
     `;
     
     const mobileLinks = `
-      <a href="/#sobre" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
-      <a href="/#estudios" data-router-link onclick="closeMobileMenu()">Estudios</a>
+      <a href="/" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
+      <a href="/experience" data-router-link onclick="closeMobileMenu()">Experiencia</a>
       <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
       <button class="theme-toggle mobile-theme-btn" onclick="toggleDarkMode(); closeMobileMenu();">
         <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
@@ -230,6 +235,13 @@ class SPARouter {
     const baseUrl = 'https://alaska45l.github.io';
     
     const metaUpdates = {
+      '/experience': {
+        title: 'Experiencia Profesional - Alaska E. González',
+        description: 'Conoce mi trayectoria profesional, habilidades técnicas y experiencia en atención al cliente, soporte IT y diseño gráfico.',
+        ogTitle: 'Experiencia Profesional - Alaska E. González',
+        ogDesc: 'Descubre mi experiencia laboral en atención al cliente, soporte técnico, diseño gráfico y gestión de redes sociales.',
+        url: `${baseUrl}/experience`
+      },
       '/design': {
         title: 'Portfolio de Diseño Gráfico - Alaska E. González',
         description: 'Portfolio de diseño gráfico de Alaska E. González - Explora mis trabajos en branding, redes sociales y diseño visual.',

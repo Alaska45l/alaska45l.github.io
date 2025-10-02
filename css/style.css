@@ -546,7 +546,7 @@ body.dark-mode code {
 }
 
 /* ==========================================
-   PORTFOLIO DE DISEÑO GRÁFICO - MEJORADO
+   PORTFOLIO DE DISEÑO GRÁFICO
    ========================================== */
 
 .portfolio-hero {
@@ -573,7 +573,7 @@ body.dark-mode code {
 }
 
 /* ==========================================
-   CAROUSEL MEJORADO - MEJOR VISUALIZACIÓN
+   CARRUSEL
    ========================================== */
 
 .carousel-container {
@@ -589,9 +589,9 @@ body.dark-mode code {
 .carousel-wrapper {
     position: relative;
     width: 100%;
-    height: 70vh; /* Increased from fixed 500px to viewport-based height */
-    min-height: 600px; /* Minimum height for better display */
-    max-height: 800px; /* Maximum height to prevent excessive size */
+    height: 70vh;
+    min-height: 600px;
+    max-height: 800px;
     overflow: hidden;
 }
 
@@ -832,6 +832,372 @@ body.dark-mode code {
 }
 
 /* ==========================================
+    PAGINA DE EXPERIENCIA 
+   ========================================== */
+
+/* Experience Timeline */
+.experience-timeline {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-left: 2rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+  border-radius: 2px;
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border: 3px solid var(--card-bg);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--bg-secondary);
+}
+
+.timeline-content {
+  background: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.timeline-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.timeline-period {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.timeline-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 25px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-body p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+/* Polaroid Cards */
+.polaroid-container {
+  margin: 1rem;
+  animation: fadeInRotate 0.6s ease-out;
+}
+
+.polaroid-container.float-left {
+  float: left;
+  transform: rotate(-3deg);
+}
+
+.polaroid-container.float-right {
+  float: right;
+  transform: rotate(3deg);
+}
+
+.polaroid {
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  width: 180px;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .polaroid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.polaroid:hover {
+  transform: scale(1.05) rotate(0deg) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+
+.polaroid-img {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+}
+
+.polaroid-caption {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+@keyframes fadeInRotate {
+  from {
+    opacity: 0;
+    transform: rotate(0deg) translateY(20px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Experience Highlights */
+.experience-highlights {
+  clear: both;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-small);
+  border-left: 4px solid var(--primary-color);
+}
+
+.highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.highlight-item:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-item i {
+  color: var(--primary-color);
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Skills Gained Tags */
+.skills-gained {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.skill-tag {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Skills Showcase */
+.skills-showcase {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.skill-category {
+  background: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.skill-category:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.category-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.category-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.category-description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skill-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-small);
+  transition: all 0.3s ease;
+}
+
+.skill-item:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateX(5px);
+}
+
+.skill-item i {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.skill-item:hover i {
+  color: white;
+}
+
+/* Philosophy Grid */
+.philosophy-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.philosophy-card {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.philosophy-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.philosophy-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+}
+
+.philosophy-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.philosophy-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
+  
+  .polaroid-container {
+    float: none !important;
+    display: inline-block;
+    margin: 1rem auto;
+  }
+  
+  .polaroid {
+    width: 160px;
+  }
+  
+  .timeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================
    CONTENIDO SOCIAL
    ========================================== */
 
@@ -1024,7 +1390,6 @@ body.dark-mode code {
     transform: translateY(-3px);
 }
 
-/* CTA de Contacto */
 .contact-cta {
     text-align: center;
     padding: 2rem 0;
@@ -1460,13 +1825,11 @@ body.dark-mode .tool-tag {
     }
 }
 
-/* Mobile específico */
 @media (max-width: 767px) {
     .theme-toggle-desktop {
         display: none;
     }
 
-    /* Portfolio mobile */
     .portfolio-hero h1 {
         font-size: 2rem;
     }
@@ -1493,7 +1856,6 @@ body.dark-mode .tool-tag {
     }
 }
 
-/* Desktop grande */
 @media (min-width: 1024px) {
     .projects-grid {
         grid-template-columns: 1fr;
@@ -1510,7 +1872,6 @@ body.dark-mode .tool-tag {
     outline-offset: 2px;
 }
 
-/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
     .carousel-slide {
         transition: opacity 0.3s ease;
