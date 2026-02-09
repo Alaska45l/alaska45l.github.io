@@ -619,7 +619,6 @@ body.dark-mode code {
     transform: translateX(0);
 }
 
-/* Portfolio Items - Redesigned layout */
 .portfolio-item {
     height: 100%;
     display: flex;
@@ -684,7 +683,6 @@ body.dark-mode code {
     transform: scale(1.05);
 }
 
-/* Enhanced Portfolio Overlay */
 .portfolio-overlay {
     position: absolute;
     top: 0;
@@ -734,9 +732,8 @@ body.dark-mode code {
     transform: translateY(-2px);
 }
 
-/* Portfolio Content - Compact but informative */
 .portfolio-content {
-    height: 25%; /* Takes up remaining 25% */
+    height: 25%; 
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -761,7 +758,6 @@ body.dark-mode code {
     margin: 0;
 }
 
-/* Enhanced Navigation Buttons */
 .carousel-btn {
     position: absolute;
     top: 50%;
@@ -798,7 +794,6 @@ body.dark-mode code {
     right: 2rem;
 }
 
-/* Enhanced Indicators */
 .carousel-indicators {
     position: absolute;
     bottom: 2rem;
@@ -835,7 +830,6 @@ body.dark-mode code {
     PAGINA DE EXPERIENCIA 
    ========================================== */
 
-/* Experience Timeline */
 .experience-timeline {
   position: relative;
   padding: 2rem 0;
