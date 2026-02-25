@@ -35,16 +35,15 @@ class SPARouter {
     this.handleRoute();
   }
 
-  handleRedirect() {
+ handleRedirect() {
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
     
     if (redirect) {
-      // Limpiar el parámetro redirect de la URL
-      const newUrl = window.location.origin + redirect + window.location.hash;
-      history.replaceState(null, '', redirect + window.location.hash);
+        const newUrl = redirect + window.location.hash;
+        history.replaceState(null, '', newUrl);
     }
-  }
+}
 
   setupLinkHandlers() {
     document.addEventListener('click', (e) => {
@@ -103,10 +102,6 @@ class SPARouter {
     
     if (path === '' || path === '/' || path === '/index.html' || path === '/home') {
       return '/';
-    }
-    
-    if (path === '/design' || path.includes('design')) {
-      return '/design';
     }
     
     if (path === '/experience' || path.includes('experience')) {

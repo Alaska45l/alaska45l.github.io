@@ -19,13 +19,13 @@
           <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
             <i class="fas fa-external-link"></i> Ver CV
           </a>
-          <a onclick="window.open('https://instagram.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://instagram.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-instagram"></i> Instagram
           </a>
-          <a onclick="window.open('https://x.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://x.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-x-twitter"></i> X (Twitter)
           </a>
-          <a onclick="window.open('https://linkedin.com/in/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://linkedin.com/in/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-linkedin-in"></i> LinkedIn
           </a>
           <a href="#contacto" class="btn btn-secondary">Contactar</a>
@@ -131,7 +131,12 @@
           <!-- Contact Form -->
             <div class="contact-form-container">
               <h3 class="form-title">Enviar mensaje</h3>
-              <form class="contact-form" action="https://formspree.io/f/xqalwwvp" method="POST">
+              <form 
+                id="contact-form" 
+                class="contact-form" 
+                action="https://formspree.io/f/xqalwwvp" 
+                method="POST"
+                onsubmit="handleFormSubmit(event, 'contact-form')>
                 <div class="form-group">
                   <label for="name">Nombre *</label>
                   <input type="text" id="name" name="name" required>
@@ -168,25 +173,25 @@
       <section class="card section-spacing">
         <h2 class="section-title">Redes sociales y plataformas</h2>
         <div class="social-links">
-          <a class="social-link" onclick="window.open('https://github.com/Alaska45l', '_blank')">
+          <a class="social-link" href="window.open('https://github.com/Alaska45l', '_blank')">
             <i class="fab fa-github"></i> github
           </a>
-          <a class="social-link" onclick="window.open('https://steamcommunity.com/id/alaska45l', '_blank')">
+          <a class="social-link" href="window.open('https://steamcommunity.com/id/alaska45l', '_blank')">
             <i class="fab fa-steam"></i> Steam
           </a>
-          <a class="social-link" onclick="window.open('https://discord.com/users/465393703935016960', '_blank')">
+          <a class="social-link" href="window.open('https://discord.com/users/465393703935016960', '_blank')">
             <i class="fab fa-discord"></i> Discord
           </a>
-          <a onclick="window.open('https://youtube.com/@alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://youtube.com/@alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-youtube"></i> YouTube
           </a>
-          <a onclick="window.open('https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fas fa-music"></i> YT Playlist
           </a>
-          <a onclick="window.open('https://twitch.tv/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://twitch.tv/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-twitch"></i> Twitch
           </a>
-          <a onclick="window.open('https://reddit.com/user/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="window.open('https://reddit.com/user/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-reddit"></i> Reddit
           </a>
         </div>
