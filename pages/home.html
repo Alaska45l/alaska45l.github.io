@@ -7,24 +7,24 @@
         <img class="hero-avatar" src="assets/profile.webp" alt="Foto de Alaska González" loading="lazy"/>
       </div>
       <div class="hero-text">
-        <h1>Alaska ELaina González</h1>
-      <p class="hero-subtitle">Barista · Estudiante</p>
+        <h1>Alaska Elaina González</h1>
+        <p class="hero-subtitle">Barista · Estudiante</p>
       </div>
       <div class="hero-right">
         <div class="cta-buttons">
           <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
             <i class="fas fa-external-link"></i> Ver CV
           </a>
-          <a href="window.open('https://instagram.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-instagram"></i> Instagram
           </a>
-          <a href="window.open('https://x.com/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://x.com/alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-x-twitter"></i> X (Twitter)
           </a>
-          <a href="window.open('https://linkedin.com/in/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://linkedin.com/in/alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-linkedin-in"></i> LinkedIn
           </a>
-          <a href="#contacto" class="btn btn-secondary">Contactar</a>
+          <a href="#contacto" class="btn btn-secondary" data-router-link>Contactar</a>
         </div>
       </div>
     </div>
@@ -36,52 +36,59 @@
       <!-- About Section -->
       <section id="sobre" class="card">
         <h2 class="section-title">Sobre mí</h2>
-        <p class="mb-lg">
-            Tengo experiencia en atención al público, soporte técnico, 
-            diseño gráfico y gestión de redes sociales. Me adapto rápido 
-            a entornos nuevos y me siento cómoda tanto resolviendo un problema 
-            de hardware como diseñando contenido para redes o atendiendo una barra.
-        </p>
-        
-        <h3 class="subsection-title">Conocimientos y habilidades técnicas</h3>
-        <ul class="skills-list">
-          <li><strong>Lenguajes y programación:</strong> JavaScript (con TypeScript), PHP, SQL, Python, HTML5, CSS3, nociones de C y Bash scripting.</li>
-          <li><strong>Sistemas y redes:</strong> Linux (Debian, Fedora, Parrot), Windows, configuración de redes domésticas y pequeñas oficinas, mantenimiento de hardware y software, recuperación de datos.</li>
-          <li><strong>Diseño gráfico:</strong> Experiencia en herramientas como Adobe Photoshop, Illustrator y Figma.</li>
-          <li><strong>Gestión de redes sociales:</strong> Estrategias de contenido, análisis de métricas y atención al cliente.</li>
-          <li><strong>Herramientas de oficina:</strong> Microsoft 365 (Word, Excel, Outlook, PowerPoint), Google Workspace (Docs, Sheets, Drive, Meet).</li>
-          <li><strong>Gestión digital:</strong> Community management, programación de publicaciones, edición de contenido para redes sociales, optimización de imágenes y videos para web.</li>
-          <li><strong>Otros:</strong> Manejo de TPV y software de gestión (Morphi), habilidades de atención al cliente y trabajo en equipo.</li>
-        </ul>
 
-        <h3 class="subsection-title">Tecnologías y habilidades</h3>
-        <div class="project-tags">
-          <span class="tag">HTML5</span>
-          <span class="tag">CSS3</span>
-          <span class="tag">JavaScript</span>
-          <span class="tag">TypeScript</span>
-          <span class="tag">PHP</span>
-          <span class="tag">Java</span>
-          <span class="tag">Python</span>
-          <span class="tag">SQL</span>
-          <span class="tag">Bash</span>
-          <span class="tag">Linux (Debian, Fedora, Parrot OS)</span>
-          <span class="tag">Windows</span>
-          <span class="tag">SystemRescue</span>
-          <span class="tag">Medicat USB</span>
-          <span class="tag">Adobe Photoshop</span>
-          <span class="tag">GIMP</span>
-          <span class="tag">Krita</span>
-          <span class="tag">Inkscape</span>
-          <span class="tag">Canva</span>
-          <span class="tag">Photopea</span>
-          <span class="tag">Kittl</span>
-          <span class="tag">Davinci Resolve</span>
-          <span class="tag">vMix</span>
-          <span class="tag">Community Management</span>
-          <span class="tag">Microsoft 365</span>
-          <span class="tag">Google Workspace</span>
-          <span class="tag">TPV/Morphi</span>
+        <div class="accordion">
+
+          <div class="accordion-item">
+            <button class="accordion-trigger" onclick="toggleAccordion(this)">
+              <span class="accordion-label">
+                <i class="fas fa-mug-hot"></i> Barismo
+              </span>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-body">
+              <p>Me gusta el café por su complejidad. Hay variables concretas — molienda, proporción, temperatura, tiempo — y cada una tiene un efecto medible en la taza. Esa posibilidad de ajustar, equivocarte, identificar qué falló y corregirlo. Aunque todavía soy bastante torpe con el latte art, pero es de las pocas cosas en las que disfruto equivocarme.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-trigger" onclick="toggleAccordion(this)">
+              <span class="accordion-label">
+                <i class="fas fa-atom"></i> Estudios
+              </span>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-body">
+              <p>Empecé con medicina debido a mi pasión por la biología desde niña, no solo en su carácter superficial sino desde el conocimiento profundo germinado gracias a Carl Sagan y Neil deGrasse Tyson. Pero lo que encontré luego en la UNMDP fue otra cosa: materias construidas para memorizar sin razonar en un tiempo límite imposible para profundizar, y una carga ideológica constante que se colaba en cada clase hasta tapar el contenido. Fui a estudiar ciencia y terminé recibiendo el mismo discurso dogmático casi sectario que escuchaba a diario en mi familia.</p>
+              <p>La Física tiene lo que estaba buscando: un ambiente donde el rigor importa más que el consenso, y donde equivocarse de manera precisa ya es un avance.</p>
+              <p>Anteriormente hice de forma incompleta una tecnicatura en desarrollo web, pero me dejó claro que no era lo que buscaba laboralmente. Me apasionaba programar cosas para mí, a mi ritmo y a mi manera, pero hacerlo para alguien más terminaba en estrés y aburrimiento. No quería terminar con asco algo que era un hobby.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-trigger" onclick="toggleAccordion(this)">
+              <span class="accordion-label">
+                <i class="fas fa-users"></i> Atención al público
+              </span>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-body">
+              <p>Trabajar de cara al público me enseñó cosas que no se aprenden solo estudiando: leer el estado de ánimo de una mesa en dos segundos, mantener la calma cuando todo se apila, resolver en el momento sin manual y aprender de las personas, sobretodo las mayores. Me adapto rápido a entornos nuevos y me siento cómoda tanto abriendo un local sola como manejando una noche de alta rotación. La gente me resulta interesante, y creo que eso se nota.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-trigger" onclick="toggleAccordion(this)">
+              <span class="accordion-label">
+                <i class="fas fa-heart"></i> Vida personal
+              </span>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-body">
+              <p>Tengo 23 años y una lista de intereses que no para de crecer. Soy curiosa por naturaleza — me cuesta quedarme en la superficie de las cosas — y eso me llevó a meterme en áreas muy distintas entre sí. Estoy en pareja y construyendo una vida que intenta ser estable, que para mí significa tener tiempo para estudiar, trabajar en algo que valga la pena y seguir aprendiendo sin apuro.</p>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -90,130 +97,121 @@
         <h2 class="section-title">Estudios</h2>
         <div class="education-list">
           <div class="education-item">
-            <strong class="education-year">
-              2025 - Presente</strong>
+            <strong class="education-year">2025 - Presente</strong>
             <p class="education-degree">Licenciatura en Física</p>
             <p class="education-institution">Universidad Nacional de Mar del Plata</p>
           </div>
-          
           <div class="education-item">
-            <strong class="education-year">
-              2022 - 2024</strong>
+            <strong class="education-year">2022 - 2024</strong>
             <p class="education-degree">Técnicatura Universitaria en Desarrollo de Aplicaciones Informáticas</p>
             <p class="education-institution">Universidad Nacional del Centro de Buenos Aires</p>
           </div>
-          
           <div class="education-item">
-            <strong class="education-year">
-              2015 - 2021</strong>
+            <strong class="education-year">2015 - 2021</strong>
             <p class="education-degree">Bachiller en Ciencias Naturales</p>
             <p class="education-institution">Escuela Secundaria N°2 "Florentino Ameghino"</p>
           </div>
         </div>
       </section>
 
-              <!-- Contact Section -->
-        <section id="contacto" class="card section-spacing">
-          <h2 class="section-title">Contacto</h2>
-
-          <!-- Contact Info -->
-            <div class="contact-info">
-              <a href="mailto:alaskagonzalez@outlook.com" class="contact-box" target="_blank">
-                <strong>alaskagonzalez@outlook.com</strong>
-              </a>
+      <!-- Contact Section -->
+      <section id="contacto" class="card section-spacing">
+        <h2 class="section-title">Contacto</h2>
+        <div class="contact-info">
+          <a href="mailto:alaskagonzalez@outlook.com" class="contact-box" target="_blank">
+            <i class="fas fa-envelope"></i>
+            <strong>alaskagonzalez@outlook.com</strong>
+          </a>
+        </div>
+        <div class="contact-form-container">
+          <h3 class="form-title">Enviar mensaje</h3>
+          <form
+            id="contact-form"
+            class="contact-form"
+            action="https://formspree.io/f/xqalwwvp"
+            method="POST"
+            onsubmit="handleFormSubmit(event, 'contact-form')"
+          >
+            <div class="form-group">
+              <label for="name">Nombre *</label>
+              <input type="text" id="name" name="name" required>
             </div>
-
-          <!-- Contact Form -->
-            <div class="contact-form-container">
-              <h3 class="form-title">Enviar mensaje</h3>
-              <form 
-                id="contact-form" 
-                class="contact-form" 
-                action="https://formspree.io/f/xqalwwvp" 
-                method="POST"
-                onsubmit="handleFormSubmit(event, 'contact-form')"
-                >
-                <div class="form-group">
-                  <label for="name">Nombre *</label>
-                  <input type="text" id="name" name="name" required>
-                </div>
-                
-                <div class="form-group">
-                  <label for="email">Email *</label>
-                  <input type="email" id="email" name="_replyto" required>
-                </div>
-                
-                <div class="form-group">
-                  <label for="message">Mensaje *</label>
-                  <textarea id="message" name="message" required></textarea>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                  <i class="fas fa-paper-plane"></i> Enviar mensaje
-                </button>
-              </form>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="_replyto" required>
             </div>
-
-            <div class="contact-info">
-              <a href="https://wa.me/542262633652" class="whatsapp-btn" target="_blank">
-                <i class="fab fa-whatsapp"></i> Escribime por WhatsApp
-              </a>
+            <div class="form-group">
+              <label for="message">Mensaje *</label>
+              <textarea id="message" name="message" required></textarea>
             </div>
-        </section>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane"></i> Enviar mensaje
+            </button>
+          </form>
+        </div>
+        <div class="contact-info">
+          <a href="https://wa.me/542262633652" class="whatsapp-btn" target="_blank" rel="noopener">
+            <i class="fab fa-whatsapp"></i> Escribime por WhatsApp
+          </a>
+        </div>
+      </section>
     </div>
 
     <!-- Sidebar -->
     <aside>
-
-      <!-- Social Links -->
       <section class="card section-spacing">
         <h2 class="section-title">Redes sociales y plataformas</h2>
         <div class="social-links">
-          <a class="social-link" href="window.open('https://github.com/Alaska45l', '_blank')">
-            <i class="fab fa-github"></i> github
+          <a class="social-link" href="https://github.com/Alaska45l" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i> GitHub
           </a>
-          <a class="social-link" href="window.open('https://steamcommunity.com/id/alaska45l', '_blank')">
+          <a class="social-link" href="https://steamcommunity.com/id/alaska45l" target="_blank" rel="noopener">
             <i class="fab fa-steam"></i> Steam
           </a>
-          <a class="social-link" href="window.open('https://discord.com/users/465393703935016960', '_blank')">
+          <a class="social-link" href="https://discord.com/users/465393703935016960" target="_blank" rel="noopener">
             <i class="fab fa-discord"></i> Discord
           </a>
-          <a href="window.open('https://youtube.com/@alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://youtube.com/@alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-youtube"></i> YouTube
           </a>
-          <a href="window.open('https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk" class="social-link" target="_blank" rel="noopener">
             <i class="fas fa-music"></i> YT Playlist
           </a>
-          <a href="window.open('https://twitch.tv/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://twitch.tv/alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-twitch"></i> Twitch
           </a>
-          <a href="window.open('https://reddit.com/user/alaska45l', '_blank')" class="social-link" target="_blank" rel="noopener">
+          <a href="https://reddit.com/user/alaska45l" class="social-link" target="_blank" rel="noopener">
             <i class="fab fa-reddit"></i> Reddit
           </a>
         </div>
       </section>
 
-      <!-- Support Section -->
       <section class="card section-spacing">
         <h2 class="section-title">Apoyo <i class="fa-solid fa-heart"></i></h2>
         <p class="support-description">
           Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.
         </p>
-        
         <div class="payment-info">
           <div class="payment-item">
             <strong class="payment-label">CVU:</strong>
-            <code class="payment-code">0000003100053873247568</code>
-            
+            <div class="payment-copy-row">
+              <code class="payment-code">0000003100053873247568</code>
+              <button class="copy-btn" onclick="copyToClipboard(this, '0000003100053873247568')" title="Copiar CVU">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </div>
-          
           <div class="payment-item">
             <strong class="payment-label">Alias:</strong>
-            <code class="payment-code payment-alias">AlaskaE45l</code>
+            <div class="payment-copy-row">
+              <code class="payment-code payment-alias">AlaskaE45l</code>
+              <button class="copy-btn" onclick="copyToClipboard(this, 'AlaskaE45l')" title="Copiar alias">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
           </div>
         </div>
       </section>
-
     </aside>
   </div>
 </main>

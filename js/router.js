@@ -1,4 +1,3 @@
-// Router SPA para GitHub Pages - Versión optimizada
 class SPARouter {
   constructor() {
     this.routes = {};
@@ -9,56 +8,41 @@ class SPARouter {
   }
 
   init() {
-    // Configurar rutas
     this.addRoute('/', './pages/home.html');
     this.addRoute('/index.html', './pages/home.html');
     this.addRoute('/home', './pages/home.html');
     this.addRoute('/experience', './pages/experience.html');
 
-    // Manejar redirección desde 404.html
     this.handleRedirect();
 
-    // Si estamos en desarrollo local, mostrar aviso
     if (this.isLocalDevelopment) {
       console.warn('Desarrollo local detectado. Algunas funciones pueden no estar disponibles.');
     }
 
-    // Manejar navegación del navegador
-    window.addEventListener('popstate', () => {
-      this.handleRoute();
-    });
-
-    // Manejar clics en enlaces con data-router-link
+    window.addEventListener('popstate', () => this.handleRoute());
     this.setupLinkHandlers();
-    
-    // Cargar ruta inicial
     this.handleRoute();
   }
 
- handleRedirect() {
+  handleRedirect() {
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get('redirect');
-    
     if (redirect) {
-        const newUrl = redirect + window.location.hash;
-        history.replaceState(null, '', newUrl);
+      history.replaceState(null, '', redirect + window.location.hash);
     }
-}
+  }
 
   setupLinkHandlers() {
     document.addEventListener('click', (e) => {
-      const link = e.target.matches('[data-router-link]') 
-        ? e.target 
+      const link = e.target.matches('[data-router-link]')
+        ? e.target
         : e.target.closest('[data-router-link]');
-      
+
       if (!link) return;
-      
+
       e.preventDefault();
       const href = link.getAttribute('href');
-      
-      console.log('Navegando a:', href);
-      
-      // Manejar anclas en la misma página
+
       if (href.includes('#')) {
         this.handleAnchorNavigation(href);
       } else {
@@ -69,15 +53,13 @@ class SPARouter {
 
   handleAnchorNavigation(href) {
     const [path, hash] = href.split('#');
-    
-    if (path === '/' || path === '' || path === '/index.html' || path === '/home') {
+    const homeRoutes = ['/', '', '/index.html', '/home'];
+
+    if (homeRoutes.includes(path)) {
       this.navigateTo('/');
       if (hash) {
         setTimeout(() => {
-          const element = document.getElementById(hash);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
+          document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
     }
@@ -89,66 +71,48 @@ class SPARouter {
 
   navigateTo(path) {
     if (this.isLoading) return;
-    
-    console.log('Navegando a:', path);
     history.pushState(null, '', path);
-    this.handleRoute(true); // Pasar flag indicando navegación programática
+    this.handleRoute(true);
   }
 
   normalizeRoute(path) {
+    // Eliminar trailing slash salvo que sea la raíz
     if (path.length > 1 && path.endsWith('/')) {
       path = path.slice(0, -1);
     }
-    
-    if (path === '' || path === '/' || path === '/index.html' || path === '/home') {
-      return '/';
-    }
-    
-    if (path === '/experience' || path.includes('experience')) {
-      return '/experience';
-    }
-    
-    return this.routes[path] ? path : '/';
+
+    const homeRoutes = ['', '/', '/index.html', '/home'];
+    if (homeRoutes.includes(path)) return '/';
+
+    // Comparación exacta para evitar falsos positivos con rutas similares
+    if (this.routes[path]) return path;
+
+    return '/';
   }
 
   async handleRoute(isProgrammaticNavigation = false) {
     if (this.isLoading) return;
     this.isLoading = true;
 
-    let path = window.location.pathname;
+    const path = window.location.pathname;
     const hash = window.location.hash;
-    
-    console.log('Manejando ruta:', path, 'Hash:', hash);
-    
-    let route = this.normalizeRoute(path);
-    console.log('Ruta normalizada:', route);
+    const route = this.normalizeRoute(path);
 
     if (this.routes[route]) {
       await this.loadPage(this.routes[route], route);
-      
-      // Hacer scroll DESPUÉS de cargar el contenido
+
       if (isProgrammaticNavigation && !hash) {
-        // Usar setTimeout para asegurar que el DOM se haya actualizado completamente
-        setTimeout(() => {
-          this.scrollToTop();
-        }, 10);
+        setTimeout(() => this.scrollToTop(), 10);
       }
-      
-      // Manejar scroll a ancla después de cargar la página
+
       if (hash) {
         setTimeout(() => {
-          const element = document.getElementById(hash.replace('#', ''));
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
+          document.getElementById(hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
       }
     } else {
       console.warn('Ruta no encontrada:', route);
-      // Fallback a página principal
-      if (this.routes['/']) {
-        await this.loadPage(this.routes['/'], '/');
-      }
+      await this.loadPage(this.routes['/'], '/');
     }
 
     this.isLoading = false;
@@ -156,30 +120,23 @@ class SPARouter {
 
   async loadPage(htmlFile, route) {
     try {
-      console.log('Cargando:', htmlFile, 'para ruta:', route);
-      
       const response = await fetch(htmlFile);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
       const html = await response.text();
-      
       const appElement = document.getElementById('app');
-      if (!appElement) {
-        console.error('Elemento #app no encontrado');
-        return;
-      }
-      
+      if (!appElement) { console.error('Elemento #app no encontrado'); return; }
+
       appElement.innerHTML = html;
-      console.log('Contenido cargado exitosamente para:', route);
-      
-      // Ejecutar tareas post-carga
+
       this.updateNavigation(route);
       this.updateMetaTags(route);
       this.executePageScripts(route);
       this.currentRoute = route;
-      
+
+      // Re-aplicar íconos de tema tras inyectar nuevo HTML
+      if (typeof applyThemeIcons === 'function') applyThemeIcons();
+
     } catch (error) {
       console.error('Error loading page:', error);
       this.showNotFoundPage();
@@ -190,10 +147,10 @@ class SPARouter {
     const appElement = document.getElementById('app');
     if (appElement) {
       appElement.innerHTML = `
-        <div style="text-align: center; padding: 4rem 2rem; color: var(--text-secondary);">
+        <div style="text-align:center;padding:4rem 2rem;color:var(--text-secondary);">
           <h2>Página no encontrada</h2>
           <p>No se pudo cargar el contenido solicitado.</p>
-          <a href="/" data-router-link style="color: var(--primary-color); text-decoration: none;">
+          <a href="/" data-router-link style="color:var(--primary-color);text-decoration:none;">
             ← Volver al inicio
           </a>
         </div>
@@ -204,16 +161,15 @@ class SPARouter {
   updateNavigation(route) {
     const nav = document.getElementById('main-nav');
     const mobileMenu = document.getElementById('mobileMenu');
-    
     if (!nav || !mobileMenu) return;
-    
-    const navLinks = `
+
+    nav.innerHTML = `
       <a href="/" data-router-link>Sobre mí</a>
       <a href="/experience" data-router-link>Experiencia</a>
       <a href="/#contacto" data-router-link>Contacto</a>
     `;
-    
-    const mobileLinks = `
+
+    mobileMenu.innerHTML = `
       <a href="/" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
       <a href="/experience" data-router-link onclick="closeMobileMenu()">Experiencia</a>
       <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
@@ -221,14 +177,11 @@ class SPARouter {
         <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
       </button>
     `;
-    
-    nav.innerHTML = navLinks;
-    mobileMenu.innerHTML = mobileLinks;
   }
 
   updateMetaTags(route) {
     const baseUrl = 'https://alaska45l.github.io';
-    
+
     const metaUpdates = {
       '/experience': {
         title: 'Experiencia Profesional - Alaska E. González',
@@ -239,60 +192,46 @@ class SPARouter {
       },
       '/design': {
         title: 'Portfolio de Diseño Gráfico - Alaska E. González',
-        description: 'Portfolio de diseño gráfico de Alaska E. González - Explora mis trabajos en branding, redes sociales y diseño visual.',
+        description: 'Portfolio de diseño gráfico de Alaska E. González.',
         ogTitle: 'Portfolio de Diseño Gráfico - Alaska E. González',
         ogDesc: 'Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.',
         url: `${baseUrl}/design`
       },
       '/': {
         title: 'Alaska E. González – Portafolio',
-        description: 'Portafolio profesional de Alaska E. González: experiencia en desarrollo web, diseño gráfico, soporte IT y atención al público. Descubre mis proyectos, estudios y formas de contacto.',
+        description: 'Portafolio profesional de Alaska E. González: experiencia en desarrollo web, diseño gráfico, soporte IT y atención al público.',
         ogTitle: 'Alaska E. González – Portafolio profesional',
-        ogDesc: 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional en desarrollo web, diseño y soporte IT.',
+        ogDesc: 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional.',
         url: baseUrl
       }
     };
 
-    const config = metaUpdates[route] || metaUpdates['/'];
-    
-    // Actualizar meta tags
-    const updates = [
-      { id: 'page-title', prop: 'textContent', value: config.title },
-      { id: 'meta-description', prop: 'content', value: config.description },
-      { id: 'meta-og-url', prop: 'content', value: config.url },
-      { id: 'meta-og-title', prop: 'content', value: config.ogTitle },
-      { id: 'meta-og-description', prop: 'content', value: config.ogDesc },
-      { id: 'meta-twitter-url', prop: 'content', value: config.url },
-      { id: 'meta-twitter-title', prop: 'content', value: config.ogTitle },
-      { id: 'meta-twitter-description', prop: 'content', value: config.ogDesc }
-    ];
+    const cfg = metaUpdates[route] || metaUpdates['/'];
 
-    updates.forEach(({ id, prop, value }) => {
-      const element = document.getElementById(id);
-      if (element) {
-        if (prop === 'textContent') {
-          element.textContent = value;
-        } else {
-          element.setAttribute(prop, value);
-        }
-      }
+    [
+      { id: 'page-title',              prop: 'textContent', value: cfg.title },
+      { id: 'meta-description',        prop: 'content',     value: cfg.description },
+      { id: 'meta-og-url',             prop: 'content',     value: cfg.url },
+      { id: 'meta-og-title',           prop: 'content',     value: cfg.ogTitle },
+      { id: 'meta-og-description',     prop: 'content',     value: cfg.ogDesc },
+      { id: 'meta-twitter-url',        prop: 'content',     value: cfg.url },
+      { id: 'meta-twitter-title',      prop: 'content',     value: cfg.ogTitle },
+      { id: 'meta-twitter-description',prop: 'content',     value: cfg.ogDesc }
+    ].forEach(({ id, prop, value }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      prop === 'textContent' ? (el.textContent = value) : el.setAttribute(prop, value);
     });
   }
 
   executePageScripts(route) {
     if (route === '/design') {
-      // Inicializar carousel con delay para asegurar que el DOM esté listo
-      setTimeout(() => {
-        this.initCarousel();
-      }, 100);
+      setTimeout(() => this.initCarousel(), 100);
     }
   }
 
   initCarousel() {
-    // Destruir instancia anterior si existe
-    if (window.carouselInstance) {
-      window.carouselInstance.destroy();
-    }
+    if (window.carouselInstance) window.carouselInstance.destroy();
 
     class Carousel {
       constructor() {
@@ -301,10 +240,7 @@ class SPARouter {
         this.indicators = document.querySelectorAll('.indicator');
         this.totalSlides = this.slides.length;
         this.autoSlideInterval = null;
-        
-        if (this.slides.length > 0) {
-          this.init();
-        }
+        if (this.slides.length > 0) this.init();
       }
 
       init() {
@@ -312,125 +248,61 @@ class SPARouter {
         this.setupTouchEvents();
         this.startAutoSlide();
         this.setupHoverEvents();
-        
-        console.log('Carousel inicializado con', this.totalSlides, 'slides');
       }
 
       setupEventListeners() {
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        if (prevBtn) prevBtn.addEventListener('click', () => this.prevSlide());
-        if (nextBtn) nextBtn.addEventListener('click', () => this.nextSlide());
-        
-        this.indicators.forEach((indicator, index) => {
-          indicator.addEventListener('click', () => this.goToSlide(index));
-        });
+        document.getElementById('prevBtn')?.addEventListener('click', () => this.prevSlide());
+        document.getElementById('nextBtn')?.addEventListener('click', () => this.nextSlide());
+        this.indicators.forEach((ind, i) => ind.addEventListener('click', () => this.goToSlide(i)));
       }
 
       setupHoverEvents() {
-        const container = document.querySelector('.carousel-container');
-        if (container) {
-          container.addEventListener('mouseenter', () => this.stopAutoSlide());
-          container.addEventListener('mouseleave', () => this.startAutoSlide());
+        const c = document.querySelector('.carousel-container');
+        if (c) {
+          c.addEventListener('mouseenter', () => this.stopAutoSlide());
+          c.addEventListener('mouseleave', () => this.startAutoSlide());
         }
       }
 
       setupTouchEvents() {
         let startX = 0;
-        let endX = 0;
-        const container = document.querySelector('.carousel-container');
-
-        if (container) {
-          container.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-          });
-
-          container.addEventListener('touchend', (e) => {
-            endX = e.changedTouches[0].clientX;
-            this.handleSwipe(startX, endX);
-          });
-        }
+        const c = document.querySelector('.carousel-container');
+        if (!c) return;
+        c.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+        c.addEventListener('touchend', e => {
+          const diff = startX - e.changedTouches[0].clientX;
+          if (Math.abs(diff) > 50) diff > 0 ? this.nextSlide() : this.prevSlide();
+        });
       }
 
-      handleSwipe(startX, endX) {
-        const threshold = 50;
-        const diff = startX - endX;
-
-        if (Math.abs(diff) > threshold) {
-          if (diff > 0) {
-            this.nextSlide();
-          } else {
-            this.prevSlide();
-          }
-        }
+      showSlide(i) {
+        this.slides.forEach(s => s.classList.remove('active'));
+        this.indicators.forEach(ind => ind.classList.remove('active'));
+        this.slides[i]?.classList.add('active');
+        this.indicators[i]?.classList.add('active');
+        this.currentSlide = i;
       }
 
-      showSlide(index) {
-        this.slides.forEach(slide => slide.classList.remove('active'));
-        this.indicators.forEach(indicator => indicator.classList.remove('active'));
-
-        if (this.slides[index]) this.slides[index].classList.add('active');
-        if (this.indicators[index]) this.indicators[index].classList.add('active');
-
-        this.currentSlide = index;
-      }
-
-      nextSlide() {
-        const next = (this.currentSlide + 1) % this.totalSlides;
-        this.showSlide(next);
-      }
-
-      prevSlide() {
-        const prev = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
-        this.showSlide(prev);
-      }
-
-      goToSlide(index) {
-        this.showSlide(index);
-      }
-
-      startAutoSlide() {
-        this.stopAutoSlide();
-        this.autoSlideInterval = setInterval(() => this.nextSlide(), 5000);
-      }
-
-      stopAutoSlide() {
-        if (this.autoSlideInterval) {
-          clearInterval(this.autoSlideInterval);
-          this.autoSlideInterval = null;
-        }
-      }
-
-      destroy() {
-        this.stopAutoSlide();
-      }
+      nextSlide() { this.showSlide((this.currentSlide + 1) % this.totalSlides); }
+      prevSlide() { this.showSlide((this.currentSlide - 1 + this.totalSlides) % this.totalSlides); }
+      goToSlide(i) { this.showSlide(i); }
+      startAutoSlide() { this.stopAutoSlide(); this.autoSlideInterval = setInterval(() => this.nextSlide(), 5000); }
+      stopAutoSlide() { clearInterval(this.autoSlideInterval); this.autoSlideInterval = null; }
+      destroy() { this.stopAutoSlide(); }
     }
-    
+
     window.carouselInstance = new Carousel();
   }
 
   scrollToTop() {
-    // Método más robusto para scroll to top
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    
-    // Fallback adicional
-    if (window.scrollY !== 0) {
-      window.scrollTo(0, 0);
-    }
+    if (window.scrollY !== 0) window.scrollTo(0, 0);
   }
 }
 
-// Inicializar router cuando el DOM esté cargado
 document.addEventListener('DOMContentLoaded', () => {
   window.router = new SPARouter();
-  console.log('Router inicializado');
 });
 
-// Función de navegación global para uso en templates
-window.navigateTo = (path) => {
-  if (window.router) {
-    window.router.navigateTo(path);
-  }
-};
+window.navigateTo = path => window.router?.navigateTo(path);
