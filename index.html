@@ -71,11 +71,18 @@
     <p>© 2025 Alaska E. González — Diseñado con ♥ y café</p>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Core scripts -->
   <script src="js/menu.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/form.js"></script>
   <script src="js/router.js"></script>
   <script src="js/accordion.js"></script>
+
+  <!-- Quantum Cat Invaders — cargados después del router para que GAME_CONFIG
+       esté disponible cuando game.js registra el MutationObserver -->
+  <script src="js/game/config.js"></script>
+  <script src="js/game/entities.js"></script>
+  <script src="js/game/renderer.js"></script>
+  <script src="js/game/game.js"></script>
 </body>
 </html>

@@ -4,11 +4,18 @@
   <section class="hero card">
     <div class="hero-content">
       <div class="hero-left">
-        <img class="hero-avatar" src="assets/profile.webp" alt="Foto de Alaska González" loading="lazy"/>
+        <img
+          class="hero-avatar"
+          id="hero-avatar"
+          src="assets/profile.webp"
+          alt="Foto de Alaska González"
+          loading="lazy"
+          title="¿Será que hay algo escondido acá? 🐱"
+        />
       </div>
       <div class="hero-text">
         <h1>Alaska Elaina González</h1>
-        <p class="hero-subtitle">Barista · Estudiante</p>
+        <p class="hero-subtitle">Mar del Plata · 23 años · Estudiante de Física</p>
       </div>
       <div class="hero-right">
         <div class="cta-buttons">
@@ -42,6 +49,19 @@
           <div class="accordion-item">
             <button class="accordion-trigger" onclick="toggleAccordion(this)">
               <span class="accordion-label">
+                <i class="fas fa-atom"></i> Estudios
+              </span>
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </button>
+            <div class="accordion-body">
+              <p>Empecé con medicina, impulsada por una fascinación genuina por la biología que viene de leer a Carl Sagan y Neil deGrasse Tyson desde chica. Lo que encontré en la UNMDP fue distinto: materias diseñadas para memorizar sin razonar, con una carga ideológica que tapaba el contenido. Me fui.</p>
+              <p>La Física tiene lo que buscaba: rigor, precisión y un ambiente donde equivocarse de forma exacta ya es avanzar. También hice el ciclo básico de una tecnicatura en desarrollo de aplicaciones, que me dejó bases sólidas en programación y sistemas aunque descarté hacerlo profesionalmente.</p>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <button class="accordion-trigger" onclick="toggleAccordion(this)">
+              <span class="accordion-label">
                 <i class="fas fa-mug-hot"></i> Barismo
               </span>
               <i class="fas fa-chevron-down accordion-icon"></i>
@@ -54,26 +74,12 @@
           <div class="accordion-item">
             <button class="accordion-trigger" onclick="toggleAccordion(this)">
               <span class="accordion-label">
-                <i class="fas fa-atom"></i> Estudios
-              </span>
-              <i class="fas fa-chevron-down accordion-icon"></i>
-            </button>
-            <div class="accordion-body">
-              <p>Empecé con medicina debido a mi pasión por la biología desde niña, no solo en su carácter superficial sino desde el conocimiento profundo germinado gracias a Carl Sagan y Neil deGrasse Tyson. Pero lo que encontré luego en la UNMDP fue otra cosa: materias construidas para memorizar sin razonar en un tiempo límite imposible para profundizar, y una carga ideológica constante que se colaba en cada clase hasta tapar el contenido. Fui a estudiar ciencia y terminé recibiendo el mismo discurso dogmático casi sectario que escuchaba a diario en mi familia.</p>
-              <p>La Física tiene lo que estaba buscando: un ambiente donde el rigor importa más que el consenso, y donde equivocarse de manera precisa ya es un avance.</p>
-              <p>Anteriormente hice de forma incompleta una tecnicatura en desarrollo web, pero me dejó claro que no era lo que buscaba laboralmente. Me apasionaba programar cosas para mí, a mi ritmo y a mi manera, pero hacerlo para alguien más terminaba en estrés y aburrimiento. No quería terminar con asco algo que era un hobby.</p>
-            </div>
-          </div>
-
-          <div class="accordion-item">
-            <button class="accordion-trigger" onclick="toggleAccordion(this)">
-              <span class="accordion-label">
                 <i class="fas fa-users"></i> Atención al público
               </span>
               <i class="fas fa-chevron-down accordion-icon"></i>
             </button>
             <div class="accordion-body">
-              <p>Trabajar de cara al público me enseñó cosas que no se aprenden solo estudiando: leer el estado de ánimo de una mesa en dos segundos, mantener la calma cuando todo se apila, resolver en el momento sin manual y aprender de las personas, sobretodo las mayores. Me adapto rápido a entornos nuevos y me siento cómoda tanto abriendo un local sola como manejando una noche de alta rotación. La gente me resulta interesante, y creo que eso se nota.</p>
+              <p>Trabajar de cara al público me enseñó cosas que no se aprenden solo estudiando: leer el estado de ánimo de una mesa en dos segundos, mantener la calma cuando todo se apila, resolver en el momento sin manual y aprender de las personas, sobre todo las mayores. Me adapto rápido a entornos nuevos y me siento cómoda tanto abriendo un local sola como manejando una noche de alta rotación. La gente me resulta interesante, y creo que eso se nota.</p>
             </div>
           </div>
 
@@ -102,8 +108,13 @@
             <p class="education-institution">Universidad Nacional de Mar del Plata</p>
           </div>
           <div class="education-item">
+            <strong class="education-year">2024 - 2025</strong>
+            <p class="education-degree">Licenciatura en Medicina — Ciclo Básico</p>
+            <p class="education-institution">Universidad Nacional de Mar del Plata</p>
+          </div>
+          <div class="education-item">
             <strong class="education-year">2022 - 2024</strong>
-            <p class="education-degree">Técnicatura Universitaria en Desarrollo de Aplicaciones Informáticas</p>
+            <p class="education-degree">Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas — Ciclo Básico</p>
             <p class="education-institution">Universidad Nacional del Centro de Buenos Aires</p>
           </div>
           <div class="education-item">
@@ -214,4 +225,5 @@
       </section>
     </aside>
   </div>
+
 </main>

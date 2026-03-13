@@ -12,6 +12,7 @@ class SPARouter {
     this.addRoute('/index.html', './pages/home.html');
     this.addRoute('/home', './pages/home.html');
     this.addRoute('/experience', './pages/experience.html');
+    this.addRoute('/game', './pages/game.html');
 
     this.handleRedirect();
 
@@ -76,7 +77,6 @@ class SPARouter {
   }
 
   normalizeRoute(path) {
-    // Eliminar trailing slash salvo que sea la raíz
     if (path.length > 1 && path.endsWith('/')) {
       path = path.slice(0, -1);
     }
@@ -84,7 +84,6 @@ class SPARouter {
     const homeRoutes = ['', '/', '/index.html', '/home'];
     if (homeRoutes.includes(path)) return '/';
 
-    // Comparación exacta para evitar falsos positivos con rutas similares
     if (this.routes[path]) return path;
 
     return '/';
@@ -134,7 +133,6 @@ class SPARouter {
       this.executePageScripts(route);
       this.currentRoute = route;
 
-      // Re-aplicar íconos de tema tras inyectar nuevo HTML
       if (typeof applyThemeIcons === 'function') applyThemeIcons();
 
     } catch (error) {
@@ -190,6 +188,13 @@ class SPARouter {
         ogDesc: 'Descubre mi experiencia laboral en atención al cliente, soporte técnico, diseño gráfico y gestión de redes sociales.',
         url: `${baseUrl}/experience`
       },
+      '/game': {
+        title: 'Quantum Cat Invaders - Alaska E. González',
+        description: 'Un Space Invaders con temática cuántica. Gatos, física y jefes como la Caja de Schrödinger.',
+        ogTitle: 'Quantum Cat Invaders 🐱',
+        ogDesc: 'Easter egg: un Space Invaders cuántico escondido en el portafolio de Alaska.',
+        url: `${baseUrl}/game`
+      },
       '/design': {
         title: 'Portfolio de Diseño Gráfico - Alaska E. González',
         description: 'Portfolio de diseño gráfico de Alaska E. González.',
@@ -209,14 +214,14 @@ class SPARouter {
     const cfg = metaUpdates[route] || metaUpdates['/'];
 
     [
-      { id: 'page-title',              prop: 'textContent', value: cfg.title },
-      { id: 'meta-description',        prop: 'content',     value: cfg.description },
-      { id: 'meta-og-url',             prop: 'content',     value: cfg.url },
-      { id: 'meta-og-title',           prop: 'content',     value: cfg.ogTitle },
-      { id: 'meta-og-description',     prop: 'content',     value: cfg.ogDesc },
-      { id: 'meta-twitter-url',        prop: 'content',     value: cfg.url },
-      { id: 'meta-twitter-title',      prop: 'content',     value: cfg.ogTitle },
-      { id: 'meta-twitter-description',prop: 'content',     value: cfg.ogDesc }
+      { id: 'page-title',               prop: 'textContent', value: cfg.title },
+      { id: 'meta-description',         prop: 'content',     value: cfg.description },
+      { id: 'meta-og-url',              prop: 'content',     value: cfg.url },
+      { id: 'meta-og-title',            prop: 'content',     value: cfg.ogTitle },
+      { id: 'meta-og-description',      prop: 'content',     value: cfg.ogDesc },
+      { id: 'meta-twitter-url',         prop: 'content',     value: cfg.url },
+      { id: 'meta-twitter-title',       prop: 'content',     value: cfg.ogTitle },
+      { id: 'meta-twitter-description', prop: 'content',     value: cfg.ogDesc }
     ].forEach(({ id, prop, value }) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -228,7 +233,63 @@ class SPARouter {
     if (route === '/design') {
       setTimeout(() => this.initCarousel(), 100);
     }
+    if (route === '/') {
+      setTimeout(() => this.initEasterEgg(), 200);
+    }
+    // /game: game.js se inicializa solo vía MutationObserver al detectar #game-canvas
   }
+
+  // ── Easter egg ────────────────────────────────────────────────────────────
+  // 5 clics sobre el avatar en menos de 4 segundos → navega a /game.
+  // Feedback visual: el avatar gira levemente con cada clic.
+
+  initEasterEgg() {
+    const avatar = document.getElementById('hero-avatar');
+    if (!avatar) return;
+
+    let count   = 0;
+    let timeout = null;
+
+    const CLICKS_NEEDED = 5;
+    const WINDOW_MS     = 4000;
+
+    // Rotaciones acumulativas por clic (CSS transform inline)
+    const rotations = [3, -5, 8, -10, 360];
+
+    const reset = () => {
+      count = 0;
+      clearTimeout(timeout);
+      avatar.style.transition = 'transform 0.4s ease';
+      avatar.style.transform  = '';
+    };
+
+    avatar.style.cursor = 'pointer';
+
+    avatar.addEventListener('click', () => {
+      count++;
+      clearTimeout(timeout);
+
+      const rot = rotations[Math.min(count - 1, rotations.length - 1)];
+      avatar.style.transition = 'transform 0.15s ease';
+      avatar.style.transform  = `rotate(${rot}deg)`;
+
+      if (count >= CLICKS_NEEDED) {
+        // Pequeña animación antes de navegar
+        avatar.style.transition = 'transform 0.5s ease';
+        avatar.style.transform  = 'rotate(360deg) scale(1.12)';
+        setTimeout(() => {
+          reset();
+          window.navigateTo('/game');
+        }, 520);
+        return;
+      }
+
+      // Resetear si pasa demasiado tiempo entre clics
+      timeout = setTimeout(reset, WINDOW_MS);
+    });
+  }
+
+  // ── Carrusel ──────────────────────────────────────────────────────────────
 
   initCarousel() {
     if (window.carouselInstance) window.carouselInstance.destroy();
