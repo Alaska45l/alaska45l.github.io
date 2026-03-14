@@ -28,8 +28,11 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
-  <!-- Styles -->
+  <!-- Core styles -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Experience accordion styles (isolated, depends on :root vars from style.css) -->
+  <link rel="stylesheet" href="css/experience.css">
   
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
@@ -77,6 +80,9 @@
   <script src="js/form.js"></script>
   <script src="js/router.js"></script>
   <script src="js/accordion.js"></script>
+
+  <!-- Experience accordion — SPA-aware, self-initialising via MutationObserver -->
+  <script src="js/experienceAccordion.js"></script>
 
   <!-- Quantum Cat Invaders — cargados después del router para que GAME_CONFIG
        esté disponible cuando game.js registra el MutationObserver -->

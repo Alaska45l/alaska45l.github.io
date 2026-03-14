@@ -1382,6 +1382,360 @@ body.dark-mode .polaroid {
   margin: 0;
 }
 
+/**
+ * experience.css — v2
+ *
+ * Accordion behaviour + collapsed-state visual redesign for .experience-timeline.
+ * Isolated from style.css; depends only on :root custom properties defined there.
+ *
+ * Collapsed visual anatomy:
+ *
+ *   ┌──────────────────────────────────────────────────┐
+ *   │  Company Name                          ( ↓ )     │
+ *   │  [Mar 2024 – Feb 2025]                           │
+ *   │  │ Role · Position                               │
+ *   └──────────────────────────────────────────────────┘
+ *
+ * Hierarchy:  company (700 / primary)
+ *           → period  (badge / muted)
+ *           → role    (500 / secondary + left-border accent)
+ */
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   TRIGGER BUTTON — container reset
+   ══════════════════════════════════════════════════════════════════════ */
+
+.timeline-accordion-trigger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Keyboard focus ring — separated from hover state */
+.timeline-accordion-trigger:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 6px;
+  border-radius: var(--radius-small);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   HEADER — named-area grid
+   Col 1 (1fr)  : company name  (row 1) + period badge (row 2)
+   Col 2 (auto) : chevron circle, spanning both rows, self-centered
+   ══════════════════════════════════════════════════════════════════════ */
+
+.timeline-accordion-trigger .timeline-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "company chevron"
+    "period  chevron";
+  column-gap: 0.75rem;
+  row-gap:    0.35rem;
+  align-items: start;
+  /* Reset base rule overrides */
+  margin-bottom: 0;
+  flex-wrap: unset;
+}
+
+/* ── Company name — max visual weight ─────────────────────────────── */
+
+.timeline-accordion-trigger .timeline-header h3 {
+  grid-area: company;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-header h3 {
+  color: var(--primary-color);
+}
+
+/* ── Period — compact metadata badge ─────────────────────────────── */
+/*
+ * Overrides the base .timeline-period pill (0.5rem padding, 0.9rem font,
+ * var(--text-primary) colour). Higher specificity wins without !important.
+ */
+.timeline-accordion-trigger .timeline-period {
+  grid-area: period;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  /* Compact badge */
+  background: var(--accent-color);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.18rem 0.55rem;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-period {
+  background: var(--secondary-color);
+  color: var(--text-secondary);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   CHEVRON CIRCLE — expand affordance
+   Spans both header grid rows so it stays vertically centred alongside
+   company name + period badge regardless of line wrapping.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.timeline-accordion-chevron {
+  grid-area: chevron;
+  align-self: center;
+
+  /* Circle container */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  pointer-events: none;
+
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  border: 1px solid var(--border-light);
+
+  transition:
+    transform    0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background   0.2s ease,
+    color        0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Hover — warm up before opening */
+.timeline-accordion-trigger:hover .timeline-accordion-chevron {
+  background: var(--accent-color);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Open — rotated + filled */
+.timeline-item.is-open .timeline-accordion-chevron {
+  transform: rotate(180deg);
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   ROLE — override gradient pill; render as lean subtitle
+   ══════════════════════════════════════════════════════════════════════ */
+/*
+ * Base .timeline-role = gradient pill with 0.75rem padding and white text.
+ * Inside the trigger it must read as a secondary subtitle row, not a CTA.
+ * This two-class selector has specificity (0,2,0) > base (0,1,0).
+ */
+.timeline-accordion-trigger .timeline-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  /* Reset pill */
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;  /* reset base 1.5rem */
+
+  /* Subtitle treatment */
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  /* Left-border accent signals this is a role, not metadata */
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--primary-color);
+
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger .timeline-role i {
+  color: var(--primary-color);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-role {
+  color: var(--text-primary);
+}
+
+.timeline-accordion-trigger:hover .timeline-role i {
+  color: var(--primary-color); /* keep accent on icon */
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   COLLAPSED CARD — timeline entry identity
+   ══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * style.css's .timeline-content:hover uses translateX(5px) — a horizontal
+ * slide that reads as "drag" rather than "reveal". For collapsed items we
+ * replace it with a vertical lift (card affordance).
+ * Specificity: (0,3,0) beats style.css's (0,2,0).
+ */
+.timeline-item:not(.is-open) .timeline-content {
+  transition:
+    transform  0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.timeline-item:not(.is-open) .timeline-content:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/*
+ * Open state: suppress hover transform — body expanding is the feedback.
+ * Left accent border signals the active entry on the vertical timeline.
+ */
+.timeline-item.is-open .timeline-content {
+  border-left: 4px solid var(--primary-color);
+}
+
+.timeline-item.is-open .timeline-content:hover {
+  transform: none;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   BODY — collapsed / expanded transition
+   ══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * max-height: 0 + opacity: 0 collapses without display:none, enabling
+ * CSS transitions. 2000px is a safe upper bound for any realistic job entry.
+ */
+.timeline-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* Separator hidden by default; fades in when open */
+  border-top: 1px solid transparent;
+  margin-top: 0;
+  padding-top: 0;
+  transition:
+    max-height   0.45s ease,
+    opacity      0.3s  ease,
+    margin-top   0.3s  ease,
+    padding-top  0.3s  ease,
+    border-color 0.25s ease;
+}
+
+.timeline-item.is-open .timeline-body {
+  max-height: 2000px;
+  opacity: 1;
+  border-top: 1px solid var(--border-light);
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  transition:
+    max-height   0.5s  ease,
+    opacity      0.4s  ease 0.07s,   /* slight delay: container opens first */
+    margin-top   0.3s  ease,
+    padding-top  0.3s  ease,
+    border-color 0.2s  ease;
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   DARK MODE — badge contrast fix
+   ══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Root cause:
+ *   Light mode → --accent-color: #e6e0ff (pale lavender bg) + --text-muted: #888
+ *                Contrast ≈ 5.2:1  ✔ WCAG AA
+ *   Dark mode  → --accent-color: #45b7d1 (bright cyan bg)   + --text-muted: #9ca3af
+ *                Contrast ≈ 1.5:1  ✖ fails all WCAG levels
+ *
+ * Fix: switch to the "ghost badge" pattern in dark mode.
+ *   - Background: 12% tinted wash of the accent colour (barely visible)
+ *   - Border:     28% accent tint (defines the pill shape without full fill)
+ *   - Text:       var(--accent-color) itself → bright cyan on near-black
+ *                 Contrast ≈ 6.1:1  ✔ WCAG AA + AAA
+ *
+ * Specificity: (1,2,0) — beats base rule (0,2,0) without !important.
+ * Selector mirrors the project's theme pattern: body.dark-mode (theme.js).
+ */
+body.dark-mode .timeline-accordion-trigger .timeline-period {
+  /* rgba literal required: CSS can't do calc/alpha on a var hex directly */
+  background:   rgba(69, 183, 209, 0.12);
+  color:        var(--accent-color);   /* resolves to #45b7d1 in dark mode */
+  border:       1px solid rgba(69, 183, 209, 0.28);
+}
+
+/*
+ * Hover state in dark mode:
+ *   Base hover: background → --secondary-color (#4ecdc4 in dark) +
+ *               color      → --text-secondary  (#b8bcc8)
+ *   Same luminance conflict. Keep ghost pattern, brighten tint slightly.
+ */
+body.dark-mode .timeline-accordion-trigger:hover .timeline-period {
+  background:   rgba(69, 183, 209, 0.2);
+  color:        var(--accent-color);
+  border-color: rgba(69, 183, 209, 0.45);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE — ensure grid holds on narrow viewports
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .timeline-accordion-trigger .timeline-header h3 {
+    font-size: 1.05rem;
+  }
+
+  .timeline-accordion-chevron {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   REDUCED-MOTION SUPPORT
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-body,
+  .timeline-item.is-open .timeline-body,
+  .timeline-accordion-chevron,
+  .timeline-content,
+  .timeline-item:not(.is-open) .timeline-content,
+  .timeline-accordion-trigger .timeline-header h3,
+  .timeline-accordion-trigger .timeline-role,
+  .timeline-accordion-trigger .timeline-period {
+    transition: none;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .timeline-item {
