@@ -1,0 +1,333 @@
+/*
+ * terminal.css — KDE Konsole pastel dark, portfolio edition
+ *
+ * Usa EXCLUSIVAMENTE las variables --dark-* del portfolio (style.css).
+ * Todos los selectores están scoped para no contaminar el resto del sitio.
+ * Importar en index.html DESPUÉS de style.css:
+ *   <link rel="stylesheet" href="css/terminal.css">
+ *
+ * Colores del sistema de prompt:
+ *   usuario  → --dark-primary-color   (#ff6b9d)
+ *   @        → --dark-text-muted      (#9ca3af)
+ *   host     → --dark-secondary-color (#4ecdc4)
+ *   :        → --dark-text-muted      (#9ca3af)
+ *   ruta     → --dark-accent-color    (#45b7d1)
+ *   $        → --dark-text-secondary  (#b8bcc8)
+ */
+
+/* ══════════════════════════════════════════════════════════════
+   CARD WRAPPER
+   Anula el transform:translateY(-5px) del hover base del portfolio
+   para que la ventana terminal no se mueva.
+   ══════════════════════════════════════════════════════════════ */
+.konsole-card {
+  transition: box-shadow 0.3s ease;
+}
+.konsole-card:hover {
+  transform: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KONSOLE WINDOW — contenedor principal
+   ══════════════════════════════════════════════════════════════ */
+.konsole-window {
+  position:         relative;
+  border-radius:    12px;
+  overflow:         hidden;
+
+  background:       rgba(15, 15, 35, 0.82);
+  backdrop-filter:  blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+
+  border:           1px solid rgba(255, 255, 255, 0.07);
+  border-top-color: rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0  2px  4px  rgba(0, 0, 0, 0.22),
+    0  8px  24px rgba(0, 0, 0, 0.38),
+    0 24px  48px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-size:   0.88rem;
+  line-height: 1.65;
+  cursor:      text;
+  transition:
+    box-shadow    0.3s ease,
+    border-color  0.3s ease;
+}
+
+.konsole-window:focus-within {
+  border-color: rgba(78, 205, 196, 0.18);
+  box-shadow:
+    0  2px  4px  rgba(0, 0, 0, 0.22),
+    0  8px  24px rgba(0, 0, 0, 0.38),
+    0 24px  48px rgba(0, 0, 0, 0.28),
+    0  0    32px rgba(69, 183, 209, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.konsole-window.is-minimized .terminal-body {
+  max-height: 0;
+  overflow:   hidden;
+  opacity:    0;
+  pointer-events: none;
+}
+
+.konsole-window.is-maximized .terminal-output {
+  max-height: 720px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KONSOLE TITLEBAR
+   ══════════════════════════════════════════════════════════════ */
+.konsole-titlebar {
+  display:         flex;
+  align-items:     center;
+  gap:             0.75rem;
+  padding:         0.5rem 1rem;
+  background:      linear-gradient(
+                     180deg,
+                     rgba(32, 32, 60, 0.98) 0%,
+                     rgba(22, 22, 48, 0.95) 100%
+                   );
+  border-bottom:   1px solid rgba(255, 255, 255, 0.06);
+  user-select:     none;
+  min-height:      38px;
+}
+
+.kwm-controls {
+  display:     flex;
+  align-items: center;
+  gap:         0.4rem;
+  flex-shrink: 0;
+}
+
+.kwm-btn {
+  width:         13px;
+  height:        13px;
+  border-radius: 50%;
+  border:        none;
+  padding:       0;
+  cursor:        pointer;
+  position:      relative;
+  transition:    filter 0.15s ease, transform 0.15s ease;
+  outline:       none;
+}
+.kwm-btn:hover  { filter: brightness(1.25); transform: scale(1.12); }
+.kwm-btn:active { filter: brightness(0.90); transform: scale(0.95); }
+.kwm-btn:focus-visible {
+  outline:        2px solid rgba(255, 255, 255, 0.50);
+  outline-offset: 2px;
+}
+
+.kwm-btn--close {
+  background: radial-gradient(circle at 35% 35%, #ff8888, var(--dark-primary-color));
+  box-shadow: 0 1px 3px rgba(255, 107, 157, 0.35);
+}
+.kwm-btn--minimize {
+  background: radial-gradient(circle at 35% 35%, #ffe07a, #f9c74f);
+  box-shadow: 0 1px 3px rgba(249, 199, 79, 0.35);
+}
+.kwm-btn--maximize {
+  background: radial-gradient(circle at 35% 35%, #7ee8da, var(--dark-secondary-color));
+  box-shadow: 0 1px 3px rgba(78, 205, 196, 0.35);
+}
+
+.kwm-btn--minimize[aria-pressed="true"],
+.kwm-btn--maximize[aria-pressed="true"] {
+  filter: brightness(0.80);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.konsole-title {
+  flex:        1;
+  text-align:  center;
+  font-family: 'Poppins', sans-serif;
+  font-size:   0.76rem;
+  font-weight: 500;
+  color:       var(--dark-text-muted);
+  letter-spacing: 0.03em;
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  gap:         0.45rem;
+  white-space: nowrap;
+  overflow:    hidden;
+  text-overflow: ellipsis;
+}
+
+.konsole-title-icon {
+  color:     var(--dark-accent-color);
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TERMINAL BODY
+   Flex column so the output area grows with content and the
+   input row sits immediately after the last output line.
+   ══════════════════════════════════════════════════════════════ */
+.terminal-body {
+  display:        flex;
+  flex-direction: column;
+
+  max-height: 1200px;
+  opacity:    1;
+  transition:
+    max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.25s ease;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TERMINAL OUTPUT
+   flex: 1 lets it grow with content; min-height: 0 allows it
+   to shrink below any intrinsic size so the prompt stays close
+   to the last output line. max-height caps unconstrained growth.
+   ══════════════════════════════════════════════════════════════ */
+.terminal-output {
+  min-height: 0;
+  max-height: 360px;
+
+  overflow-y: auto;
+  padding:    1.2rem 1.5rem;
+
+  background:
+    radial-gradient(ellipse 55% 35% at 0%   0%,   rgba(255, 107, 157, 0.06) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 50% at 100% 100%,  rgba(69,  183, 209, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 55% at 50%  100%,  rgba(78,  205, 196, 0.04) 0%, transparent 65%),
+    linear-gradient(
+      155deg,
+      #0f0f23 0%,
+      #1a1a2e 30%,
+      #16213e 62%,
+      #180d30 100%
+    );
+
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 205, 196, 0.22) transparent;
+}
+.terminal-output::-webkit-scrollbar       { width: 5px; }
+.terminal-output::-webkit-scrollbar-track { background: transparent; }
+.terminal-output::-webkit-scrollbar-thumb {
+  background:    rgba(78, 205, 196, 0.22);
+  border-radius: 3px;
+}
+.terminal-output::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.40);
+}
+
+/* ── Líneas de output — clase base .tl ── */
+.tl {
+  display:     block;
+  white-space: pre-wrap;
+  word-break:  break-word;
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-size:   0.87rem;
+  line-height: 1.62;
+  color:       var(--dark-text-secondary);
+}
+
+.tl--cmd {
+  color:       var(--dark-text-primary);
+  margin-top:  0.55rem;
+}
+.tl--output  { color: var(--dark-text-secondary);   }
+.tl--success { color: var(--dark-secondary-color);  }
+.tl--header  {
+  color:          var(--dark-accent-color);
+  font-weight:    bold;
+  letter-spacing: 0.025em;
+}
+.tl--muted   { color: var(--dark-text-muted);        }
+.tl--error   { color: var(--dark-primary-color);     }
+
+.t-prompt-echo             { display: inline; }
+.t-prompt-echo .tp-user    { color: var(--dark-primary-color);   }
+.t-prompt-echo .tp-at      { color: var(--dark-text-muted);      }
+.t-prompt-echo .tp-host    { color: var(--dark-secondary-color); }
+.t-prompt-echo .tp-sep     { color: var(--dark-text-muted);      }
+.t-prompt-echo .tp-path    { color: var(--dark-accent-color);    }
+.t-prompt-echo .tp-dollar  { color: var(--dark-text-secondary);  }
+
+/* ══════════════════════════════════════════════════════════════
+   INPUT ROW — capturador invisible de teclado
+   El prompt y el texto escrito se renderizan en .terminal-output.
+   Esta fila colapsa a zero height manteniendo el <input> en el
+   árbol del DOM para que inp.focus() siga funcionando.
+   ══════════════════════════════════════════════════════════════ */
+.terminal-input-row {
+  height:   0;
+  overflow: hidden;
+  padding:  0;
+  border:   none;
+}
+
+/* El <input> es solo un receptor de eventos de teclado. */
+.terminal-input {
+  position: absolute;
+  opacity:  0;
+  width:    1px;
+  height:   1px;
+  padding:  0;
+  border:   none;
+  outline:  none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CURSOR PARPADEANTE — renderizado en la línea activa del output
+   ══════════════════════════════════════════════════════════════ */
+.terminal-cursor {
+  display:        inline-block;
+  width:          0;
+  overflow:       visible;
+  user-select:    none;
+  pointer-events: none;
+}
+
+.terminal-cursor::after {
+  content:        '|';
+  color:          var(--dark-secondary-color);
+  font-size:      0.87rem;
+  font-weight:    100;
+  line-height:    1;
+  margin-left:    1px;
+  animation:      blink-cursor 1.06s step-start infinite;
+}
+
+@keyframes blink-cursor {
+  0%,  100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE — MÓVIL
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .konsole-titlebar {
+    padding:    0.4rem 0.75rem;
+    min-height: 34px;
+  }
+  .konsole-title   { font-size: 0.70rem; }
+  .terminal-output { min-height: 0; max-height: 300px; padding: 0.85rem 1rem; }
+  .terminal-input-row { padding: 0.5rem 1rem 0.65rem; }
+  .tl,
+  .terminal-prompt-label,
+  .terminal-input  { font-size: 0.80rem; }
+  .konsole-window.is-maximized .terminal-output { max-height: 480px; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACCESIBILIDAD
+   ══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .konsole-window,
+  .terminal-body,
+  .terminal-output,
+  .kwm-btn { transition: none !important; }
+
+  .tl             { transition: none !important; opacity: 1 !important; transform: none !important; }
+  .terminal-cursor { animation: none; opacity: 1; }
+}

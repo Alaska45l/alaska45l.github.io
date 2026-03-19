@@ -38,64 +38,121 @@
   </section>
 
   <div class="main-grid">
-    <!-- Main Content Column -->
     <div>
-      <!-- About Section -->
-      <section id="sobre" class="card">
+
+      <section id="sobre" class="card konsole-card">
         <h2 class="section-title">Sobre mí</h2>
 
-        <div class="accordion">
+        <!--
+          .konsole-window       — contenedor principal de la ventana
+          Modificadores JS:
+            .is-minimized       — colapsa el .terminal-body (solo muestra titlebar)
+            .is-maximized       — expande el .terminal-output a altura máxima
+          hidden                — oculta toda la ventana (botón close)
+        -->
+        <div
+          class="konsole-window"
+          id="about-terminal"
+          role="region"
+          aria-label="Terminal interactivo — Sobre mí"
+        >
 
-          <div class="accordion-item">
-            <button class="accordion-trigger" onclick="toggleAccordion(this)">
-              <span class="accordion-label">
-                <i class="fas fa-atom"></i> Estudios
-              </span>
-              <i class="fas fa-chevron-down accordion-icon"></i>
-            </button>
-            <div class="accordion-body">
-              <p>Empecé con medicina, impulsada por una fascinación genuina por la biología que viene de leer a Carl Sagan y Neil deGrasse Tyson desde chica. Lo que encontré en la UNMDP fue distinto: materias diseñadas para memorizar sin razonar, con una carga ideológica que tapaba el contenido. Me fui.</p>
-              <p>La Física tiene lo que buscaba: rigor, precisión y un ambiente donde equivocarse de forma exacta ya es avanzar. También hice el ciclo básico de una tecnicatura en desarrollo de aplicaciones, que me dejó bases sólidas en programación y sistemas aunque descarté hacerlo profesionalmente.</p>
+          <!-- ══ Titlebar ══
+              Solo contiene elementos con comportamiento real.
+              Botones: close / minimize / maximize (todos funcionales).
+          -->
+          <div class="konsole-titlebar" aria-label="Controles de ventana">
+            <div class="kwm-controls" role="group" aria-label="Botones de ventana">
+              <!--
+                close    → oculta .konsole-window, muestra #konsole-restore
+                minimize → alterna .is-minimized (colapsa el body)
+                maximize → alterna .is-maximized (expande la altura del output)
+              -->
+              <button
+                class="kwm-btn kwm-btn--close"
+                id="kwm-close"
+                type="button"
+                title="Cerrar terminal"
+                aria-label="Cerrar terminal"
+              ></button>
+              <button
+                class="kwm-btn kwm-btn--minimize"
+                id="kwm-minimize"
+                type="button"
+                title="Minimizar / restaurar"
+                aria-label="Minimizar terminal"
+                aria-pressed="false"
+              ></button>
+              <button
+                class="kwm-btn kwm-btn--maximize"
+                id="kwm-maximize"
+                type="button"
+                title="Expandir / contraer"
+                aria-label="Expandir terminal"
+                aria-pressed="false"
+              ></button>
             </div>
-          </div>
 
-          <div class="accordion-item">
-            <button class="accordion-trigger" onclick="toggleAccordion(this)">
-              <span class="accordion-label">
-                <i class="fas fa-mug-hot"></i> Barismo
-              </span>
-              <i class="fas fa-chevron-down accordion-icon"></i>
-            </button>
-            <div class="accordion-body">
-              <p>Me gusta el café por su complejidad. Hay variables concretas — molienda, proporción, temperatura, tiempo — y cada una tiene un efecto medible en la taza. Esa posibilidad de ajustar, equivocarte, identificar qué falló y corregirlo. Aunque todavía soy bastante torpe con el latte art, pero es de las pocas cosas en las que disfruto equivocarme.</p>
-            </div>
+            <!-- Título informativo — no es interactivo, solo identifica la ventana -->
+            <span class="konsole-title" aria-hidden="true">
+              <span class="konsole-title-icon">◈</span>
+              -:guest — Konsole
+            </span>
           </div>
+          <!-- /.konsole-titlebar -->
 
-          <div class="accordion-item">
-            <button class="accordion-trigger" onclick="toggleAccordion(this)">
-              <span class="accordion-label">
-                <i class="fas fa-users"></i> Atención al público
-              </span>
-              <i class="fas fa-chevron-down accordion-icon"></i>
-            </button>
-            <div class="accordion-body">
-              <p>Trabajar de cara al público me enseñó cosas que no se aprenden solo estudiando: leer el estado de ánimo de una mesa en dos segundos, mantener la calma cuando todo se apila, resolver en el momento sin manual y aprender de las personas, sobre todo las mayores. Me adapto rápido a entornos nuevos y me siento cómoda tanto abriendo un local sola como manejando una noche de alta rotación. La gente me resulta interesante, y creo que eso se nota.</p>
-            </div>
-          </div>
+          <!--
+            .terminal-body — todo lo que se colapsa con minimize.
+            Separado del titlebar para que minimize solo oculte esto.
+          -->
+          <div class="terminal-body" id="terminal-body">
 
-          <div class="accordion-item">
-            <button class="accordion-trigger" onclick="toggleAccordion(this)">
-              <span class="accordion-label">
-                <i class="fas fa-heart"></i> Vida personal
+            <!-- Área de salida scrollable con gradiente -->
+            <div
+              class="terminal-output"
+              id="terminal-output"
+              role="log"
+              aria-live="polite"
+              aria-label="Salida del terminal"
+              tabindex="-1"
+            ></div>
+
+            <!-- Fila de prompt + input -->
+            <div class="terminal-input-row">
+              <!--
+                Prompt descompuesto en spans con clase semántica.
+                Los colores se aplican en CSS vía variables del portfolio.
+                aria-hidden porque el input tiene su propio aria-label completo.
+              -->
+              <span class="terminal-prompt-label" aria-hidden="true">
+                <span class="tp-user">alaska</span><span
+                class="tp-at">@</span><span
+                class="tp-host">plasma</span><span
+                class="tp-sep">:</span><span
+                class="tp-path">~</span><span
+                class="tp-dollar">$</span>
               </span>
-              <i class="fas fa-chevron-down accordion-icon"></i>
-            </button>
-            <div class="accordion-body">
-              <p>Tengo 23 años y una lista de intereses que no para de crecer. Soy curiosa por naturaleza — me cuesta quedarme en la superficie de las cosas — y eso me llevó a meterme en áreas muy distintas entre sí. Estoy en pareja y construyendo una vida que intenta ser estable, que para mí significa tener tiempo para estudiar, trabajar en algo que valga la pena y seguir aprendiendo sin apuro.</p>
+
+              <input
+                type="text"
+                id="terminal-input"
+                class="terminal-input"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial."
+                placeholder="escribí un comando..."
+              />
             </div>
+            <!-- /.terminal-input-row -->
+
           </div>
+          <!-- /.terminal-body -->
 
         </div>
+        <!-- /.konsole-window -->
+
       </section>
 
       <!-- Education -->
@@ -225,5 +282,4 @@
       </section>
     </aside>
   </div>
-
 </main>
