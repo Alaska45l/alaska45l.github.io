@@ -51,6 +51,7 @@
   --term-text-success:       #1a6b3c;
   --term-text-header:        #1755b0;
   --term-text-error:         #b91c1c;
+  --term-text-lauti:         #f52f71;
 
   /* Prompt spans */
   --term-prompt-user:        #be3060;
@@ -152,8 +153,6 @@ body.dark-mode {
   overflow:                  hidden;
 
   background:                var(--term-win-bg);
-  backdrop-filter:           blur(16px) saturate(1.4);
-  -webkit-backdrop-filter:   blur(16px) saturate(1.4);
 
   border:                    1px solid var(--term-win-border);
   border-top-color:          var(--term-win-border-top);
@@ -349,6 +348,7 @@ body.dark-mode .terminal-output {
 .tl--header  { color: var(--term-text-header);  font-weight: bold; letter-spacing: 0.025em; }
 .tl--muted   { color: var(--term-text-muted);   }
 .tl--error   { color: var(--term-text-error);   }
+.tl--lauti   { color: var(--term-text-lauti);   }
 
 
 /* ══════════════════════════════════════════════════════════════════════
