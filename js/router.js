@@ -161,16 +161,18 @@ class SPARouter {
     const mobileMenu = document.getElementById('mobileMenu');
     if (!nav || !mobileMenu) return;
 
-    nav.innerHTML = `
-      <a href="/" data-router-link>Sobre mí</a>
-      <a href="/experience" data-router-link>Experiencia</a>
-      <a href="/#contacto" data-router-link>Contacto</a>
-    `;
+    // nav.innerHTML = `
+    //   <a href="/" data-router-link>Sobre mí</a>
+    //   <a href="/experience" data-router-link>Experiencia</a>
+    //   <a href="/#contacto" data-router-link>Contacto</a>
+    // `;
+
+      //     <a href="/" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
+      // <a href="/experience" data-router-link onclick="closeMobileMenu()">Experiencia</a>
+      // <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
 
     mobileMenu.innerHTML = `
-      <a href="/" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
-      <a href="/experience" data-router-link onclick="closeMobileMenu()">Experiencia</a>
-      <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
+
       <button class="theme-toggle mobile-theme-btn" onclick="toggleDarkMode(); closeMobileMenu();">
         <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
       </button>

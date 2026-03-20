@@ -1,55 +1,30 @@
 /**
- * terminal.js — Terminal interactivo KDE Konsole edition
- * v2: comandos estilo bash (whoami, ls, cat, uname, date, echo, neofetch…)
- *     + prompt vivo renderizado dentro de .terminal-output.
+ * terminal.js — Interactive terminal emulator, Bash/Konsole style
  *
- * IIFE autocontenido, sin dependencias externas.
- * Compatible con el router SPA (MutationObserver sobre #app).
+ * Boot behaviour: renders a single live prompt on mount, immediately focused.
+ * No welcome message, no ASCII art, no intro animation, no artificial delay.
+ *
+ * IIFE — zero global pollution.
+ * SPA-aware via MutationObserver on #app.
  */
 (function () {
   'use strict';
-
-  /* ─────────────────────────────────────────────────────────────
-   * WALKING CAT
-   * ───────────────────────────────────────────────────────────── */
-  const CAT_RIGHT = 'ᓚ\u208D ^. .^\u208E';
-  const CAT_LEFT  = '\u208D^. .^ \u208Eᓘ';
-  const CAT_W     = 10;
-
-  function termCols() {
-    var out = document.getElementById('terminal-output');
-    if (!out) return 36;
-    return Math.max(CAT_W + 2, Math.floor(out.offsetWidth / 8.8));
-  }
-
-  var catPos      = 0;
-  var catDir      = 1;
-  var catInterval = null;
 
   /* ─────────────────────────────────────────────────────────────
    * CONFIGURATION
    * ───────────────────────────────────────────────────────────── */
   const CONFIG = {
     promptHtml:
-      '<span class="tp-user">alaska</span>'  +
-      '<span class="tp-at">@</span>'          +
-      '<span class="tp-host">plasma</span>'   +
-      '<span class="tp-sep">:</span>'         +
-      '<span class="tp-path">~</span>'        +
+      '<span class="tp-user">guest</span>'  +
+      '<span class="tp-at">@</span>'         +
+      '<span class="tp-host">alaska</span>'  +
+      '<span class="tp-sep">:</span>'        +
+      '<span class="tp-path">~</span>'       +
       '<span class="tp-dollar">$</span>',
 
     cvUrl: 'assets/alaskaGonzalez_cv.pdf',
 
-    welcome: [
-      { text: CAT_RIGHT, cls: 'success', id: 'ascii-cat' },
-      { text: '' },
-      { text: 'Terminal interactivo', cls: 'header' },
-      { text: '' },
-      { text: "  Escrib\u00ed 'help' para ver los comandos.", cls: 'muted' },
-      { text: '' },
-    ],
-
-    /* Filesystem virtual — filename → section key (o token especial) */
+    /* Filesystem virtual — filename → section key (or special token) */
     files: {
       'about.txt':   'about',
       'studies.txt': 'studies',
@@ -59,77 +34,103 @@
       'cv.pdf':      '__cv__',
     },
 
-    /* Contenido de cada archivo */
     sections: {
       about: [
         { text: 'about.txt', cls: 'header' },
         { text: '' },
-        { text: 'Soy Alaska Elaina Gonz\u00e1lez, 23 a\u00f1os, Mar del Plata.',  cls: 'output' },
-        { text: 'Estudio F\u00edsica en la UNMDP. T\u00e9cnica en soporte IT,',   cls: 'output' },
-        { text: 'barista, y con experiencia en gesti\u00f3n administrativa',      cls: 'output' },
-        { text: 'y atenci\u00f3n al cliente en entornos de alta demanda.',        cls: 'output' },
+        { text: 'Soy Alaska Elaina González, nacida en 2002, Mar del Plata.', cls: 'output' },
+        { text: 'Agnóstica tirando a atea, criada en una familia estricta de', cls: 'output' },
+        { text: 'testigos de Jehová. Sí… exactamente eso.', cls: 'output' },
         { text: '' },
-        { text: 'Me mueve la curiosidad. Me cuesta la superficie.',              cls: 'success' },
+        { text: 'Soy trans (no especialmente orgullosa, solo factual), curiosa por', cls: 'output' },
+        { text: 'naturaleza y con una obsesión bastante constante por entender', cls: 'output' },
+        { text: 'cómo funciona el mundo.', cls: 'output' },
+        { text: '' },
+        { text: 'Actualmente estudio Física en la UNMDP.', cls: 'output' },
+        { text: 'Pasé por medicina, pero me cansó el ambiente cargado de', cls: 'output' },
+        { text: 'ideología disfrazada de academia, culto acrítico a "intelectuales" franceses', cls: 'output' },
+        { text: 'y una alergia bastante fuerte al pensamiento crítico real (sí, Freud incluido).', cls: 'output' },
+        { text: '' },
+        { text: 'Tengo formación por gusto en IT, experiencia como barista y en', cls: 'output' },
+        { text: 'gestión administrativa.', cls: 'output' },
+        { text: '' },
+        { text: 'En lo ideológico, me muevo cerca de un libertarismo minarquista', cls: 'output' },
+        { text: 'con una mirada tecnocrática (pro-ciencia, pro-nuclear, anti-hippies).', cls: 'output' },
         { text: '' },
       ],
       studies: [
         { text: 'studies.txt', cls: 'header' },
         { text: '' },
-        { text: '[2025 - presente]  Licenciatura en F\u00edsica \u2014 UNMDP',        cls: 'success' },
-        { text: '  Rigor, precisi\u00f3n y un ambiente donde equivocarse',            cls: 'output' },
-        { text: '  de forma exacta ya es avanzar. Era lo que buscaba.',              cls: 'output' },
+        { text: '[2025 - presente]  Licenciatura en Física — UNMDP', cls: 'success' },
+        { text: '  Rigor, precisión y un entorno donde equivocarse', cls: 'output' },
+        { text: '  de forma exacta también cuenta como avanzar.', cls: 'output' },
+        { text: '  No soy fan de las matemáticas, pero sí que exigen.', cls: 'output' },
         { text: '' },
-        { text: '[2024 - 2025]  Medicina \u2014 Ciclo B\u00e1sico \u2014 UNMDP',     cls: 'muted'  },
-        { text: '  Empec\u00e9 por la biolog\u00eda; lo dej\u00e9 por el enfoque.',  cls: 'output' },
-        { text: '  Aprend\u00ed igual.',                                              cls: 'output' },
+        { text: '[2024 - 2025]  Medicina — Ciclo Básico — UNMDP', cls: 'muted' },
+        { text: '  Empecé por la biología; me fui por el exceso de dogma.', cls: 'output' },
+        { text: '  Mucha narrativa, poca tolerancia al cuestionamiento.', cls: 'output' },
+        { text: '  Aun así, aprendí lo que valía la pena.', cls: 'output' },
         { text: '' },
-        { text: '[2022 - 2024]  Tecnicatura en Desarrollo \u2014 UNICEN',             cls: 'muted'  },
-        { text: '  JS \u00b7 TS \u00b7 PHP \u00b7 Python \u00b7 estructuras.',       cls: 'output' },
-        { text: '  Bases s\u00f3lidas en programaci\u00f3n y sistemas.',               cls: 'output' },
+        { text: '[2022 - 2024]  Tecnicatura en Desarrollo — UNICEN', cls: 'muted' },
+        { text: '  JS · TS · PHP · Python · estructuras.', cls: 'output' },
+        { text: '  Buenas bases en programación y sistemas,', cls: 'output' },
+        { text: '  incluso con una pedagogía… mejorable.', cls: 'output' },
         { text: '' },
-        { text: '[2015 - 2021]  Bachiller Ciencias Naturales \u2014 E.S. N\u00b02',  cls: 'muted'  },
+        { text: '[2015 - 2021]  Bachiller Ciencias Naturales — E.S. N°2', cls: 'muted' },
+        { text: '  Donde empezó todo, aunque el sistema no siempre acompañara.', cls: 'output' },
         { text: '' },
       ],
       coffee: [
         { text: 'coffee.txt', cls: 'header' },
         { text: '' },
-        { text: 'El caf\u00e9 me atrae por su complejidad medible:',                  cls: 'output' },
+        { text: 'Nunca supe bien por qué me gusta tanto el café ni de dónde', cls: 'output' },
+        { text: 'aprendí lo que sé, pero por alguna razón se me dio bien.', cls: 'output' },
         { text: '' },
-        { text: '  molienda \u2192 proporci\u00f3n \u2192 temperatura \u2192 tiempo', cls: 'success' },
+        { text: 'El latte art no cuenta... Eso no sigue siendo mi fuerte.', cls: 'muted' },
         { text: '' },
-        { text: 'Cada variable tiene un efecto real en la taza.',                    cls: 'output' },
-        { text: 'Pod\u00e9s equivocarte, identificar qu\u00e9 fall\u00f3, corregirlo.', cls: 'output' },
-        { text: 'Es el mismo loop que la f\u00edsica.',                               cls: 'output' },
-        { text: '' },
-        { text: 'Todav\u00eda soy torpe con el latte art,',                           cls: 'muted'  },
-        { text: 'pero es de las pocas cosas en que disfruto el error.',               cls: 'muted'  },
+        { text: 'No tengo un curso formal de barista (aunque mi CV diga que sí).', cls: 'output' },
+        { text: 'A veces mentir un poco también es parte de sobrevivir.', cls: 'output' },
         { text: '' },
       ],
       public: [
         { text: 'public.txt', cls: 'header' },
         { text: '' },
-        { text: 'Trabajar de cara al p\u00fablico ense\u00f1a sin manual:',          cls: 'output' },
+        { text: 'Trabajo en atención al público porque, siendo realistas,', cls: 'output' },
+        { text: 'es donde cae el 90% de los trabajos sin algo técnico fuerte.', cls: 'output' },
+        { text: 'No es algo que se me dé naturalmente, ni algo que disfrute.', cls: 'output' },
+        { text: 'Pero aprendí a hacerlo bien igual.', cls: 'output' },
         { text: '' },
-        { text: '  \u2192 Leer una mesa en dos segundos.',                           cls: 'output' },
-        { text: '  \u2192 Mantener la calma cuando todo se apila.',                  cls: 'output' },
-        { text: '  \u2192 Resolver en el momento, sin tiempo para dudar.',           cls: 'output' },
-        { text: '  \u2192 Aprender de las personas, sobre todo las mayores.',        cls: 'output' },
+        { text: 'Empecé como commis, pasé a camarera y después a barista.', cls: 'output' },
+        { text: 'Aprendí rápido porque no había mucho margen para no hacerlo.', cls: 'output' },
         { text: '' },
-        { text: 'Me adapto r\u00e1pido. C\u00f3moda abriendo sola o en rotaci\u00f3n.', cls: 'output' },
-        { text: 'La gente me resulta interesante. Creo que eso se nota.',            cls: 'success' },
+        { text: 'Ahora estoy intentando moverme a algo administrativo.', cls: 'output' },
+        { text: 'Menos desgaste, más fines de semana libres.', cls: 'output' },
+        { text: '' },
+        { text: 'Sigo tratando con personas, aunque no prefiera.', cls: 'success' },
         { text: '' },
       ],
       life: [
         { text: 'life.txt', cls: 'header' },
         { text: '' },
-        { text: '23 a\u00f1os. Lista de intereses que no para de crecer.',           cls: 'output' },
-        { text: 'Curiosa por naturaleza \u2014 me cuesta la superficie.',             cls: 'output' },
+        { text: 'Me gusta el anime (mis tops por ahora son Mushoku Tensei,', cls: 'output' },
+        { text: 'Made in Abyss, Frieren, Violet Evergarden, JoJo\u2019s y alguno', cls: 'output' },
+        { text: 'más que seguro me estoy olvidando).', cls: 'output' },
         { text: '' },
-        { text: '  f\u00edsica \u00b7 programaci\u00f3n \u00b7 caf\u00e9 \u00b7 dise\u00f1o \u00b7 personas', cls: 'success' },
+        { text: 'Estoy en pareja con un chico llamado Lauti, que por alguna', cls: 'output' },
+        { text: 'razón cada vez lo amo más.', cls: 'success' },
         { text: '' },
-        { text: 'Estoy en pareja, construyendo algo estable:',                       cls: 'output' },
-        { text: 'tiempo para estudiar, trabajo que valga la pena,',                  cls: 'output' },
-        { text: 'y seguir aprendiendo sin apuro.',                                   cls: 'output' },
+        { text: 'A la fecha de este push no me sigo tratando con mis padres.', cls: 'output' },
+        { text: 'Actualmente mis suegros pasaron a ocupar ese lugar.', cls: 'output' },
+        { text: '' },
+        { text: 'No soy de muchos amigos. Por mi forma de ser termino', cls: 'output' },
+        { text: 'desconectándome y perdiendo vínculos bastante rápido.', cls: 'output' },
+        { text: 'Bastante solitaria, aunque no necesariamente por elección.', cls: 'output' },
+        { text: '' },
+        { text: 'No tengo TEA ni TDAH, aunque el ritalin gratis no vendría mal.', cls: 'muted' },
+        { text: 'Quizás algo de depresión y disforia, que por suerte cada vez es menor.', cls: 'muted' },
+        { text: '' },
+        { text: 'No uso mucho redes sociales, aunque las tenga.', cls: 'output' },
+        { text: 'Quitando Twitter, no gasto tiempo en ellas.', cls: 'output' },
         { text: '' },
       ],
     },
@@ -145,7 +146,7 @@
     animating:  false,
   };
 
-  /** La línea de prompt activa que se actualiza mientras el usuario escribe. */
+  /** The active prompt line updated as the user types. */
   var currentPromptLine = null;
 
   /* ─────────────────────────────────────────────────────────────
@@ -155,10 +156,9 @@
   const getInput  = () => document.getElementById('terminal-input');
   const getWindow = () => document.getElementById('about-terminal');
 
-  function makeLine(text, cls, id) {
+  function makeLine(text, cls) {
     var el = document.createElement('div');
     el.className = 'tl' + (cls ? ' tl--' + cls : ' tl--output');
-    if (id) el.id = id;
     el.textContent = text === '' ? '\u00a0' : text;
     return el;
   }
@@ -170,10 +170,6 @@
 
   /* ─────────────────────────────────────────────────────────────
    * LIVE PROMPT LINE
-   *
-   * createPromptLine()   — inserta prompt activo con cursor parpadeante.
-   * updatePromptLine()   — sincroniza el texto visible con inp.value.
-   * finalizePromptLine() — congela la línea (quita cursor y clase activa).
    * ───────────────────────────────────────────────────────────── */
   function createPromptLine() {
     var out = getOutput();
@@ -210,7 +206,7 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-   * LINE ANIMATION
+   * LINE ANIMATION (used by command output only)
    * ───────────────────────────────────────────────────────────── */
   const LINE_DELAY_MS = 36;
 
@@ -231,7 +227,7 @@
       }
       var line = lines[i++];
       var text = line.text !== undefined ? line.text : '';
-      var el   = makeLine(text, line.cls || 'output', line.id);
+      var el   = makeLine(text, line.cls || 'output');
 
       el.style.opacity   = '0';
       el.style.transform = 'translateY(5px)';
@@ -251,7 +247,6 @@
 
   /* ─────────────────────────────────────────────────────────────
    * COMMAND HANDLERS
-   * Cada handler recibe args[] y devuelve lines[].
    * ───────────────────────────────────────────────────────────── */
   function cmdHelp() {
     return [
@@ -295,10 +290,10 @@
     if (hasL) {
       var lines = [{ text: 'total 48', cls: 'muted' }];
       if (hasA) {
-        lines.push({ text: 'drwxr-x--- 2 alaska alaska 4096 Jan 26 2026 ./',      cls: 'muted' });
-        lines.push({ text: 'drwxr-xr-x 4 root   root   4096 Jan 26 2026 ../',     cls: 'muted' });
-        lines.push({ text: '-rw-r--r-- 1 alaska alaska   42 Jan 26 2026 .bashrc', cls: 'muted' });
-        lines.push({ text: '-rw-r--r-- 1 alaska alaska   24 Jan 26 2026 .profile',cls: 'muted' });
+        lines.push({ text: 'drwxr-x--- 2 alaska alaska 4096 Jan 26 2026 ./',       cls: 'muted' });
+        lines.push({ text: 'drwxr-xr-x 4 root   root   4096 Jan 26 2026 ../',      cls: 'muted' });
+        lines.push({ text: '-rw-r--r-- 1 alaska alaska   42 Jan 26 2026 .bashrc',  cls: 'muted' });
+        lines.push({ text: '-rw-r--r-- 1 alaska alaska   24 Jan 26 2026 .profile', cls: 'muted' });
       }
       lines = lines.concat([
         { text: '-rw-r--r-- 1 alaska alaska   512 Mar 19 2025 about.txt',   cls: 'output' },
@@ -352,11 +347,11 @@
         { text: 'Linux plasma 6.8.0-alaska #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux', cls: 'output' },
         { text: '' },
         { text: 'Kernel   6.8.0-human',  cls: 'muted' },
-        { text: 'Distro   Arch Linux',     cls: 'muted' },
+        { text: 'Distro   Arch Linux',    cls: 'muted' },
         { text: 'Desktop  KDE Plasma 6.8', cls: 'muted' },
-        { text: 'Shell    bash 5.2.37',    cls: 'muted' },
-        { text: 'Uptime   23 years',       cls: 'success' },
-        { text: 'Status   Live',       cls: 'success' },
+        { text: 'Shell    bash 5.2.37',   cls: 'muted' },
+        { text: 'Uptime   23 years',      cls: 'success' },
+        { text: 'Status   Live',          cls: 'success' },
         { text: '' },
       ];
     }
@@ -407,9 +402,9 @@
     return [{ text: expanded, cls: 'output' }, { text: '' }];
   }
 
-  function cmdNeofetch() {
+   function cmdNeofetch() {
     return [
-      { text: ' ⠀⠀⠀⠀⠀⠀⢀⡴⢾⣶⣴⠚⣫⠏⠉⠉⠛⠛⢭⡓⢶⣶⠶⣦⡀⠀⠀⠀⠀⠀    alaska@plasma',               cls: 'success' },
+      { text: ' ⠀⠀⠀⠀⠀⠀⢀⡴⢾⣶⣴⠚⣫⠏⠉⠉⠛⠛⢭⡓⢶⣶⠶⣦⡀⠀⠀⠀⠀⠀   alaska@plasma',               cls: 'success' },
       { text: ' ⠀⠀⠀⠀⠀⣰⠋⡀⣠⠟⢁⣾⠇⠀⣀⣷⠀⠀⠓⣝⠂⠙⣆⢄⢻⡞⢢⠀⠀    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', cls: 'success' },
       { text: ' ⠀⠀⠀⠀⢠⡇⢸⢡⠃⢠⡞⠁⠀⣰⡟⠉⢦⣄⠀⠈⢆⠀⢻⣾⡄⢧⢸⠀⠀⠀    OS:     Arch Linux x86_64',   cls: 'output'  },
       { text: ' ⠀⠀⠀⠀⢸⠀⡇⡌⠀⡞⠀⢀⣴⡋⠀⠀⠀⣙⣷⡀⠘⡄⠘⣿⣧⢸⣼⣥⠀⠀    Kernel: 6.8.0-human',       cls: 'output'  },
@@ -430,10 +425,6 @@
 
   /* ─────────────────────────────────────────────────────────────
    * AUTOCOMPLETE (Tab)
-   * Completa comandos; si el input empieza con "cat ", completa
-   * nombres de archivo del filesystem virtual.
-   * Usa el ciclo finalizePromptLine → printLines → createPromptLine
-   * cuando hay múltiples coincidencias (igual que el v2 original).
    * ───────────────────────────────────────────────────────────── */
   var ALL_CMDS = [
     'whoami', 'ls', 'cat', 'uname', 'pwd', 'date',
@@ -445,7 +436,6 @@
     var lower = raw.toLowerCase();
     if (!lower.trim()) return;
 
-    /* "cat " + nombre parcial → completa archivos */
     if (/^cat\s+\S*$/.test(lower)) {
       var partial  = raw.slice(raw.indexOf(' ') + 1).toLowerCase();
       var fMatches = Object.keys(CONFIG.files).filter(function (f) {
@@ -470,7 +460,6 @@
       return;
     }
 
-    /* Completar nombre de comando */
     var cMatches = ALL_CMDS.filter(function (c) { return c.startsWith(lower.trim()); });
     if (cMatches.length === 1) {
       inp.value = cMatches[0];
@@ -492,12 +481,10 @@
 
   /* ─────────────────────────────────────────────────────────────
    * COMMAND EXECUTION
-   * Parsea "cmd arg1 arg2 …", congela el prompt vivo, despacha.
    * ───────────────────────────────────────────────────────────── */
   function execute(raw) {
     var trimmed = raw.trim();
 
-    /* La línea activa ya muestra el comando escrito → solo congela. */
     finalizePromptLine();
 
     if (!trimmed) {
@@ -513,7 +500,6 @@
     state.historyIdx = -1;
     state.draft      = '';
 
-    /* ── Comandos con efectos secundarios ── */
     if (cmd === 'clear') {
       getOutput().innerHTML = '';
       createPromptLine();
@@ -539,7 +525,6 @@
       return;
     }
 
-    /* Legacy alias */
     if (cmd === 'cv') {
       printLines(
         [
@@ -555,18 +540,17 @@
       return;
     }
 
-    /* ── Despachador principal ── */
     var lines;
     switch (cmd) {
-      case 'help':     lines = cmdHelp();          break;
-      case 'whoami':   lines = cmdWhoami(args);    break;
-      case 'ls':       lines = cmdLs(args);        break;
-      case 'cat':      lines = cmdCat(args);       break;
-      case 'uname':    lines = cmdUname(args);     break;
-      case 'pwd':      lines = cmdPwd();           break;
-      case 'date':     lines = cmdDate();          break;
-      case 'echo':     lines = cmdEcho(args);      break;
-      case 'neofetch': lines = cmdNeofetch();      break;
+      case 'help':     lines = cmdHelp();       break;
+      case 'whoami':   lines = cmdWhoami(args);  break;
+      case 'ls':       lines = cmdLs(args);      break;
+      case 'cat':      lines = cmdCat(args);     break;
+      case 'uname':    lines = cmdUname(args);   break;
+      case 'pwd':      lines = cmdPwd();         break;
+      case 'date':     lines = cmdDate();        break;
+      case 'echo':     lines = cmdEcho(args);    break;
+      case 'neofetch': lines = cmdNeofetch();    break;
       default:
         lines = [
           { text: cmd + ': command not found', cls: 'error' },
@@ -650,48 +634,22 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-   * WALKING CAT ANIMATION
-   * ───────────────────────────────────────────────────────────── */
-  function startCatAnimation() {
-    if (catInterval) clearInterval(catInterval);
-    catPos = 0;
-    catDir = 1;
-
-    catInterval = setInterval(function () {
-      var el = document.getElementById('ascii-cat');
-      if (!el) { clearInterval(catInterval); catInterval = null; return; }
-
-      var maxPos = Math.max(0, termCols() - CAT_W);
-      var cat    = catDir === 1 ? CAT_RIGHT : CAT_LEFT;
-      el.textContent = ' '.repeat(catPos) + cat;
-      catPos += catDir;
-      if (catPos >= maxPos) { catPos = maxPos; catDir = -1; }
-      else if (catPos <= 0) { catPos = 0;      catDir =  1; }
-    }, 90);
-  }
-
-  /* ─────────────────────────────────────────────────────────────
    * INITIALIZATION
+   * Renders a single live prompt — nothing else.
    * ───────────────────────────────────────────────────────────── */
   function init() {
     var inp = getInput();
     var win = getWindow();
     if (!inp || !win) return;
 
-    /* Bienvenida → animación del gato → primer prompt vivo. */
-    printLines(CONFIG.welcome, function () {
-      startCatAnimation();
-      createPromptLine();
-    });
+    createPromptLine();
 
-    /* Sincroniza escritura con la línea activa en el output. */
     inp.addEventListener('input', function () {
       updatePromptLine(inp.value);
     });
 
     inp.addEventListener('keydown', onKeyDown);
 
-    /* Clic en la ventana → foco al input (capturador invisible). */
     win.addEventListener('click', function (e) {
       if (e.target.closest('.kwm-btn')) return;
       if (!state.animating) inp.focus();

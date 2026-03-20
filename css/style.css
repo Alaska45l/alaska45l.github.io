@@ -1926,12 +1926,12 @@ body.dark-mode .timeline-accordion-trigger:hover .timeline-period {
     transform: translateY(-2px);
 }
 
-.whatsapp-btn {
+.telegram-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: #25d366;
+    background: #0088cc;
     color: white !important;
     font-weight: 600;
     padding: 1rem;
@@ -1942,12 +1942,12 @@ body.dark-mode .timeline-accordion-trigger:hover .timeline-period {
     transition: background 0.3s ease, transform 0.3s ease;
 }
 
-.whatsapp-btn i {
+.telegram-btn i {
     font-size: 1.3rem;
 }
 
-.whatsapp-btn:hover {
-    background: #1ebe5b;
+.telegram-btn:hover {
+    background: #282828;
     transform: translateY(-3px);
 }
 
