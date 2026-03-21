@@ -99,6 +99,8 @@
   <script src="js/menu.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/form.js"></script>
+  <script src="js/carousel.js"></script>
+  <script src="js/easterEgg.js"></script>
   <script src="js/router.js"></script>
   <script src="js/accordion.js"></script>
   <script src="js/terminal.js"></script>
@@ -112,5 +114,56 @@
   <script src="js/game/entities.js"></script>
   <script src="js/game/renderer.js"></script>
   <script src="js/game/game.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!window.router) return;
+
+      let navStart = 0;
+
+      window.router.beforeNavigate(function (ctx) {
+        navStart = performance.now();
+
+        console.log('[NAV:start]', {
+          to:   ctx.to,
+          from: ctx.from,
+          type: ctx.isPopstate ? 'popstate' : 'push',
+        });
+
+        const app = document.getElementById('app');
+        if (app) app.classList.add('is-transitioning');
+      });
+
+      window.router.afterNavigate(function (to, ctx) {
+        if (!navStart) return;
+
+        const duration = performance.now() - navStart;
+
+        console.log('[NAV:complete]', {
+          to,
+          from: ctx.from,
+          requested: ctx.requested,
+          duration: Math.round(duration) + 'ms',
+          timestamp: Date.now(),
+        });
+
+        const app = document.getElementById('app');
+
+        if (app) {
+          requestAnimationFrame(function () {
+            app.classList.remove('is-transitioning');
+          });
+
+          // safety fallback
+          setTimeout(() => {
+            app.classList.remove('is-transitioning');
+          }, 1000);
+        }
+
+        navStart = 0;
+      });
+    });
+  </script>
+</body>
 </body>
 </html>

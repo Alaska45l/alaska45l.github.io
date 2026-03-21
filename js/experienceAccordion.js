@@ -1,19 +1,3 @@
-/**
- * experienceAccordion.js
- *
- * Progressively enhances `.experience-timeline` items into an accessible
- * accordion. Designed for the SPA router: boots via MutationObserver so it
- * initialises correctly on both direct URL access and client-side navigation.
- *
- * Architecture
- * ─────────────
- * • Pure ES6 IIFE — zero global pollution.
- * • Event delegation on the timeline container — O(1) listeners regardless
- *   of item count.
- * • DATA_INIT guard prevents double-enhancement on re-renders.
- * • buildTrigger() wraps only header + role; body ID + aria wired via JS.
- */
-
 (function () {
   'use strict';
 

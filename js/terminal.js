@@ -2,10 +2,8 @@
  * terminal.js — Interactive terminal emulator, Bash/Konsole style
  *
  * Boot behaviour: renders a single live prompt on mount, immediately focused.
- * No welcome message, no ASCII art, no intro animation, no artificial delay.
- *
- * IIFE — zero global pollution.
  * SPA-aware via MutationObserver on #app.
+ * IIFE — zero global pollution.
  */
 (function () {
   'use strict';
@@ -24,7 +22,6 @@
 
     cvUrl: 'assets/alaskaGonzalez_cv.pdf',
 
-    /* Filesystem virtual — filename → section key (or special token) */
     files: {
       'about.txt':   'about',
       'studies.txt': 'studies',
@@ -137,17 +134,38 @@
   };
 
   /* ─────────────────────────────────────────────────────────────
-   * STATE
+   * MODULE-LEVEL STATE
    * ───────────────────────────────────────────────────────────── */
+
+  /* History — load from localStorage on first IIFE execution. */
   const state = {
-    history:    [],
+    history: (function () {
+      try {
+        var saved = localStorage.getItem('terminal_history');
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) { return []; }
+    }()),
     historyIdx: -1,
     draft:      '',
     animating:  false,
   };
 
-  /** The active prompt line updated as the user types. */
+  /* Tracks active ping setTimeout IDs so Ctrl+C can cancel them. */
+  var pingTimers = [];
+
   var currentPromptLine = null;
+
+  /* Drag / z-index state (managed by window system) */
+  var pos = { x: 0, y: 0 };
+  var zIndexCounter = 100;
+
+  /* ─────────────────────────────────────────────────────────────
+   * Z-INDEX STACK MANAGER
+   * ───────────────────────────────────────────────────────────── */
+  function bringToFront(win) {
+    zIndexCounter++;
+    win.style.zIndex = zIndexCounter;
+  }
 
   /* ─────────────────────────────────────────────────────────────
    * DOM HELPERS
@@ -166,6 +184,31 @@
   function scrollBottom() {
     var out = getOutput();
     if (out) out.scrollTop = out.scrollHeight;
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * QUOTE-AWARE ARGUMENT PARSER
+   * echo "hello world"  → ['hello world']  (not ['"hello', 'world"'])
+   * Unmatched quotes are treated as literal characters.
+   * ───────────────────────────────────────────────────────────── */
+  function parseCommandArgs(input) {
+    var args     = [];
+    var current  = '';
+    var inSingle = false;
+    var inDouble = false;
+
+    for (var i = 0; i < input.length; i++) {
+      var c = input[i];
+      if (c === '"' && !inSingle) { inDouble = !inDouble; continue; }
+      if (c === "'" && !inDouble) { inSingle = !inSingle; continue; }
+      if (c === ' ' && !inSingle && !inDouble) {
+        if (current.length) { args.push(current); current = ''; }
+        continue;
+      }
+      current += c;
+    }
+    if (current.length) args.push(current);
+    return args.length ? args : [input];
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -206,7 +249,7 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-   * LINE ANIMATION (used by command output only)
+   * LINE ANIMATION
    * ───────────────────────────────────────────────────────────── */
   const LINE_DELAY_MS = 36;
 
@@ -248,26 +291,50 @@
   /* ─────────────────────────────────────────────────────────────
    * COMMAND HANDLERS
    * ───────────────────────────────────────────────────────────── */
+
   function cmdHelp() {
     return [
       { text: 'Comandos disponibles:', cls: 'header' },
       { text: '' },
-      { text: '  whoami              \u2014  Usuario actual',                        cls: 'output' },
-      { text: '  whoami --full       \u2014  Nombre completo',                       cls: 'output' },
-      { text: '  ls                  \u2014  Lista archivos',                        cls: 'output' },
-      { text: '  ls -l               \u2014  Listado detallado',                     cls: 'output' },
-      { text: '  ls -la              \u2014  Incluye archivos ocultos',              cls: 'output' },
-      { text: '  cat <archivo>       \u2014  Muestra contenido de un archivo',       cls: 'output' },
-      { text: '  uname -a            \u2014  Info del sistema',                      cls: 'output' },
-      { text: '  pwd                 \u2014  Directorio actual',                     cls: 'output' },
-      { text: '  date                \u2014  Fecha y hora',                          cls: 'output' },
-      { text: '  echo <texto|$VAR>   \u2014  Imprime texto o variables de entorno',  cls: 'output' },
-      { text: '  neofetch            \u2014  Info del sistema al estilo neofetch',   cls: 'output' },
-      { text: '  xdg-open cv.pdf     \u2014  Abre el CV en nueva pesta\u00f1a',      cls: 'output' },
-      { text: '  clear               \u2014  Limpia el terminal',                    cls: 'output' },
-      { text: '  help                \u2014  Muestra este mensaje',                  cls: 'output' },
+      { text: '  whoami                    \u2014  Usuario actual',                         cls: 'output' },
+      { text: '  whoami --full             \u2014  Nombre completo',                        cls: 'output' },
+      { text: '  ls                        \u2014  Lista archivos',                         cls: 'output' },
+      { text: '  ls -l                     \u2014  Listado detallado',                      cls: 'output' },
+      { text: '  ls -la                    \u2014  Incluye archivos ocultos',               cls: 'output' },
+      { text: '  cat <archivo>             \u2014  Muestra contenido de un archivo',        cls: 'output' },
+      { text: '  grep <t\u00e9rmino> <archivo>  \u2014  Busca texto en un archivo',         cls: 'output' },
+      { text: '  head <archivo>            \u2014  Primeras 5 l\u00edneas',                 cls: 'output' },
+      { text: '  tail <archivo>            \u2014  \u00DAltimas 5 l\u00edneas',             cls: 'output' },
+      { text: '  uname -a                  \u2014  Info del sistema',                       cls: 'output' },
+      { text: '  pwd                       \u2014  Directorio actual',                      cls: 'output' },
+      { text: '  date                      \u2014  Fecha y hora',                           cls: 'output' },
+      { text: '  echo <texto|$VAR>         \u2014  Imprime texto o variables de entorno',   cls: 'output' },
+      { text: '  neofetch                  \u2014  Info del sistema al estilo neofetch',    cls: 'output' },
+      { text: '  ping <host>               \u2014  Simula ICMP hacia un host',              cls: 'output' },
+      { text: '  top / htop                \u2014  Procesos en ejecuci\u00f3n (est\u00e1tico)',  cls: 'output' },
+      { text: '  history                   \u2014  Historial de comandos',                  cls: 'output' },
+      { text: '  sudo <cmd>                \u2014  Intent\u00e1 ser root', cls: 'output' },
+      { text: '  xdg-open cv.pdf           \u2014  Abre el CV en nueva pesta\u00f1a',       cls: 'output' },
+      { text: '  clear                     \u2014  Limpia el terminal  (o Ctrl+L)',          cls: 'output' },
+      { text: '  help                      \u2014  Muestra este mensaje',                   cls: 'output' },
       { text: '' },
-      { text: 'Tip: Tab para autocompletar \u00b7 \u2191\u2193 para navegar historial.', cls: 'muted' },
+      { text: 'Navegaci\u00f3n:', cls: 'header' },
+      { text: '' },
+      { text: '  cd <ruta>           \u2014  Navega a una ruta  (ej: cd experience)', cls: 'output' },
+      { text: '  go <ruta>           \u2014  Alias de cd',                            cls: 'output' },
+      { text: '  open <ruta>         \u2014  Alias de cd',                            cls: 'output' },
+      { text: '  home                \u2014  Navega al inicio  (/)',                  cls: 'output' },
+      { text: '  back                \u2014  Vuelve a la p\u00e1gina anterior',        cls: 'output' },
+      { text: '' },
+      { text: 'Atajos de teclado:', cls: 'header' },
+      { text: '' },
+      { text: '  Ctrl+L              \u2014  Limpia la pantalla',                     cls: 'output' },
+      { text: '  Ctrl+C              \u2014  Cancela el comando / l\u00ednea actual',  cls: 'output' },
+      { text: '  Ctrl+U              \u2014  Borra la l\u00ednea actual',              cls: 'output' },
+      { text: '  Tab                 \u2014  Autocompletar  (rutas con cd/go/open)',   cls: 'output' },
+      { text: '  \u2191 / \u2193            \u2014  Navegar historial',                cls: 'output' },
+      { text: '' },
+      { text: 'Tip: los archivos visibles con ls son legibles con cat, grep, head y tail.', cls: 'muted' },
       { text: '' },
     ];
   }
@@ -346,12 +413,12 @@
       return [
         { text: 'Linux plasma 6.8.0-alaska #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux', cls: 'output' },
         { text: '' },
-        { text: 'Kernel   6.8.0-human',  cls: 'muted' },
-        { text: 'Distro   Arch Linux',    cls: 'muted' },
+        { text: 'Kernel   6.8.0-human',   cls: 'muted' },
+        { text: 'Distro   Arch Linux',     cls: 'muted' },
         { text: 'Desktop  KDE Plasma 6.8', cls: 'muted' },
-        { text: 'Shell    bash 5.2.37',   cls: 'muted' },
-        { text: 'Uptime   23 years',      cls: 'success' },
-        { text: 'Status   Live',          cls: 'success' },
+        { text: 'Shell    bash 5.2.37',    cls: 'muted' },
+        { text: 'Uptime   23 years',       cls: 'success' },
+        { text: 'Status   Live',           cls: 'success' },
         { text: '' },
       ];
     }
@@ -407,23 +474,23 @@
       { text: ' ⠀⠀⠀⠀⠀⠀⢀⡴⢾⣶⣴⠚⣫⠏⠉⠉⠛⠛⢭⡓⢶⣶⠶⣦⡀⠀⠀⠀⠀⠀   alaska@plasma',               cls: 'success' },
       { text: ' ⠀⠀⠀⠀⠀⣰⠋⡀⣠⠟⢁⣾⠇⠀⣀⣷⠀⠀⠓⣝⠂⠙⣆⢄⢻⡞⢢⠀⠀    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', cls: 'success' },
       { text: ' ⠀⠀⠀⠀⢠⡇⢸⢡⠃⢠⡞⠁⠀⣰⡟⠉⢦⣄⠀⠈⢆⠀⢻⣾⡄⢧⢸⠀⠀⠀    OS:     Arch Linux x86_64',   cls: 'output'  },
-      { text: ' ⠀⠀⠀⠀⢸⠀⡇⡌⠀⡞⠀⢀⣴⡋⠀⠀⠀⣙⣷⡀⠘⡄⠘⣿⣧⢸⣼⣥⠀⠀    Kernel: 6.8.0-human',       cls: 'output'  },
-      { text: ' ⣀⣀⣀⣀⣞⣰⠁⡇⠀⣧⠴⠛⠛⠁⠀⠀⠀⠉⠉⠙⠦⡇⠀⣿⣸⣼⣿⣇⣀⣀   DE:     KDE Plasma 6.8',      cls: 'output'  },
-      { text: ' ⠳⢽⣷⠺⡟⡿⣯⡇⠰⣧⠠⣿⡷⠂⠀⠀⠀⠐⣾⠷⠀⡀⠀⣿⡟⣴⠶⢁⡨⠊   Shell:  bash 5.2.37',         cls: 'output'  },
-      { text: ' ⠀⠀⠉⢳⢦⣅⠘⣿⣄⢿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⢀⣏⣳⣿⣴⡞⠈⠀    Editor: nvim',               cls: 'output'  },
+      { text: ' ⠀⠀⠀⠀⢸⠀⡇⡌⠀⡞⠀⢀⣴⡋⠀⠀⠀⣙⣷⡀⠘⡄⠘⣿⣧⢸⣼⣥⠀⠀    Kernel: 6.8.0-human',          cls: 'output'  },
+      { text: ' ⣀⣀⣀⣀⣞⣰⠁⡇⠀⣧⠴⠛⠛⠁⠀⠀⠀⠉⠉⠙⠦⡇⠀⣿⣸⣼⣿⣇⣀⣀   DE:     KDE Plasma 6.8',         cls: 'output'  },
+      { text: ' ⠳⢽⣷⠺⡟⡿⣯⡇⠰⣧⠠⣿⡷⠂⠀⠀⠀⠐⣾⠷⠀⡀⠀⣿⡟⣴⠶⢁⡨⠊   Shell:  bash 5.2.37',            cls: 'output'  },
+      { text: ' ⠀⠀⠉⢳⢦⣅⠘⣿⣄⢿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⢀⣏⣳⣿⣴⡞⠈⠀    Editor: nvim',                  cls: 'output'  },
       { text: ' ⠀⠀⠀⣼⢸⡅⢹⣿⣿⣾⣟⠀⠀⢠⣀⣄⣠⠀⠀⢠⣾⣿⡿⣿⢻⠁⢹⣷⡀⠀ ' },
-      { text: ' ⠀⠀⠸⡏⠸⡇⢼⣿⡿⠟⠛⠓⣦⣄⣀⣀⣀⣀⡤⠴⠿⢿⡟⠛⠺⣦⣬⣗⠀⠀  Edad     23 a\u00f1os',                                        cls: 'muted' },
-      { text: ' ⠀⠀⢰⡇⠀⡇⠸⡏⠀⠀⢰⠋⠙⠛⠛⠉⠉⢹⠀⠀⠀⠀⡇⠀⠀⣿⣿⣿⣿⡇   Ciudad   Mar del Plata, AR',                                   cls: 'muted' },
-      { text: ' ⠀⡐⣾⠀⡀⢹⠀⣿⣄⠀⢸⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⢠⣇⠀⠀⣿⣿⣿⣿⣿    Estudio  F\u00edsica \u2014 UNMDP',                           cls: 'muted' },
-      { text: ' ⣰⣿⣿⠀⡇⠘⡄⢸⣿⠆⠈⡇⠀⠀⠀⠀⠈⢉⠃⠀⣰⡾⠻⠃⢰⣿⣿⣿⣿⡇  Skills   IT \u00b7 Barismo \u00b7 Gesti\u00f3n',              cls: 'muted' },
-      { text: ' ⣿⣿⣿⡆⢷⠀⢧⠈⣿⠤⠤⣇⠀⠀⠀⠀⢀⣸⣠⢾⠟⠓⡶⢤⣾⣿⣿⣿⣿⣷  Idiomas  Espa\u00f1ol (nativo) \u00b7 Ingl\u00e9s (B2)',      cls: 'muted' },
+      { text: ' ⠀⠀⠸⡏⠸⡇⢼⣿⡿⠟⠛⠓⣦⣄⣀⣀⣀⣀⡤⠴⠿⢿⡟⠛⠺⣦⣬⣗⠀⠀  Edad     23 a\u00f1os',            cls: 'muted'   },
+      { text: ' ⠀⠀⢰⡇⠀⡇⠸⡏⠀⠀⢰⠋⠙⠛⠛⠉⠉⢹⠀⠀⠀⠀⡇⠀⠀⣿⣿⣿⣿⡇   Ciudad   Mar del Plata, AR',      cls: 'muted'   },
+      { text: ' ⠀⡐⣾⠀⡀⢹⠀⣿⣄⠀⢸⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⢠⣇⠀⠀⣿⣿⣿⣿⣿    Estudio  F\u00edsica \u2014 UNMDP', cls: 'muted'   },
+      { text: ' ⣰⣿⣿⠀⡇⠘⡄⢸⣿⠆⠈⡇⠀⠀⠀⠀⠈⢉⠃⠀⣰⡾⠻⠃⢰⣿⣿⣿⣿⡇  Skills   IT \u00b7 Barismo \u00b7 Gesti\u00f3n', cls: 'muted' },
+      { text: ' ⣿⣿⣿⡆⢷⠀⢧⠈⣿⠤⠤⣇⠀⠀⠀⠀⢀⣸⣠⢾⠟⠓⡶⢤⣾⣿⣿⣿⣿⣷  Idiomas  Espa\u00f1ol (nativo) \u00b7 Ingl\u00e9s (B2)', cls: 'muted' },
       { text: '' },
       { text: '  \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588', cls: 'success' },
       { text: '' },
     ];
   }
 
-
+  /* ── easter egg — intentionally absent from ALL_CMDS and help ── */
   function cmdLauti() {
     return [
       { text: '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⠶⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
@@ -441,7 +508,7 @@
       { text: '⠀⠀⠘⢞⣷⠃⠀⠀⠀⠀⠀⠀⠀⠙⢿⡷⠴⢴⡤⢦⠤⡤⠤⠤⠶⠶⠚⠛⠉⠀⠀⢨⣿⣦⣀⢀⣠⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
       { text: '⡀⡀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠴⢖⡶⡿⡈⡹⡑⢢⠌⣪⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
       { text: '⢻⡉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢈⡿⠀⠀⠀⠀⠀⠀⠀⠀⠐⢼⣦⣷⠱⢌⡒⡌⡝⣜⠣⣑⠅⠎⠇⣳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
-      { text: '⠀⠀⠀⠀⠀⣾⠛⠻⢷⣤⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠘⢷⣄⠀⠀⠉⣿⡐⠢⡔⡘⡡⢇⡡⢅⢡⡙⣬⡇⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
+      { text: '⠀⠀⠀⠀⠀⣾⠛⠻⢷⣤⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠘⢷⣄⠀⠀⠉⣿⡐⠢⡔⡘⡡⢇⡡⢅⢡⡙⣬⡇⠀⠀⠀⠀⠀⠀⠀⠀',    cls: 'lauti' },
       { text: '⠀⠀⠀⠀⠀⢹⣆⡀⠀⢻⣧⠀⠀⠀⠀⢿⡄⠀⠀⠀⠀⠀⠀⠙⠻⣶⣤⡿⠙⢧⣆⠵⡁⠦⠇⡪⢠⣜⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
       { text: '⠀⠀⠀⠀⠀⠀⠙⢿⣦⠀⠹⢾⣀⡀⠀⢹⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠳⡾⣅⡎⢆⣇⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
       { text: '⠀⠀⠀⠀⠀⠀⠀⠀⠹⣷⠀⠀⠉⠛⠛⢾⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠛⠻⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
@@ -455,12 +522,245 @@
     ];
   }
 
+  /* ── new system commands ───────────────────────────────────── */
+
+  function cmdSudo(args) {
+    if (!args.length) {
+      return [
+        { text: 'uso: sudo <comando>', cls: 'error' },
+        { text: '' },
+      ];
+    }
+    return [
+      { text: 'alaska is not in the sudoers file. This incident will be reported.', cls: 'error' },
+      { text: '' },
+    ];
+  }
+
+  function cmdHistory() {
+    if (!state.history.length) {
+      return [{ text: '(no hay historial)', cls: 'muted' }, { text: '' }];
+    }
+    // state.history is newest-first; display oldest-first like Bash
+    return state.history.slice().reverse().map(function (entry, i) {
+      return { text: '  ' + String(i + 1).padStart(4, ' ') + '  ' + entry, cls: 'output' };
+    }).concat([{ text: '' }]);
+  }
+
+  function cmdFileOps(cmd) {
+    return [
+      { text: cmd + ': Permission denied. Read-only file system.', cls: 'error' },
+      { text: '' },
+    ];
+  }
+
+  function cmdGrep(args) {
+    if (args.length < 2) {
+      return [
+        { text: 'grep: uso: grep <t\u00e9rmino> <archivo>', cls: 'error' },
+        { text: 'Ejemplo: grep f\u00edsica about.txt', cls: 'muted' },
+        { text: '' },
+      ];
+    }
+    var term     = args[0].toLowerCase();
+    var filename = args[1].toLowerCase();
+    var section  = CONFIG.files[filename];
+
+    if (!section || section === '__cv__') {
+      return [
+        { text: 'grep: ' + filename + ': No such file or directory', cls: 'error' },
+        { text: '' },
+      ];
+    }
+
+    var matches = CONFIG.sections[section].filter(function (l) {
+      return l.text && l.text.toLowerCase().indexOf(term) !== -1;
+    });
+
+    if (!matches.length) {
+      // grep convention: no output when no matches; exit silently
+      return [{ text: '', cls: 'muted' }];
+    }
+
+    return matches.map(function (l) {
+      return { text: l.text, cls: 'success' };
+    }).concat([{ text: '' }]);
+  }
+
+  function cmdTailHead(cmd, args) {
+    if (!args.length) {
+      return [
+        { text: cmd + ': uso: ' + cmd + ' <archivo>', cls: 'error' },
+        { text: '' },
+      ];
+    }
+    var filename = args[0].toLowerCase();
+    var section  = CONFIG.files[filename];
+
+    if (!section || section === '__cv__') {
+      return [
+        { text: cmd + ': ' + filename + ': No such file or directory', cls: 'error' },
+        { text: '' },
+      ];
+    }
+
+    var all   = CONFIG.sections[section].filter(function (l) { return l.text !== undefined; });
+    var slice = cmd === 'tail' ? all.slice(-5) : all.slice(0, 5);
+    return slice.concat([{ text: '' }]);
+  }
+
+  function cmdTop() {
+    var timeStr = new Date().toTimeString().slice(0, 8);
+    return [
+      { text: 'top - ' + timeStr + '  up 23 years,  1 user,  load average: 0.01, 0.05, 0.00', cls: 'muted' },
+      { text: 'Tasks:  42 total,   1 running,  41 sleeping,   0 stopped,   0 zombie',           cls: 'muted' },
+      { text: '%Cpu(s):  2.1 us,  0.8 sy,  0.0 ni, 96.9 id,  0.2 wa,  0.0 hi,  0.0 si',       cls: 'muted' },
+      { text: 'MiB Mem:  15934.4 total,  8241.2 free,  4821.6 used,  2871.6 buff/cache',       cls: 'muted' },
+      { text: 'MiB Swp:   2048.0 total,  2048.0 free,     0.0 used.  9842.1 avail Mem',        cls: 'muted' },
+      { text: '' },
+      { text: '  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND',    cls: 'header' },
+      { text: ' 1337 alaska    20   0  512004  42316  18224 R   2.1   0.3   0:01.33 nvim',       cls: 'output' },
+      { text: ' 1984 alaska    20   0  261240  31808  12440 S   0.7   0.2   0:00.87 python3',    cls: 'output' },
+      { text: ' 2048 alaska    20   0  128860  21604   9112 S   0.3   0.1   0:00.44 node',       cls: 'output' },
+      { text: ' 3141 alaska    20   0   67328  15112   7332 S   0.1   0.1   0:00.21 bash',       cls: 'output' },
+      { text: ' 3590 alaska    20   0   54220  11008   5604 S   0.0   0.1   0:00.18 konsole',    cls: 'output' },
+      { text: ' 4096 alaska    20   0   45112   8332   4112 S   0.0   0.1   0:00.12 firefox',    cls: 'output' },
+      { text: ' 9001 alaska    20   0   18440   4096   2048 S   0.0   0.0   0:00.05 git',        cls: 'output' },
+      { text: '' },
+      { text: "Presion\u00e1 'q' para salir. (es output est\u00e1tico, igual no funcionar\u00eda)", cls: 'muted' },
+      { text: '' },
+    ];
+  }
+
+  function cmdEditor(cmd) {
+    var name = cmd === 'vim' ? 'Vim' : 'Nano';
+    return [
+      { text: "Did you really think I'd build " + name + " in JS? Use 'cat'.", cls: 'muted' },
+      { text: '' },
+    ];
+  }
+
+  /* ── ping — async, cancellable via Ctrl+C ─────────────────── */
+
+  function startPing(host) {
+    var out = getOutput();
+    var inp = getInput();
+    if (!out) return;
+
+    state.animating = true;
+    if (inp) inp.disabled = true;
+
+    var times = [
+      Math.floor(Math.random() * 15) + 5,
+      Math.floor(Math.random() * 15) + 5,
+      Math.floor(Math.random() * 15) + 5,
+      Math.floor(Math.random() * 15) + 5,
+    ];
+    var ip = '93.184.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
+
+    function addLine(text, cls) {
+      var el = makeLine(text, cls || 'output');
+      el.style.opacity = '0';
+      out.appendChild(el);
+      requestAnimationFrame(function () {
+        el.style.transition = 'opacity 0.15s ease';
+        el.style.opacity    = '1';
+      });
+      scrollBottom();
+    }
+
+    addLine('PING ' + host + ' (' + ip + '): 56 data bytes', 'muted');
+
+    times.forEach(function (ms, i) {
+      var t = setTimeout(function () {
+        addLine('64 bytes from ' + ip + ': icmp_seq=' + i + ' ttl=54 time=' + ms + '.0 ms');
+      }, (i + 1) * 900);
+      pingTimers.push(t);
+    });
+
+    var doneId = setTimeout(function () {
+      var min = Math.min.apply(null, times);
+      var max = Math.max.apply(null, times);
+      var avg = Math.round(times.reduce(function (a, b) { return a + b; }, 0) / times.length);
+      addLine('');
+      addLine('--- ' + host + ' ping statistics ---', 'muted');
+      addLine(times.length + ' packets transmitted, ' + times.length + ' received, 0.0% packet loss', 'success');
+      addLine('round-trip min/avg/max = ' + min + '.0/' + avg + '.0/' + max + '.0 ms', 'muted');
+      addLine('');
+      pingTimers = [];
+      state.animating = false;
+      if (inp) inp.disabled = false;
+      createPromptLine();
+    }, (times.length + 1) * 900 + 200);
+
+    pingTimers.push(doneId);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * ROUTER COMMANDS
+   * Returns true if the command was handled, false to fall through.
+   * ───────────────────────────────────────────────────────────── */
+  function handleRouterCommand(cmd, args) {
+    if (cmd === 'back') {
+      history.back();
+      printLines([{ text: 'Going back\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+      return true;
+    }
+
+    if (cmd === 'home') {
+      if (!window.router) {
+        printLines([{ text: 'router: not available', cls: 'error' }, { text: '' }], createPromptLine);
+        return true;
+      }
+      window.router.navigate('/');
+      printLines([{ text: 'Navigating to /\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+      return true;
+    }
+
+    if (cmd !== 'cd' && cmd !== 'go' && cmd !== 'open') return false;
+
+    if (!window.router) {
+      printLines([{ text: 'router: not available', cls: 'error' }, { text: '' }], createPromptLine);
+      return true;
+    }
+
+    if (!args.length || args[0] === '') {
+      printLines([
+        { text: cmd + ': missing route argument', cls: 'error' },
+        { text: 'Uso: ' + cmd + ' <ruta>    (ej: ' + cmd + ' experience)', cls: 'muted' },
+        { text: '' },
+      ], createPromptLine);
+      return true;
+    }
+
+    var raw  = args[0].replace(/^\/+/, '');
+    var path = (raw === '' || raw === 'home' || raw === '~') ? '/' : '/' + raw;
+
+    var normalized = window.router.normalizeRoute(path);
+    if (normalized !== path && path !== '/') {
+      printLines([
+        { text: cmd + ': no such route: ' + path, cls: 'error' },
+        { text: 'Rutas disponibles: ' + Object.keys(window.router.routes).join('  '), cls: 'muted' },
+        { text: '' },
+      ], createPromptLine);
+      return true;
+    }
+
+    window.router.navigate(normalized);
+    printLines([{ text: 'Navigating to ' + normalized + '\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+    return true;
+  }
+
   /* ─────────────────────────────────────────────────────────────
    * AUTOCOMPLETE (Tab)
    * ───────────────────────────────────────────────────────────── */
   var ALL_CMDS = [
     'whoami', 'ls', 'cat', 'uname', 'pwd', 'date',
     'echo', 'neofetch', 'xdg-open', 'clear', 'help',
+    'sudo', 'history', 'rm', 'mkdir', 'touch', 'mv',
+    'grep', 'tail', 'head', 'ping', 'top', 'htop',
+    'vim', 'nano',
+    'cd', 'go', 'open', 'home', 'back',
   ];
 
   function autocomplete(inp) {
@@ -468,10 +768,49 @@
     var lower = raw.toLowerCase();
     if (!lower.trim()) return;
 
+    // ── Router path completion (cd / go / open) ───────────────
+    if (/^(cd|go|open)\s+\S*$/.test(lower)) {
+      var spaceIdx = raw.indexOf(' ');
+      var cmdPart  = raw.slice(0, spaceIdx);
+      var partial  = raw.slice(spaceIdx + 1);
+      var partialClean = partial.replace(/^\/+/, '').toLowerCase();
+
+      var routes  = window.router ? Object.keys(window.router.routes) : [];
+      var unique  = routes.filter(function (r, i, a) { return a.indexOf(r) === i; });
+      var rMatches = unique.filter(function (r) {
+        var rClean = r.replace(/^\//, '');
+        return partialClean === ''
+          ? true
+          : r.startsWith('/' + partialClean) || rClean.startsWith(partialClean);
+      });
+
+      if (!rMatches.length) return;
+
+      if (rMatches.length === 1) {
+        inp.value = cmdPart + ' ' + rMatches[0];
+        updatePromptLine(inp.value);
+        return;
+      }
+
+      var savedRaw = raw;
+      finalizePromptLine();
+      inp.value = '';
+      printLines(
+        [{ text: rMatches.join('    '), cls: 'muted' }, { text: '' }],
+        function () {
+          createPromptLine();
+          inp.value = savedRaw;
+          updatePromptLine(savedRaw);
+        }
+      );
+      return;
+    }
+
+    // ── cat file completion ───────────────────────────────────
     if (/^cat\s+\S*$/.test(lower)) {
-      var partial  = raw.slice(raw.indexOf(' ') + 1).toLowerCase();
+      var partial2  = raw.slice(raw.indexOf(' ') + 1).toLowerCase();
       var fMatches = Object.keys(CONFIG.files).filter(function (f) {
-        return f.startsWith(partial);
+        return f.startsWith(partial2);
       });
       if (fMatches.length === 1) {
         inp.value = 'cat ' + fMatches[0];
@@ -492,20 +831,21 @@
       return;
     }
 
+    // ── command name completion ───────────────────────────────
     var cMatches = ALL_CMDS.filter(function (c) { return c.startsWith(lower.trim()); });
     if (cMatches.length === 1) {
       inp.value = cMatches[0];
       updatePromptLine(inp.value);
     } else if (cMatches.length > 1) {
-      var savedRaw = inp.value;
+      var savedRaw2 = inp.value;
       finalizePromptLine();
       inp.value = '';
       printLines(
         [{ text: cMatches.join('    '), cls: 'muted' }, { text: '' }],
         function () {
           createPromptLine();
-          inp.value = savedRaw;
-          updatePromptLine(savedRaw);
+          inp.value = savedRaw2;
+          updatePromptLine(savedRaw2);
         }
       );
     }
@@ -513,6 +853,8 @@
 
   /* ─────────────────────────────────────────────────────────────
    * COMMAND EXECUTION
+   * Precedence: clear → xdg-open/cv → ping (async) →
+   *             built-in switch → router commands → fallback
    * ───────────────────────────────────────────────────────────── */
   function execute(raw) {
     var trimmed = raw.trim();
@@ -524,17 +866,36 @@
       return;
     }
 
-    var parts = trimmed.split(/\s+/);
-    var cmd   = parts[0].toLowerCase();
+    // Quote-aware parser: echo "a b" → args=['a b']
+    var parts = parseCommandArgs(trimmed);
+    var cmd   = parts[0] ? parts[0].toLowerCase() : '';
     var args  = parts.slice(1);
 
     if (state.history[0] !== trimmed) state.history.unshift(trimmed);
     state.historyIdx = -1;
     state.draft      = '';
 
+    // Persist history (max 50 entries)
+    try {
+      localStorage.setItem('terminal_history', JSON.stringify(state.history.slice(0, 50)));
+    } catch (e) { /* incognito / quota — fail silently */ }
+
+    // ── Highest-priority special cases ───────────────────────
     if (cmd === 'clear') {
       getOutput().innerHTML = '';
       createPromptLine();
+      return;
+    }
+
+    if (cmd === 'ping') {
+      if (!args.length || !args[0]) {
+        printLines([
+          { text: 'ping: uso: ping <host>', cls: 'error' },
+          { text: '' },
+        ], createPromptLine);
+        return;
+      }
+      startPing(args[0]);
       return;
     }
 
@@ -572,27 +933,49 @@
       return;
     }
 
+    // ── Built-in commands ─────────────────────────────────────
     var lines;
     switch (cmd) {
-      case 'help':     lines = cmdHelp();       break;
-      case 'whoami':   lines = cmdWhoami(args);  break;
-      case 'ls':       lines = cmdLs(args);      break;
-      case 'cat':      lines = cmdCat(args);     break;
-      case 'uname':    lines = cmdUname(args);   break;
-      case 'pwd':      lines = cmdPwd();         break;
-      case 'date':     lines = cmdDate();        break;
-      case 'echo':     lines = cmdEcho(args);    break;
-      case 'neofetch': lines = cmdNeofetch();    break;
+      case 'help':     lines = cmdHelp();              break;
+      case 'whoami':   lines = cmdWhoami(args);         break;
+      case 'ls':       lines = cmdLs(args);             break;
+      case 'cat':      lines = cmdCat(args);            break;
+      case 'uname':    lines = cmdUname(args);          break;
+      case 'pwd':      lines = cmdPwd();                break;
+      case 'date':     lines = cmdDate();               break;
+      case 'echo':     lines = cmdEcho(args);           break;
+      case 'neofetch': lines = cmdNeofetch();           break;
       case 'lauti':
-      case 'lautaro':  lines = cmdLauti();       break;
-      default:
-        lines = [
-          { text: cmd + ': command not found', cls: 'error' },
-          { text: "Escrib\u00ed 'help' para ver los comandos disponibles.", cls: 'muted' },
-          { text: '' },
-        ];
+      case 'lautaro':  lines = cmdLauti();              break;
+      case 'sudo':     lines = cmdSudo(args);           break;
+      case 'history':  lines = cmdHistory();            break;
+      case 'rm':
+      case 'mkdir':
+      case 'touch':
+      case 'mv':       lines = cmdFileOps(cmd);         break;
+      case 'grep':     lines = cmdGrep(args);           break;
+      case 'tail':
+      case 'head':     lines = cmdTailHead(cmd, args);  break;
+      case 'top':
+      case 'htop':     lines = cmdTop();                break;
+      case 'vim':
+      case 'nano':     lines = cmdEditor(cmd);          break;
     }
-    printLines(lines, createPromptLine);
+
+    if (lines) {
+      printLines(lines, createPromptLine);
+      return;
+    }
+
+    // ── Router commands (after built-ins, before fallback) ────
+    if (handleRouterCommand(cmd, args)) return;
+
+    // ── Fallback ──────────────────────────────────────────────
+    printLines([
+      { text: cmd + ': command not found', cls: 'error' },
+      { text: "Escrib\u00ed 'help' para ver los comandos disponibles.", cls: 'muted' },
+      { text: '' },
+    ], createPromptLine);
   }
 
   /* ─────────────────────────────────────────────────────────────
@@ -600,6 +983,51 @@
    * ───────────────────────────────────────────────────────────── */
   function onKeyDown(e) {
     var inp = e.currentTarget;
+
+    // ── Ctrl shortcuts ────────────────────────────────────────
+    if (e.ctrlKey) {
+      var k = e.key.toLowerCase();
+
+      // Ctrl+L — clear screen, keep current typed input
+      if (k === 'l') {
+        e.preventDefault();
+        var savedInput = inp.value;
+        inp.value = '';
+        // Invalidate reference before wiping DOM so finalizePromptLine is safe
+        currentPromptLine = null;
+        getOutput().innerHTML = '';
+        createPromptLine();
+        if (savedInput) {
+          inp.value = savedInput;
+          updatePromptLine(savedInput);
+        }
+        return;
+      }
+
+      // Ctrl+U — erase current line
+      if (k === 'u') {
+        e.preventDefault();
+        inp.value = '';
+        updatePromptLine('');
+        return;
+      }
+
+      // Ctrl+C — cancel current input (ping cancellation via window listener)
+      if (k === 'c') {
+        e.preventDefault();
+        inp.value = '';
+        updatePromptLine('');
+        finalizePromptLine();
+        var out = getOutput();
+        if (out) {
+          var ctrlC = makeLine('^C', 'muted');
+          out.appendChild(ctrlC);
+          scrollBottom();
+        }
+        createPromptLine();
+        return;
+      }
+    }
 
     switch (e.key) {
       case 'Enter':
@@ -646,37 +1074,143 @@
   }
 
   /* ─────────────────────────────────────────────────────────────
-   * WINDOW BUTTONS
+   * WINDOW STATE MANAGEMENT
    * ───────────────────────────────────────────────────────────── */
-  function handleMinimize(btn) {
-    var win = getWindow();
-    if (!win) return;
-    var isMin = win.classList.toggle('is-minimized');
-    btn.setAttribute('aria-pressed', String(isMin));
-    if (!isMin) {
-      var inp = getInput();
-      if (inp && !state.animating) inp.focus();
+  function setState(win, newState) {
+    win.classList.remove('is-fullscreen');
+    if (newState) {
+      win.classList.add(newState);
+    } else {
+      win.style.transform = (pos.x !== 0 || pos.y !== 0)
+        ? 'translate(' + pos.x + 'px, ' + pos.y + 'px)'
+        : '';
     }
   }
 
-  function handleMaximize(btn) {
-    var win = getWindow();
-    if (!win) return;
-    var isMax = win.classList.toggle('is-maximized');
-    btn.setAttribute('aria-pressed', String(isMax));
-    if (isMax) scrollBottom();
+  function closeTerminal(win, restoreBtn) {
+    win.style.transform = '';
+    win.classList.add('is-closed');
+    restoreBtn.classList.add('visible');
+  }
+
+  function restoreTerminal(win, restoreBtn) {
+    win.classList.remove('is-closed');
+    restoreBtn.classList.remove('visible');
+    bringToFront(win);
+    if (pos.x !== 0 || pos.y !== 0) {
+      requestAnimationFrame(function () {
+        win.style.transform = 'translate(' + pos.x + 'px, ' + pos.y + 'px)';
+      });
+    }
   }
 
   /* ─────────────────────────────────────────────────────────────
    * INITIALIZATION
-   * Renders a single live prompt — nothing else.
    * ───────────────────────────────────────────────────────────── */
   function init() {
     var inp = getInput();
     var win = getWindow();
     if (!inp || !win) return;
 
-    createPromptLine();
+    if (win.dataset.windowInit) return;
+    win.dataset.windowInit = 'true';
+
+    pos.x = 0;
+    pos.y = 0;
+
+    bringToFront(win);
+
+    /* ── Boot sequence ────────────────────────────────────────
+     * Runs once per init() call (already guarded by dataset.termInit).
+     * Chains printLines → setTimeout → clear → printLines so that
+     * state.animating blocks user input throughout the whole sequence.
+     * ─────────────────────────────────────────────────────── */
+    function bootSequence() {
+      var out = getOutput();
+      if (!out) { createPromptLine(); return; }
+
+      // ── Stage 1: systemd-style boot messages ──────────────
+      var bootLines = [
+        { text: '[    0.000000] Linux version 6.8.0-alaska (gcc 13.2.0) #1 SMP PREEMPT_DYNAMIC', cls: 'muted' },
+        { text: '[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-linux root=/dev/sda1 quiet', cls: 'muted' },
+        { text: '[    0.041823] ACPI: BIOS age (2006) fails cutoff (2001), acpi=force is required', cls: 'muted' },
+        { text: '[    0.183441] PCI: Using configuration type 1 for base access', cls: 'muted' },
+        { text: '[    0.341207] clocksource: tsc-early: mask: 0xffffffffffffffff max_cycles: 0x3a3b7e4f72c', cls: 'muted' },
+        { text: '' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Started systemd-journald.service - Journal Service.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Mounted dev-hugepages.mount - Huge Pages File System.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Started systemd-udevd.service - Rule-based Manager.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Reached target sysinit.target - System Initialization.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Started NetworkManager.service - Network Manager.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Started sshd.service - OpenSSH Daemon.', cls: 'success' },
+        { text: '\u001b[0;32m[  OK  ]\u001b[0m Reached target multi-user.target - Multi-User System.', cls: 'success' },
+        { text: '' },
+        { text: 'Arch Linux 6.8.0-alaska (tty1)', cls: 'output' },
+        { text: '' },
+      ];
+
+      // ── Stage 2: SSH login ─────────────────────────────────
+      var loginLines = [
+        { text: 'SSH client v8.9 — OpenSSH_8.9p1, OpenSSL 3.0.2', cls: 'muted' },
+        { text: '' },
+        { text: 'Connecting to plasma.local (192.168.1.42)...', cls: 'output' },
+        { text: 'Connection established.', cls: 'success' },
+        { text: '' },
+        { text: 'plasma.local login: alaska', cls: 'output' },
+        { text: 'Password: \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022', cls: 'muted' },
+        { text: '' },
+        { text: 'Authentication successful.', cls: 'success' },
+        { text: '' },
+      ];
+
+      // ── Stage 3: MOTD ──────────────────────────────────────
+      var now      = new Date();
+      var days     = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var months   = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      var pad      = function (n) { return n < 10 ? '0' + n : '' + n; };
+      var lastLogin =
+        days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' +
+        pad(now.getDate()) + ' ' +
+        pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) +
+        ' ' + now.getFullYear();
+
+      var motdLines = [
+        { text: '   \u2584\u2584\u2584\u2584\u2584\u2584\u2584   \u2584\u2584\u2584\u2584\u2584\u2584\u2584   \u2584\u2584\u2584\u2584\u2584\u2584\u2584', cls: 'success' },
+        { text: '  \u2588\u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588', cls: 'success' },
+        { text: '  \u2588\u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2584\u2584', cls: 'success' },
+        { text: '  \u2588\u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588   \u2588\u2588\u2588      \u2588\u2588\u2588', cls: 'success' },
+        { text: '  \u2588\u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588', cls: 'success' },
+        { text: '' },
+        { text: 'Welcome to Arch Linux on plasma!', cls: 'header' },
+        { text: '' },
+        { text: '  OS:       Arch Linux x86_64', cls: 'output' },
+        { text: '  Kernel:   6.8.0-alaska', cls: 'output' },
+        { text: '  Hostname: plasma.local', cls: 'output' },
+        { text: '  Uptime:   23 years, 0 days', cls: 'output' },
+        { text: '  Shell:    bash 5.2.37', cls: 'output' },
+        { text: '' },
+        { text: '  * Documentation:  https://wiki.archlinux.org', cls: 'muted' },
+        { text: '  * Management:     https://bbs.archlinux.org', cls: 'muted' },
+        { text: '' },
+        { text: 'Last login: ' + lastLogin + ' from 192.168.1.1', cls: 'muted' },
+        { text: '' },
+      ];
+
+      // ── Chain stages ───────────────────────────────────────
+      printLines(bootLines, function () {
+        setTimeout(function () {
+          out.innerHTML = '';
+          printLines(loginLines, function () {
+            setTimeout(function () {
+              out.innerHTML = '';
+              printLines(motdLines, createPromptLine);
+            }, 600);
+          });
+        }, 400);
+      });
+    }
+
+    bootSequence();
 
     inp.addEventListener('input', function () {
       updatePromptLine(inp.value);
@@ -684,15 +1218,171 @@
 
     inp.addEventListener('keydown', onKeyDown);
 
+    // Focus management
+    win.addEventListener('mousedown', function () {
+      bringToFront(win);
+    });
+
     win.addEventListener('click', function (e) {
       if (e.target.closest('.kwm-btn')) return;
       if (!state.animating) inp.focus();
     });
 
+    // ── Restore button ────────────────────────────────────────
+    var restoreBtn = document.getElementById('terminal-restore');
+    if (!restoreBtn) {
+      restoreBtn = document.createElement('button');
+      restoreBtn.id        = 'terminal-restore';
+      restoreBtn.className = 'terminal-restore-btn';
+      restoreBtn.setAttribute('aria-label', 'Abrir terminal');
+      restoreBtn.textContent = '>_';
+      document.body.appendChild(restoreBtn);
+    }
+    restoreBtn.classList.remove('visible');
+
+    if (!restoreBtn.dataset.listenerBound) {
+      restoreBtn.dataset.listenerBound = 'true';
+      restoreBtn.addEventListener('click', function () {
+        var w = document.querySelector('.konsole-window');
+        if (!w) return;
+        restoreTerminal(w, restoreBtn);
+        var i = document.getElementById('terminal-input');
+        if (i) i.focus();
+      });
+    }
+
+    // ── Fullscreen button (injected into titlebar) ────────────
+    var controls = win.querySelector('.kwm-controls');
+    if (controls && !controls.querySelector('#kwm-fullscreen')) {
+      var btnFs = document.createElement('button');
+      btnFs.id          = 'kwm-fullscreen';
+      btnFs.type        = 'button';
+      btnFs.className   = 'kwm-btn kwm-btn--fullscreen';
+      btnFs.title       = 'Pantalla completa';
+      btnFs.setAttribute('aria-label',   'Pantalla completa');
+      btnFs.setAttribute('aria-pressed', 'false');
+      btnFs.textContent = '⛶';
+      controls.appendChild(btnFs);
+    }
+
+    // ── Drag ──────────────────────────────────────────────────
+    var titlebar = win.querySelector('.konsole-titlebar');
+    if (titlebar) {
+      titlebar.addEventListener('mousedown', function (e) {
+        if (e.target.closest('.kwm-btn')) return;
+        if (win.classList.contains('is-fullscreen')) return;
+
+        bringToFront(win);
+        win.classList.add('is-dragging');
+
+        var startX = e.clientX - pos.x;
+        var startY = e.clientY - pos.y;
+
+        titlebar.style.cursor          = 'grabbing';
+        document.body.style.userSelect = 'none';
+
+        function onMouseMove(e) {
+          var ww = win.offsetWidth || 400;
+          pos.x = Math.max(-(ww - 60), Math.min(window.innerWidth  - 60, e.clientX - startX));
+          pos.y = Math.max(0,           Math.min(window.innerHeight - 30, e.clientY - startY));
+          win.style.transform = 'translate(' + pos.x + 'px, ' + pos.y + 'px)';
+        }
+
+        function onMouseUp() {
+          titlebar.style.cursor          = '';
+          document.body.style.userSelect = '';
+          win.classList.remove('is-dragging');
+          bringToFront(win);
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup',   onMouseUp);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup',   onMouseUp);
+      });
+    }
+
+    // ── Window control buttons ────────────────────────────────
+    var btnClose    = document.getElementById('kwm-close');
     var btnMinimize = document.getElementById('kwm-minimize');
     var btnMaximize = document.getElementById('kwm-maximize');
-    if (btnMinimize) btnMinimize.addEventListener('click', function () { handleMinimize(btnMinimize); });
-    if (btnMaximize) btnMaximize.addEventListener('click', function () { handleMaximize(btnMaximize); });
+    var btnFullscreen = win.querySelector('#kwm-fullscreen');
+
+    if (btnClose) {
+      btnClose.addEventListener('click', function () {
+        closeTerminal(win, restoreBtn);
+      });
+    }
+
+    if (btnMinimize) {
+      btnMinimize.addEventListener('click', function () {
+        closeTerminal(win, restoreBtn);
+      });
+    }
+
+    if (btnMaximize) {
+      btnMaximize.addEventListener('click', function () {
+        if (win.classList.contains('is-fullscreen')) {
+          setState(win, null);
+          btnMaximize.setAttribute('aria-pressed', 'false');
+          bringToFront(win);
+        } else {
+          setState(win, 'is-fullscreen');
+          btnMaximize.setAttribute('aria-pressed', 'true');
+          scrollBottom();
+        }
+      });
+    }
+
+    if (btnFullscreen) {
+      btnFullscreen.addEventListener('click', function () {
+        if (win.classList.contains('is-fullscreen')) {
+          setState(win, null);
+          btnFullscreen.setAttribute('aria-pressed', 'false');
+          bringToFront(win);
+        } else {
+          setState(win, 'is-fullscreen');
+          btnFullscreen.setAttribute('aria-pressed', 'true');
+          scrollBottom();
+        }
+      });
+    }
+
+    // ── Global: backtick restores closed terminal ─────────────
+    if (!document.body.dataset.terminalRestoreBound) {
+      document.body.dataset.terminalRestoreBound = 'true';
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== '`') return;
+        var w = document.querySelector('.konsole-window');
+        if (!w || !w.classList.contains('is-closed')) return;
+        var rb = document.getElementById('terminal-restore');
+        if (rb) restoreTerminal(w, rb);
+        var i = document.getElementById('terminal-input');
+        if (i) i.focus();
+      });
+    }
+
+    // ── Global: Ctrl+C cancels ping when input is disabled ────
+    if (!document.body.dataset.terminalCtrlBound) {
+      document.body.dataset.terminalCtrlBound = 'true';
+      document.addEventListener('keydown', function (e) {
+        if (!e.ctrlKey || (e.key !== 'c' && e.key !== 'C')) return;
+        if (!pingTimers.length) return;
+        e.preventDefault();
+        pingTimers.forEach(function (t) { clearTimeout(t); });
+        pingTimers = [];
+        state.animating = false;
+        var i = getInput();
+        if (i) i.disabled = false;
+        var out = getOutput();
+        if (out) {
+          var el = makeLine('^C', 'muted');
+          out.appendChild(el);
+          scrollBottom();
+        }
+        createPromptLine();
+      });
+    }
   }
 
   /* ─────────────────────────────────────────────────────────────

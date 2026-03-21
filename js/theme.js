@@ -1,56 +1,45 @@
 // Dark mode — detección inicial y carga de preferencia
 document.addEventListener('DOMContentLoaded', () => {
-    const themeIcon = document.getElementById('themeIcon');
-    const themeIconMobile = document.getElementById('themeIconMobile');
     let darkMode = localStorage.getItem('darkMode');
 
-    // Si no hay preferencia guardada, usar la del sistema
     if (!darkMode) {
         darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'enabled' : 'disabled';
         localStorage.setItem('darkMode', darkMode);
     }
 
-    // Aplicar la preferencia guardada
     if (darkMode === 'enabled') {
         document.body.classList.add('dark-mode');
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-sun';
-        }
-        if (themeIconMobile) {
-            themeIconMobile.className = 'fas fa-sun';
-        }
-    } else {
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-moon';
-        }
-        if (themeIconMobile) {
-            themeIconMobile.className = 'fas fa-moon';
-        }
     }
+
+    applyThemeIcons();
 });
+
+// Sincroniza los iconos de tema con el estado actual del DOM
+function applyThemeIcons() {
+    const isDark = document.body.classList.contains('dark-mode');
+    const targetClass = isDark ? 'fa-sun' : 'fa-moon';
+
+    const icons = [
+        document.getElementById('themeIcon'),
+        document.getElementById('themeIconMobile')
+    ];
+
+    icons.forEach(icon => {
+        if (!icon) return;
+        icon.classList.remove('fa-moon', 'fa-sun');
+        icon.classList.add(targetClass);
+    });
+}
 
 // Alternar modo oscuro
 function toggleDarkMode() {
-    const themeIcon = document.getElementById('themeIcon');
-    const themeIconMobile = document.getElementById('themeIconMobile');
-
     document.body.classList.toggle('dark-mode');
 
     if (document.body.classList.contains('dark-mode')) {
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-sun';
-        }
-        if (themeIconMobile) {
-            themeIconMobile.className = 'fas fa-sun';
-        }
         localStorage.setItem('darkMode', 'enabled');
     } else {
-        if (themeIcon) {
-            themeIcon.className = 'fas fa-moon';
-        }
-        if (themeIconMobile) {
-            themeIconMobile.className = 'fas fa-moon';
-        }
         localStorage.setItem('darkMode', 'disabled');
     }
+
+    applyThemeIcons();
 }

@@ -3,7 +3,17 @@ class SPARouter {
     this.routes = {};
     this.currentRoute = null;
     this.isLoading = false;
+    this.cache = new Map();
     this.isLocalDevelopment = window.location.protocol === 'file:';
+    // navigate = internal API used throughout JS files.
+    // navigateTo = legacy/public method kept for the window.navigateTo
+    //              wrapper and backward compatibility with inline HTML.
+    this.navigate = this.navigateTo.bind(this);
+    // HOOK SYSTEM START
+    this.beforeHooks  = [];
+    this.afterHooks   = [];
+    this.prefetching  = new Set(); // tracks in-flight prefetch requests
+    // HOOK SYSTEM END
     this.init();
   }
 
@@ -20,9 +30,33 @@ class SPARouter {
       console.warn('Desarrollo local detectado. Algunas funciones pueden no estar disponibles.');
     }
 
-    window.addEventListener('popstate', () => this.handleRoute());
-    this.setupLinkHandlers();
+    window.addEventListener('popstate', () => {
+      // HOOK SYSTEM START — beforeHooks run on browser back/forward
+      const path = this.normalizeRoute(location.pathname);
+      for (const hook of this.beforeHooks) {
+        try {
+          const result = hook({ to: path, from: this.currentRoute, isPopstate: true });
+          if (result === false) {
+            console.warn('Navigation cancelled by beforeNavigate hook:', path);
+            return;
+          }
+        } catch (e) {
+          console.error('beforeNavigate hook error:', e);
+        }
+      }
+      // HOOK SYSTEM END
+      this.handleRoute();
+    });
     this.handleRoute();
+
+    if ('requestIdleCallback' in window) {
+      // Warm up only the most likely next destinations.
+      // Hover-based prefetch covers the rest on demand.
+      const criticalRoutes = ['/', '/experience'];
+      requestIdleCallback(() => {
+        criticalRoutes.forEach(path => this.prefetch(path));
+      });
+    }
   }
 
   handleRedirect() {
@@ -33,36 +67,14 @@ class SPARouter {
     }
   }
 
-  setupLinkHandlers() {
-    document.addEventListener('click', (e) => {
-      const link = e.target.matches('[data-router-link]')
-        ? e.target
-        : e.target.closest('[data-router-link]');
-
-      if (!link) return;
-
-      e.preventDefault();
-      const href = link.getAttribute('href');
-
-      if (href.includes('#')) {
-        this.handleAnchorNavigation(href);
-      } else {
-        this.navigateTo(href);
-      }
-    });
-  }
-
   handleAnchorNavigation(href) {
     const [path, hash] = href.split('#');
     const homeRoutes = ['/', '', '/index.html', '/home'];
 
     if (homeRoutes.includes(path)) {
-      this.navigateTo('/');
-      if (hash) {
-        setTimeout(() => {
-          document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
+      // Pass the full href including the hash so beforeHooks receive the
+      // complete destination and scroll still fires via handleRoute's hash logic.
+      this.navigate(hash ? '/#' + hash : '/');
     }
   }
 
@@ -72,6 +84,24 @@ class SPARouter {
 
   navigateTo(path) {
     if (this.isLoading) return;
+
+    const normalized = this.normalizeRoute(path);
+    if (normalized === this.currentRoute && !path.includes('#')) return;
+
+    // HOOK SYSTEM START — beforeHooks can cancel navigation by returning false
+    for (const hook of this.beforeHooks) {
+      try {
+        const result = hook({ to: normalized, from: this.currentRoute, isPopstate: false });
+        if (result === false) {
+          console.warn('Navigation cancelled by beforeNavigate hook:', normalized);
+          return;
+        }
+      } catch (e) {
+        console.error('beforeNavigate hook error:', e);
+      }
+    }
+    // HOOK SYSTEM END
+
     history.pushState(null, '', path);
     this.handleRoute(true);
   }
@@ -93,47 +123,73 @@ class SPARouter {
     if (this.isLoading) return;
     this.isLoading = true;
 
-    const path = window.location.pathname;
-    const hash = window.location.hash;
-    const route = this.normalizeRoute(path);
+    try {
+      const path  = window.location.pathname;
+      const hash  = window.location.hash;
+      const route = this.normalizeRoute(path);
 
-    if (this.routes[route]) {
-      await this.loadPage(this.routes[route], route);
+      if (this.routes[route]) {
+        await this.loadPage(this.routes[route], route, path);
 
-      if (isProgrammaticNavigation && !hash) {
-        setTimeout(() => this.scrollToTop(), 10);
+        if (isProgrammaticNavigation && !hash) {
+          setTimeout(() => this.scrollToTop(), 10);
+        }
+
+        if (hash) {
+          setTimeout(() => {
+            document.getElementById(hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+      } else {
+        console.warn('Ruta no encontrada:', route);
+        await this.loadPage(this.routes['/'], '/', path);
       }
-
-      if (hash) {
-        setTimeout(() => {
-          document.getElementById(hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    } else {
-      console.warn('Ruta no encontrada:', route);
-      await this.loadPage(this.routes['/'], '/');
+    } finally {
+      this.isLoading = false;
     }
-
-    this.isLoading = false;
   }
 
-  async loadPage(htmlFile, route) {
+  async loadPage(htmlFile, route, requestedPath = route) {
     try {
-      const response = await fetch(htmlFile);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      let html;
 
-      const html = await response.text();
+      if (this.cache.has(htmlFile)) {
+        html = this.cache.get(htmlFile);
+      } else {
+        const response = await fetch(htmlFile);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        html = await response.text();
+        this.cache.set(htmlFile, html);
+      }
+
       const appElement = document.getElementById('app');
       if (!appElement) { console.error('Elemento #app no encontrado'); return; }
 
+      // Inject HTML first so all subsequent calls operate on the new DOM.
       appElement.innerHTML = html;
 
       this.updateNavigation(route);
       this.updateMetaTags(route);
       this.executePageScripts(route);
+      // HOOK SYSTEM START — afterHooks run after successful page load.
+      // previousRoute is captured before assignment so hooks always receive
+      // the route the user navigated FROM, not the one they landed on.
+      // `requested` preserves the original path so hooks can distinguish
+      // a clean navigation to '/' from a fallback caused by an unknown route.
+      const previousRoute = this.currentRoute;
       this.currentRoute = route;
 
       if (typeof applyThemeIcons === 'function') applyThemeIcons();
+
+      const current = this.currentRoute;
+      this.afterHooks.forEach(fn => {
+        try {
+          fn(current, { from: previousRoute, requested: requestedPath });
+        } catch (e) {
+          console.error('afterNavigate hook error:', e);
+        }
+      });
+      // HOOK SYSTEM END
 
     } catch (error) {
       console.error('Error loading page:', error);
@@ -157,22 +213,11 @@ class SPARouter {
   }
 
   updateNavigation(route) {
-    const nav = document.getElementById('main-nav');
+    const nav        = document.getElementById('main-nav');
     const mobileMenu = document.getElementById('mobileMenu');
     if (!nav || !mobileMenu) return;
 
-    // nav.innerHTML = `
-    //   <a href="/" data-router-link>Sobre mí</a>
-    //   <a href="/experience" data-router-link>Experiencia</a>
-    //   <a href="/#contacto" data-router-link>Contacto</a>
-    // `;
-
-      //     <a href="/" data-router-link onclick="closeMobileMenu()">Sobre mí</a>
-      // <a href="/experience" data-router-link onclick="closeMobileMenu()">Experiencia</a>
-      // <a href="/#contacto" data-router-link onclick="closeMobileMenu()">Contacto</a>
-
     mobileMenu.innerHTML = `
-
       <button class="theme-toggle mobile-theme-btn" onclick="toggleDarkMode(); closeMobileMenu();">
         <i class="fas fa-moon" id="themeIconMobile"></i> Cambiar tema
       </button>
@@ -188,43 +233,39 @@ class SPARouter {
         description: 'Conoce mi trayectoria profesional, habilidades técnicas y experiencia en atención al cliente, soporte IT y diseño gráfico.',
         ogTitle: 'Experiencia Profesional - Alaska E. González',
         ogDesc: 'Descubre mi experiencia laboral en atención al cliente, soporte técnico, diseño gráfico y gestión de redes sociales.',
-        url: `${baseUrl}/experience`
+        url: `${baseUrl}/experience`,
       },
       '/game': {
         title: 'Quantum Cat Invaders - Alaska E. González',
         description: 'Un Space Invaders con temática cuántica. Gatos, física y jefes como la Caja de Schrödinger.',
         ogTitle: 'Quantum Cat Invaders 🐱',
         ogDesc: 'Easter egg: un Space Invaders cuántico escondido en el portafolio de Alaska.',
-        url: `${baseUrl}/game`
-      },
-      '/design': {
-        title: 'Portfolio de Diseño Gráfico - Alaska E. González',
-        description: 'Portfolio de diseño gráfico de Alaska E. González.',
-        ogTitle: 'Portfolio de Diseño Gráfico - Alaska E. González',
-        ogDesc: 'Descubre mis trabajos de diseño gráfico: logotipos, branding, contenido para redes sociales y material publicitario.',
-        url: `${baseUrl}/design`
+        url: `${baseUrl}/game`,
       },
       '/': {
         title: 'Alaska E. González – Portafolio',
         description: 'Portafolio profesional de Alaska E. González: experiencia en desarrollo web, diseño gráfico, soporte IT y atención al público.',
         ogTitle: 'Alaska E. González – Portafolio profesional',
         ogDesc: 'Explora el portafolio de Alaska E. González: proyectos, habilidades técnicas, estudios y contacto profesional.',
-        url: baseUrl
-      }
+        url: baseUrl,
+      },
     };
 
     const cfg = metaUpdates[route] || metaUpdates['/'];
 
-    [
-      { id: 'page-title',               prop: 'textContent', value: cfg.title },
+    // Cache elements before the loop to avoid repeated getElementById calls.
+    const fields = [
+      { id: 'page-title',               prop: 'textContent', value: cfg.title       },
       { id: 'meta-description',         prop: 'content',     value: cfg.description },
-      { id: 'meta-og-url',              prop: 'content',     value: cfg.url },
-      { id: 'meta-og-title',            prop: 'content',     value: cfg.ogTitle },
-      { id: 'meta-og-description',      prop: 'content',     value: cfg.ogDesc },
-      { id: 'meta-twitter-url',         prop: 'content',     value: cfg.url },
-      { id: 'meta-twitter-title',       prop: 'content',     value: cfg.ogTitle },
-      { id: 'meta-twitter-description', prop: 'content',     value: cfg.ogDesc }
-    ].forEach(({ id, prop, value }) => {
+      { id: 'meta-og-url',              prop: 'content',     value: cfg.url         },
+      { id: 'meta-og-title',            prop: 'content',     value: cfg.ogTitle     },
+      { id: 'meta-og-description',      prop: 'content',     value: cfg.ogDesc      },
+      { id: 'meta-twitter-url',         prop: 'content',     value: cfg.url         },
+      { id: 'meta-twitter-title',       prop: 'content',     value: cfg.ogTitle     },
+      { id: 'meta-twitter-description', prop: 'content',     value: cfg.ogDesc      },
+    ];
+
+    fields.forEach(({ id, prop, value }) => {
       const el = document.getElementById(id);
       if (!el) return;
       prop === 'textContent' ? (el.textContent = value) : el.setAttribute(prop, value);
@@ -233,133 +274,52 @@ class SPARouter {
 
   executePageScripts(route) {
     if (route === '/design') {
-      setTimeout(() => this.initCarousel(), 100);
+      setTimeout(() => {
+        if (typeof initCarousel === 'function') initCarousel();
+      }, 100);
     }
     if (route === '/') {
-      setTimeout(() => this.initEasterEgg(), 200);
-    }
-    // /game: game.js se inicializa solo vía MutationObserver al detectar #game-canvas
-  }
-
-  // ── Easter egg ────────────────────────────────────────────────────────────
-  // 5 clics sobre el avatar en menos de 4 segundos → navega a /game.
-  // Feedback visual: el avatar gira levemente con cada clic.
-
-  initEasterEgg() {
-    const avatar = document.getElementById('hero-avatar');
-    if (!avatar) return;
-
-    let count   = 0;
-    let timeout = null;
-
-    const CLICKS_NEEDED = 5;
-    const WINDOW_MS     = 4000;
-
-    // Rotaciones acumulativas por clic (CSS transform inline)
-    const rotations = [3, -5, 8, -10, 360];
-
-    const reset = () => {
-      count = 0;
-      clearTimeout(timeout);
-      avatar.style.transition = 'transform 0.4s ease';
-      avatar.style.transform  = '';
-    };
-
-    avatar.style.cursor = 'pointer';
-
-    avatar.addEventListener('click', () => {
-      count++;
-      clearTimeout(timeout);
-
-      const rot = rotations[Math.min(count - 1, rotations.length - 1)];
-      avatar.style.transition = 'transform 0.15s ease';
-      avatar.style.transform  = `rotate(${rot}deg)`;
-
-      if (count >= CLICKS_NEEDED) {
-        // Pequeña animación antes de navegar
-        avatar.style.transition = 'transform 0.5s ease';
-        avatar.style.transform  = 'rotate(360deg) scale(1.12)';
-        setTimeout(() => {
-          reset();
-          window.navigateTo('/game');
-        }, 520);
-        return;
-      }
-
-      // Resetear si pasa demasiado tiempo entre clics
-      timeout = setTimeout(reset, WINDOW_MS);
-    });
-  }
-
-  // ── Carrusel ──────────────────────────────────────────────────────────────
-
-  initCarousel() {
-    if (window.carouselInstance) window.carouselInstance.destroy();
-
-    class Carousel {
-      constructor() {
-        this.currentSlide = 0;
-        this.slides = document.querySelectorAll('.carousel-slide');
-        this.indicators = document.querySelectorAll('.indicator');
-        this.totalSlides = this.slides.length;
-        this.autoSlideInterval = null;
-        if (this.slides.length > 0) this.init();
-      }
-
-      init() {
-        this.setupEventListeners();
-        this.setupTouchEvents();
-        this.startAutoSlide();
-        this.setupHoverEvents();
-      }
-
-      setupEventListeners() {
-        document.getElementById('prevBtn')?.addEventListener('click', () => this.prevSlide());
-        document.getElementById('nextBtn')?.addEventListener('click', () => this.nextSlide());
-        this.indicators.forEach((ind, i) => ind.addEventListener('click', () => this.goToSlide(i)));
-      }
-
-      setupHoverEvents() {
-        const c = document.querySelector('.carousel-container');
-        if (c) {
-          c.addEventListener('mouseenter', () => this.stopAutoSlide());
-          c.addEventListener('mouseleave', () => this.startAutoSlide());
+      setTimeout(() => {
+        const avatar = document.getElementById('hero-avatar');
+        if (typeof initEasterEgg === 'function') {
+          initEasterEgg(avatar, path => this.navigate(path));
         }
-      }
-
-      setupTouchEvents() {
-        let startX = 0;
-        const c = document.querySelector('.carousel-container');
-        if (!c) return;
-        c.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
-        c.addEventListener('touchend', e => {
-          const diff = startX - e.changedTouches[0].clientX;
-          if (Math.abs(diff) > 50) diff > 0 ? this.nextSlide() : this.prevSlide();
-        });
-      }
-
-      showSlide(i) {
-        this.slides.forEach(s => s.classList.remove('active'));
-        this.indicators.forEach(ind => ind.classList.remove('active'));
-        this.slides[i]?.classList.add('active');
-        this.indicators[i]?.classList.add('active');
-        this.currentSlide = i;
-      }
-
-      nextSlide() { this.showSlide((this.currentSlide + 1) % this.totalSlides); }
-      prevSlide() { this.showSlide((this.currentSlide - 1 + this.totalSlides) % this.totalSlides); }
-      goToSlide(i) { this.showSlide(i); }
-      startAutoSlide() { this.stopAutoSlide(); this.autoSlideInterval = setInterval(() => this.nextSlide(), 5000); }
-      stopAutoSlide() { clearInterval(this.autoSlideInterval); this.autoSlideInterval = null; }
-      destroy() { this.stopAutoSlide(); }
+      }, 200);
     }
+    // /game: game.js self-initialises via MutationObserver on #game-canvas
+  }
 
-    window.carouselInstance = new Carousel();
+  // HOOK SYSTEM START
+  beforeNavigate(fn) {
+    if (typeof fn === 'function') this.beforeHooks.push(fn);
+  }
+
+  afterNavigate(fn) {
+    if (typeof fn === 'function') this.afterHooks.push(fn);
+  }
+  // HOOK SYSTEM END
+
+  prefetch(path) {
+    const normalized = this.normalizeRoute(path);
+    const page = this.routes[normalized];
+
+    if (!page) return;
+    if (this.cache.has(page)) return;
+    if (this.prefetching.has(page)) return; // request already in flight
+
+    this.prefetching.add(page);
+    fetch(page)
+      .then(res => res.text())
+      .then(html => {
+        this.cache.set(page, html);
+        this.prefetching.delete(page);
+      })
+      .catch(() => { this.prefetching.delete(page); });
   }
 
   scrollToTop() {
     document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    document.body.scrollTop            = 0;
     if (window.scrollY !== 0) window.scrollTo(0, 0);
   }
 }
@@ -368,4 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.router = new SPARouter();
 });
 
-window.navigateTo = path => window.router?.navigateTo(path);
+// Thin global wrapper kept for backward compatibility with inline HTML handlers
+// (onclick="navigateTo(...)"). All internal code uses router.navigate() instead.
+window.navigateTo = (path) => window.router?.navigate(path);

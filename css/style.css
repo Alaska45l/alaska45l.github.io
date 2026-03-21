@@ -1,17 +1,3 @@
-/* ============================================================
-   css/style.css
-   LOAD ORDER: MUST be the FIRST stylesheet in <head>.
-   Contains:
-   1. All CSS custom properties (:root + body.dark-mode tokens)
-   2. Reset and base body rules
-   3. Remaining component rules not extracted to dedicated files
-
-   SOURCE: previously saved as css/base.css — renamed to css/style.css
-   so the HTML <link href="css/style.css"> resolves correctly.
-   css/base.css must be DELETED after this rename.
-   ============================================================ */
-
-
 /* ==========================================
    CUSTOM PROPERTIES
    ========================================== */
@@ -47,6 +33,18 @@
     --dark-border-light: rgba(255,255,255,0.1);
     --dark-shadow-soft: 0 4px 20px rgba(0,0,0,0.3);
     --dark-shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+/* ==========================================
+   PAGE TRANSITIONS
+   ========================================== */
+
+#app {
+  transition: opacity 0.2s ease;
+}
+
+#app.is-transitioning {
+  opacity: 0;
 }
 
 /* ==========================================
