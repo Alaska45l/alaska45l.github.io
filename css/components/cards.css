@@ -1,6 +1,20 @@
-/* ==========================================
-   BASE CARD
-   ========================================== */
+/* ============================================================
+   DEPENDS ON:
+   - base.css    (all --var custom properties)
+   - utilities.css (fadeInUp keyframe — used by .card and .portfolio-item)
+
+   WARNING:
+   utilities.css MUST be loaded before this file.
+   .card uses animation: fadeInUp. If utilities.css is absent,
+   the animation silently fails — no error, no fallback.
+
+   LOAD ORDER NOTE:
+   terminal.css must load AFTER this file.
+   .konsole-card:hover { transform: none } in terminal.css
+   overrides .card:hover via source order (equal specificity).
+   ============================================================ */
+
+/* FROM style.css — CONTENIDO PRINCIPAL section */
 
 .card {
     background: var(--card-bg);
@@ -18,9 +32,7 @@
     transform: translateY(-5px);
 }
 
-/* ==========================================
-   PROJECT CARD
-   ========================================== */
+/* FROM style.css — PROYECTOS section */
 
 .project-card {
     padding: 1.5rem;
@@ -47,9 +59,13 @@
     margin-bottom: 1rem;
 }
 
-/* ==========================================
-   ABOUT SKILL CARD
-   ========================================== */
+/* FROM style.css — SOBRE MÍ — grilla de habilidades section */
+
+.about-skills-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
 
 .about-skill-card {
     display: flex;
@@ -101,9 +117,7 @@
     padding: 0.2rem 0.6rem;
 }
 
-/* ==========================================
-   PHILOSOPHY CARD
-   ========================================== */
+/* FROM style.css — PAGINA DE EXPERIENCIA — Philosophy Grid */
 
 .philosophy-grid {
     display: grid;

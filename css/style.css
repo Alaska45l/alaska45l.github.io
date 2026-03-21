@@ -1,12 +1,14 @@
 /* ============================================================
-   style.css
-   Contains:
-   1. Custom properties, reset, base (fused from base.css)
-   2. Remaining rules not extracted to any component file
-
+   css/style.css
    LOAD ORDER: MUST be the FIRST stylesheet in <head>.
-   All other files depend on the :root variables defined here.
-   base.css is now deleted — its content lives here.
+   Contains:
+   1. All CSS custom properties (:root + body.dark-mode tokens)
+   2. Reset and base body rules
+   3. Remaining component rules not extracted to dedicated files
+
+   SOURCE: previously saved as css/base.css — renamed to css/style.css
+   so the HTML <link href="css/style.css"> resolves correctly.
+   css/base.css must be DELETED after this rename.
    ============================================================ */
 
 
@@ -15,7 +17,7 @@
    ========================================== */
 
 :root {
-    --bg-primary: #fef6fb;
+    --bg-primary: #fef6fb;       /* declared; currently unused — body bg via ::before/::after */
     --bg-secondary: #fff0f6;
     --card-bg: #ffffff;
     --primary-color: #f3a9c4;
@@ -32,7 +34,7 @@
     --max-width: 1200px;
     --spacing: 1.5rem;
 
-    /* Variables para modo oscuro */
+    /* Dark mode source values — consumed only by body.dark-mode reassignments below */
     --dark-bg-primary: #0f0f23;
     --dark-bg-secondary: #1a1a2e;
     --dark-card-bg: #16213e;
@@ -101,7 +103,10 @@ body::before {
 
 /* ==========================================
    DARK MODE — TOKEN OVERRIDES ONLY
-   Component overrides live in theme/dark.css
+   Component overrides → theme/dark.css
+   Layout overrides    → layout.css
+   Carousel overrides  → components/carousel.css
+   Timeline overrides  → components/timeline.css
    ========================================== */
 
 body.dark-mode {
@@ -152,7 +157,7 @@ body.dark-mode::before {
 
 /* ==========================================
    SOBRE MÍ — INTRO
-   TODO: verify usage — may be unused since
+   TODO: verify usage — likely unused since
    terminal replaced the about section
    ========================================== */
 
@@ -165,8 +170,9 @@ body.dark-mode::before {
 
 /* ==========================================
    ACORDEÓN GENÉRICO
-   Referenced by accordion.js — toggleAccordion()
-   reads .accordion-body and .accordion-icon
+   JS dependency: accordion.js toggleAccordion()
+   reads .accordion-body and .accordion-icon —
+   these classes MUST remain defined here
    ========================================== */
 
 .accordion {
@@ -407,7 +413,7 @@ body.dark-mode::before {
 /* ==========================================
    RESPONSIVE — REMAINING ORPHAN RULES
    TODO: .projects-grid and .contact-grid have
-   no confirmed route — verify before keeping
+   no confirmed route — verify before deleting
    ========================================== */
 
 @media (min-width: 768px) {
