@@ -1,0 +1,71 @@
+/* ==========================================
+   CONTACT FORM CONTAINER
+   ========================================== */
+
+.contact-form-container {
+    margin: 1rem 0;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border-light);
+    padding: 1rem;
+}
+
+.contact-form-container:focus-within {
+    border-color: var(--primary-color);
+}
+
+/* ==========================================
+   CONTACT FORM
+   ========================================== */
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ==========================================
+   FORM GROUP
+   ========================================== */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-small);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ==========================================
+   ERROR STATES
+   ========================================== */
+
+.form-group input.error,
+.form-group textarea.error {
+    border-color: #e53e3e;
+    background: rgba(229, 62, 62, 0.05);
+}

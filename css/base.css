@@ -1,0 +1,443 @@
+/* ============================================================
+   style.css
+   Contains:
+   1. Custom properties, reset, base (fused from base.css)
+   2. Remaining rules not extracted to any component file
+
+   LOAD ORDER: MUST be the FIRST stylesheet in <head>.
+   All other files depend on the :root variables defined here.
+   base.css is now deleted — its content lives here.
+   ============================================================ */
+
+
+/* ==========================================
+   CUSTOM PROPERTIES
+   ========================================== */
+
+:root {
+    --bg-primary: #fef6fb;
+    --bg-secondary: #fff0f6;
+    --card-bg: #ffffff;
+    --primary-color: #f3a9c4;
+    --secondary-color: #cce5ff;
+    --accent-color: #e6e0ff;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --text-muted: #888;
+    --border-light: rgba(0,0,0,0.06);
+    --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-small: 12px;
+    --max-width: 1200px;
+    --spacing: 1.5rem;
+
+    /* Variables para modo oscuro */
+    --dark-bg-primary: #0f0f23;
+    --dark-bg-secondary: #1a1a2e;
+    --dark-card-bg: #16213e;
+    --dark-primary-color: #ff6b9d;
+    --dark-secondary-color: #4ecdc4;
+    --dark-accent-color: #45b7d1;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #b8bcc8;
+    --dark-text-muted: #9ca3af;
+    --dark-border-light: rgba(255,255,255,0.1);
+    --dark-shadow-soft: 0 4px 20px rgba(0,0,0,0.3);
+    --dark-shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+/* ==========================================
+   RESET
+   ========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   BASE
+   ========================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-size: cover;
+    position: relative;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../assets/background.webp');
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+    will-change: transform;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(254, 246, 251, 0.82);
+    z-index: -1;
+}
+
+/* ==========================================
+   DARK MODE — TOKEN OVERRIDES ONLY
+   Component overrides live in theme/dark.css
+   ========================================== */
+
+body.dark-mode {
+    --bg-primary: var(--dark-bg-primary);
+    --bg-secondary: var(--dark-bg-secondary);
+    --card-bg: var(--dark-card-bg);
+    --primary-color: var(--dark-primary-color);
+    --secondary-color: var(--dark-secondary-color);
+    --accent-color: var(--dark-accent-color);
+    --text-primary: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --text-muted: var(--dark-text-muted);
+    --border-light: var(--dark-border-light);
+    --shadow-soft: var(--dark-shadow-soft);
+    --shadow-hover: var(--dark-shadow-hover);
+}
+
+body.dark-mode::before {
+    background: rgba(15, 15, 35, 0.85);
+}
+
+/* ==========================================
+   TÍTULOS DE SECCIÓN
+   ========================================== */
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.subsection-title {
+    margin: 1rem auto;
+}
+
+/* ==========================================
+   SOBRE MÍ — INTRO
+   TODO: verify usage — may be unused since
+   terminal replaced the about section
+   ========================================== */
+
+.about-intro {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+/* ==========================================
+   ACORDEÓN GENÉRICO
+   Referenced by accordion.js — toggleAccordion()
+   reads .accordion-body and .accordion-icon
+   ========================================== */
+
+.accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.accordion-item {
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.accordion-item:has(.accordion-body.open) {
+    box-shadow: var(--shadow-soft);
+}
+
+.accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.5rem;
+    background: var(--bg-secondary);
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: left;
+    transition: background 0.3s ease;
+}
+
+.accordion-trigger:hover {
+    background: var(--accent-color);
+}
+
+.accordion-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.accordion-label i {
+    color: var(--primary-color);
+    width: 18px;
+    text-align: center;
+}
+
+.accordion-icon {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.accordion-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    background: var(--card-bg);
+    padding: 0 1.5rem;
+}
+
+.accordion-body.open {
+    max-height: 1000px;
+    padding: 1.25rem 1.5rem;
+}
+
+.accordion-body p {
+    color: var(--text-secondary);
+    line-height: 1.75;
+    margin: 0;
+}
+
+.accordion-body p + p {
+    margin-top: 1rem;
+}
+
+/* ==========================================
+   INFORMACIÓN DE PAGOS
+   Used in home.html sidebar
+   ========================================== */
+
+.support-description {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.payment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.payment-item {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: var(--radius-small);
+}
+
+.payment-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.payment-code {
+    background: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    display: block;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+
+.payment-alias {
+    font-weight: bold;
+}
+
+.fa-heart {
+    color: var(--primary-color);
+}
+
+.payment-copy-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.payment-copy-row .payment-code {
+    flex: 1;
+    margin: 0;
+}
+
+/* ==========================================
+   CONTENIDO SOCIAL
+   TODO: no confirmed route — verify before keeping
+   ========================================== */
+
+.social-intro {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.social-content-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.social-content-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.social-content-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.social-content-item:hover .social-icon {
+    transform: scale(1.1);
+}
+
+.social-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #e1306c, #fd1d1d);
+}
+
+.social-icon.twitter {
+    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+}
+
+.social-icon.youtube {
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+}
+
+.social-icon.twitch {
+    background: linear-gradient(135deg, #9146ff, #6441a4);
+}
+
+.social-content-info h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.social-content-info p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.social-content-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.social-content-link:hover {
+    color: var(--secondary-color);
+    transform: translateX(5px);
+}
+
+/* ==========================================
+   RESPONSIVE — REMAINING ORPHAN RULES
+   TODO: .projects-grid and .contact-grid have
+   no confirmed route — verify before keeping
+   ========================================== */
+
+@media (min-width: 768px) {
+    .projects-grid {
+        grid-template-rows: 1fr;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .social-content-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .social-content-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .social-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,602 @@
+/* ==========================================
+   EXPERIENCE TIMELINE — BASE STRUCTURE
+   ========================================== */
+
+.experience-timeline {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 3rem;
+  padding-left: 2rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+  border-radius: 2px;
+}
+
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border: 3px solid var(--card-bg);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--bg-secondary);
+}
+
+/* ==========================================
+   TIMELINE CONTENT
+   ========================================== */
+
+.timeline-content {
+  background: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+  transform: translateX(5px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ==========================================
+   TIMELINE HEADER, PERIOD, ROLE
+   ========================================== */
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.timeline-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.timeline-period {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.timeline-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 25px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-body p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+/* ==========================================
+   POLAROID CARDS
+   ========================================== */
+
+.polaroid-container {
+  margin: 1rem;
+  animation: fadeInRotate 0.6s ease-out;
+}
+
+.polaroid-container.float-left {
+  float: left;
+  transform: rotate(-3deg);
+}
+
+.polaroid-container.float-right {
+  float: right;
+  transform: rotate(3deg);
+}
+
+.polaroid {
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  width: 180px;
+  transition: all 0.3s ease;
+}
+
+.polaroid:hover {
+  transform: scale(1.05) rotate(0deg) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+
+.polaroid-img {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 2px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: white;
+}
+
+.polaroid-caption {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+@keyframes fadeInRotate {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0px;
+  }
+}
+
+/* ==========================================
+   EXPERIENCE HIGHLIGHTS
+   ========================================== */
+
+.experience-highlights {
+  clear: both;
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-small);
+  border-left: 4px solid var(--primary-color);
+}
+
+.highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.highlight-item:last-child {
+  margin-bottom: 0;
+}
+
+.highlight-item i {
+  color: var(--primary-color);
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   SKILLS GAINED TAGS
+   ========================================== */
+
+.skills-gained {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.skill-tag {
+  background: var(--accent-color);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   SKILLS SHOWCASE
+   ========================================== */
+
+.skills-showcase {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.skill-category {
+  background: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s ease;
+}
+
+.skill-category:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.category-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.category-header h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.category-description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skill-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--card-bg);
+  border-radius: var(--radius-small);
+  transition: all 0.3s ease;
+}
+
+.skill-item:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateX(5px);
+}
+
+.skill-item i {
+  color: var(--primary-color);
+  transition: color 0.3s ease;
+}
+
+.skill-item:hover i {
+  color: white;
+}
+
+/* ==========================================
+   ACCORDION TRIGGER — BUTTON RESET
+   ========================================== */
+
+.timeline-accordion-trigger {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.timeline-accordion-trigger:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 6px;
+  border-radius: var(--radius-small);
+}
+
+/* ==========================================
+   ACCORDION TRIGGER — HEADER GRID
+   ========================================== */
+
+.timeline-accordion-trigger .timeline-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "company chevron"
+    "period  chevron";
+  column-gap: 0.75rem;
+  row-gap:    0.35rem;
+  align-items: start;
+  margin-bottom: 0;
+  flex-wrap: unset;
+}
+
+.timeline-accordion-trigger .timeline-header h3 {
+  grid-area: company;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+  margin: 0;
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-header h3 {
+  color: var(--primary-color);
+}
+
+/* ==========================================
+   ACCORDION TRIGGER — PERIOD BADGE
+   ========================================== */
+
+.timeline-accordion-trigger .timeline-period {
+  grid-area: period;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  background: var(--accent-color);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.18rem 0.55rem;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-period {
+  background: var(--secondary-color);
+  color: var(--text-secondary);
+}
+
+/* ==========================================
+   ACCORDION TRIGGER — CHEVRON CIRCLE
+   ========================================== */
+
+.timeline-accordion-chevron {
+  grid-area: chevron;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  pointer-events: none;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  border: 1px solid var(--border-light);
+  transition:
+    transform    0.32s cubic-bezier(0.4, 0, 0.2, 1),
+    background   0.2s ease,
+    color        0.2s ease,
+    border-color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-accordion-chevron {
+  background: var(--accent-color);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.timeline-item.is-open .timeline-accordion-chevron {
+  transform: rotate(180deg);
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* ==========================================
+   ACCORDION TRIGGER — ROLE SUBTITLE
+   ========================================== */
+
+.timeline-accordion-trigger .timeline-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--primary-color);
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger .timeline-role i {
+  color: var(--primary-color);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.timeline-accordion-trigger:hover .timeline-role {
+  color: var(--text-primary);
+}
+
+.timeline-accordion-trigger:hover .timeline-role i {
+  color: var(--primary-color);
+}
+
+/* ==========================================
+   COLLAPSED CARD — HOVER BEHAVIOUR
+   ========================================== */
+
+.timeline-item:not(.is-open) .timeline-content {
+  transition:
+    transform  0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.timeline-item:not(.is-open) .timeline-content:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.timeline-item.is-open .timeline-content {
+  border-left: 4px solid var(--primary-color);
+}
+
+.timeline-item.is-open .timeline-content:hover {
+  transform: none;
+}
+
+/* ==========================================
+   ACCORDION BODY — COLLAPSED / EXPANDED
+   ========================================== */
+
+.timeline-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  border-top: 1px solid transparent;
+  margin-top: 0;
+  padding-top: 0;
+  transition:
+    max-height   0.45s ease,
+    opacity      0.3s  ease,
+    margin-top   0.3s  ease,
+    padding-top  0.3s  ease,
+    border-color 0.25s ease;
+}
+
+.timeline-item.is-open .timeline-body {
+  max-height: 2000px;
+  opacity: 1;
+  border-top: 1px solid var(--border-light);
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  transition:
+    max-height   0.5s  ease,
+    opacity      0.4s  ease 0.07s,
+    margin-top   0.3s  ease,
+    padding-top  0.3s  ease,
+    border-color 0.2s  ease;
+}
+
+/* ==========================================
+   DARK MODE — TIMELINE
+   ========================================== */
+
+body.dark-mode .polaroid {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+}
+
+body.dark-mode .timeline-accordion-trigger .timeline-period {
+  background:   rgba(69, 183, 209, 0.12);
+  color:        var(--accent-color);
+  border:       1px solid rgba(69, 183, 209, 0.28);
+}
+
+body.dark-mode .timeline-accordion-trigger:hover .timeline-period {
+  background:   rgba(69, 183, 209, 0.2);
+  color:        var(--accent-color);
+  border-color: rgba(69, 183, 209, 0.45);
+}
+
+/* ==========================================
+   RESPONSIVE — TIMELINE (≤ 768px)
+   ========================================== */
+
+@media (max-width: 768px) {
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
+
+  .polaroid-container {
+    float: none !important;
+    display: inline-block;
+    margin: 1rem auto;
+  }
+
+  .polaroid {
+    width: 160px;
+  }
+
+  .timeline-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE — ACCORDION (≤ 480px)
+   ========================================== */
+
+@media (max-width: 480px) {
+  .timeline-accordion-trigger .timeline-header h3 {
+    font-size: 1.05rem;
+  }
+
+  .timeline-accordion-chevron {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION — ACCORDION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-body,
+  .timeline-item.is-open .timeline-body,
+  .timeline-accordion-chevron,
+  .timeline-content,
+  .timeline-item:not(.is-open) .timeline-content,
+  .timeline-accordion-trigger .timeline-header h3,
+  .timeline-accordion-trigger .timeline-role,
+  .timeline-accordion-trigger .timeline-period {
+    transition: none;
+  }
+}
