@@ -1,0 +1,36 @@
+/* ==========================================
+   TYPOGRAPHY
+   ========================================== */
+
+body.dark-mode strong {
+    color: var(--text-primary);
+}
+
+body.dark-mode ul li {
+    color: var(--text-secondary);
+}
+
+/* ==========================================
+   CODE
+   ========================================== */
+
+body.dark-mode code {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary);
+}
+
+/* ==========================================
+   FORMS
+   ========================================== */
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group textarea:focus {
+    border-color: var(--primary-color);
+}

@@ -29,11 +29,31 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   
   <!-- Core styles -->
+
+  <!-- 1. Tokens + reset + base + remaining rules -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- 2. Header, nav, mobile menu, container, grid, footer -->
+  <link rel="stylesheet" href="css/layout.css">
+
+  <!-- 3. @keyframes fadeInUp, tags, status badges, a11y -->
+  <link rel="stylesheet" href="css/utilities.css">
+
+  <!-- 4. Components -->
+  <link rel="stylesheet" href="css/components/buttons.css">
+  <link rel="stylesheet" href="css/components/cards.css">
+  <link rel="stylesheet" href="css/components/forms.css">
+  <link rel="stylesheet" href="css/components/carousel.css">
+  <link rel="stylesheet" href="css/components/timeline.css">
+
+  <!-- 5. Pages -->
+  <link rel="stylesheet" href="css/pages/home.css">
+
+  <!-- 6. Terminal — MUST follow cards.css (.konsole-card:hover source order) -->
   <link rel="stylesheet" href="css/terminal.css">
 
-  <!-- Experience accordion styles (isolated, depends on :root vars from style.css) -->
-  <link rel="stylesheet" href="css/experience.css">
+  <!-- 7. Dark mode component overrides — MUST be last -->
+  <link rel="stylesheet" href="css/theme/dark.css">
   
   <!-- Favicon -->
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
@@ -79,6 +99,8 @@
   <script src="js/menu.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/form.js"></script>
+  <script src="js/carousel.js"></script>
+  <script src="js/easterEgg.js"></script>
   <script src="js/router.js"></script>
   <script src="js/accordion.js"></script>
   <script src="js/terminal.js"></script>
@@ -92,5 +114,56 @@
   <script src="js/game/entities.js"></script>
   <script src="js/game/renderer.js"></script>
   <script src="js/game/game.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!window.router) return;
+
+      let navStart = 0;
+
+      window.router.beforeNavigate(function (ctx) {
+        navStart = performance.now();
+
+        console.log('[NAV:start]', {
+          to:   ctx.to,
+          from: ctx.from,
+          type: ctx.isPopstate ? 'popstate' : 'push',
+        });
+
+        const app = document.getElementById('app');
+        if (app) app.classList.add('is-transitioning');
+      });
+
+      window.router.afterNavigate(function (to, ctx) {
+        if (!navStart) return;
+
+        const duration = performance.now() - navStart;
+
+        console.log('[NAV:complete]', {
+          to,
+          from: ctx.from,
+          requested: ctx.requested,
+          duration: Math.round(duration) + 'ms',
+          timestamp: Date.now(),
+        });
+
+        const app = document.getElementById('app');
+
+        if (app) {
+          requestAnimationFrame(function () {
+            app.classList.remove('is-transitioning');
+          });
+
+          // safety fallback
+          setTimeout(() => {
+            app.classList.remove('is-transitioning');
+          }, 1000);
+        }
+
+        navStart = 0;
+      });
+    });
+  </script>
+</body>
 </body>
 </html>

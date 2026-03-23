@@ -1,0 +1,261 @@
+/* ============================================================
+   css/layout.css
+   DEPENDS ON: css/style.css (all --var custom properties)
+   LOAD ORDER: second stylesheet, immediately after style.css
+
+   Contains: header, logo, nav, mobile menu, theme toggles,
+             container, main grid, footer, dark mode layout
+             overrides, and layout-specific responsive rules.
+
+   FIX: this file was empty — all rules below were missing
+   from the entire CSS structure.
+   ============================================================ */
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+}
+
+.header-content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1rem var(--spacing);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ==========================================
+   LOGO
+   ========================================== */
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    position: relative;
+    white-space: nowrap;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.logo::after {
+    content: "|";
+    animation: blink 1s steps(1) infinite;
+    color: var(--primary-color);
+    margin-left: -10px;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: var(--radius-small);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+/* ==========================================
+   NAVEGACIÓN
+   ========================================== */
+
+.nav {
+    display: none;
+    gap: 2rem;
+}
+
+.nav a {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-small);
+    transition: all 0.3s ease;
+}
+
+.nav a:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   MENÚ MÓVIL
+   ========================================== */
+
+.mobile-menu-btn {
+    display: block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.mobile-menu {
+    position: absolute;
+    top: 100%;
+    right: var(--spacing);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    padding: 1rem;
+    min-width: 200px;
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* JS dependency: menu.js toggles .active — these two rules must stay together */
+.mobile-menu.active {
+    display: flex;
+}
+
+.mobile-menu a {
+    text-decoration: none;
+    color: var(--text-primary);
+    padding: 0.75rem;
+    border-radius: var(--radius-small);
+    transition: background 0.3s ease;
+}
+
+.mobile-menu a:hover {
+    background: var(--bg-secondary);
+}
+
+/* ==========================================
+   THEME TOGGLE BUTTONS
+   ========================================== */
+
+.theme-toggle-desktop {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: var(--radius-small);
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.theme-toggle-desktop:hover {
+    background: var(--bg-secondary);
+    transform: scale(1.1);
+}
+
+.theme-toggle {
+    background: none;
+    padding: 1rem;
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-family: inherit;
+    border-radius: var(--radius-small);
+    transition: background 0.3s ease;
+    font-size: 1rem;
+}
+
+.theme-toggle:hover {
+    background: var(--bg-secondary);
+}
+
+/* ==========================================
+   CONTENEDOR Y GRID PRINCIPAL
+   ========================================== */
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--spacing);
+}
+
+.main-grid {
+    display: grid;
+    gap: var(--spacing);
+    grid-template-columns: 1fr;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+
+.footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+    padding: 2rem var(--spacing);
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.footer p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ==========================================
+   DARK MODE — LAYOUT OVERRIDES
+   ========================================== */
+
+body.dark-mode .header {
+    background: rgba(22, 33, 62, 0.95);
+}
+
+body.dark-mode .mobile-menu .theme-toggle {
+    background: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    border-radius: var(--radius-small);
+    transition: background 0.3s ease;
+}
+
+body.dark-mode .mobile-menu .theme-toggle:hover {
+    background: var(--bg-secondary);
+}
+
+/* ==========================================
+   RESPONSIVE — LAYOUT
+   ========================================== */
+
+@media (min-width: 768px) {
+    .nav {
+        display: flex;
+    }
+
+    .mobile-menu-btn {
+        display: none;
+    }
+
+    .theme-toggle-desktop {
+        display: block;
+    }
+
+    .main-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .theme-toggle-desktop {
+        display: none;
+    }
+}
