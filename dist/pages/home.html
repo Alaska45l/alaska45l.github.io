@@ -1,0 +1,269 @@
+<!-- Main Content -->
+<main class="container">
+  <!-- Hero Section -->
+  <section class="hero card">
+    <div class="hero-content">
+      <div class="hero-left">
+        <img
+          class="hero-avatar"
+          id="hero-avatar"
+          src="assets/profile.webp"
+          alt="Foto de Alaska González"
+          loading="lazy"
+          title="¿Será que hay algo escondido acá?"
+        />
+      </div>
+      <div class="hero-text">
+        <h1>Alaska Elaina Gonzalez</h1>
+        <p class="hero-subtitle">Ciberseguridad & Ethical Hacking · Soporte IT</p>
+      </div>
+      <div class="hero-right">
+        <div class="cta-buttons">
+          <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
+            <i class="fas fa-external-link"></i> Ver CV
+          </a>
+          <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-instagram"></i> Instagram
+          </a>
+          <a href="https://x.com/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-x-twitter"></i> X (Twitter)
+          </a>
+          <a href="https://linkedin.com/in/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-linkedin-in"></i> LinkedIn
+          </a>
+          <a href="#contacto" class="btn btn-secondary" data-router-link>Contactar</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+    <div>
+
+      <section id="sobre" class="card konsole-card">
+        <h2 class="section-title">Sobre mí</h2>
+
+        <div
+          class="konsole-window"
+          id="about-terminal"
+          role="region"
+          aria-label="Terminal interactivo — Sobre mí"
+        >
+
+          <div class="konsole-titlebar" aria-label="Controles de ventana">
+            <div class="kwm-controls" role="group" aria-label="Botones de ventana">
+
+              <button
+                class="kwm-btn kwm-btn--close"
+                id="kwm-close"
+                type="button"
+                title="Cerrar terminal"
+                aria-label="Cerrar terminal"
+              ></button>
+              <button
+                class="kwm-btn kwm-btn--minimize"
+                id="kwm-minimize"
+                type="button"
+                title="Minimizar / restaurar"
+                aria-label="Minimizar terminal"
+                aria-pressed="false"
+              ></button>
+              <button
+                class="kwm-btn kwm-btn--maximize"
+                id="kwm-maximize"
+                type="button"
+                title="Expandir / contraer"
+                aria-label="Expandir terminal"
+                aria-pressed="false"
+              ></button>
+            </div>
+
+            <!-- Título informativo — no es interactivo, solo identifica la ventana -->
+            <span class="konsole-title" aria-hidden="true">
+              guest : bash — Konsole
+            </span>
+          </div>
+          <!-- /.konsole-titlebar -->
+
+          <!--
+            .terminal-body — todo lo que se colapsa con minimize.
+            Separado del titlebar para que minimize solo oculte esto.
+          -->
+          <div class="terminal-body" id="terminal-body">
+
+            <!-- Área de salida scrollable con gradiente -->
+            <div
+              class="terminal-output"
+              id="terminal-output"
+              role="log"
+              aria-live="polite"
+              aria-label="Salida del terminal"
+              tabindex="-1"
+            ></div>
+
+            <!-- Fila de prompt + input -->
+            <div class="terminal-input-row">
+              <!--
+                Prompt descompuesto en spans con clase semántica.
+                Los colores se aplican en CSS vía variables del portfolio.
+                aria-hidden porque el input tiene su propio aria-label completo.
+              -->
+              <span class="terminal-prompt-label" aria-hidden="true">
+                <span class="tp-user">alaska</span><span
+                class="tp-at">@</span><span
+                class="tp-host">plasma</span><span
+                class="tp-sep">:</span><span
+                class="tp-path">~</span><span
+                class="tp-dollar">$</span>
+              </span>
+
+              <input
+                type="text"
+                id="terminal-input"
+                class="terminal-input"
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-label="Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial."
+                placeholder="escribí un comando..."
+              />
+            </div>
+            <!-- /.terminal-input-row -->
+
+          </div>
+          <!-- /.terminal-body -->
+
+        </div>
+        <!-- /.konsole-window -->
+
+      </section>
+
+      <!-- Education -->
+      <section id="estudios" class="card">
+        <h2 class="section-title">Estudios</h2>
+        <div class="education-list">
+          <div class="education-item">
+            <strong class="education-year">2025 - Presente</strong>
+            <p class="education-degree">Licenciatura en Física</p>
+            <p class="education-institution">Universidad Nacional de Mar del Plata</p>
+          </div>
+          <div class="education-item">
+            <strong class="education-year">2024 - 2025</strong>
+            <p class="education-degree">Licenciatura en Medicina — Ciclo Básico</p>
+            <p class="education-institution">Universidad Nacional de Mar del Plata</p>
+          </div>
+          <div class="education-item">
+            <strong class="education-year">2022 - 2024</strong>
+            <p class="education-degree">Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas — Ciclo Básico</p>
+            <p class="education-institution">Universidad Nacional del Centro de Buenos Aires</p>
+          </div>
+          <div class="education-item">
+            <strong class="education-year">2015 - 2021</strong>
+            <p class="education-degree">Bachiller en Ciencias Naturales</p>
+            <p class="education-institution">Escuela Secundaria N°2 "Florentino Ameghino"</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contacto" class="card section-spacing">
+        <h2 class="section-title">Contacto</h2>
+        <div class="contact-info">
+          <a href="mailto:alaskagonzalez@outlook.com" class="contact-box" target="_blank">
+            <i class="fas fa-envelope"></i>
+            <strong>alaskagonzalez@outlook.com</strong>
+          </a>
+        </div>
+        <div class="contact-form-container">
+          <h3 class="form-title">Enviar mensaje</h3>
+          <form
+            id="contact-form"
+            class="contact-form"
+            action="https://formspree.io/f/xqalwwvp"
+            method="POST"
+            onsubmit="handleFormSubmit(event, 'contact-form')"
+          >
+            <div class="form-group">
+              <label for="name">Nombre *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="_replyto" required>
+            </div>
+            <div class="form-group">
+              <label for="message">Mensaje *</label>
+              <textarea id="message" name="message" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-paper-plane"></i> Enviar mensaje
+            </button>
+          </form>
+        </div>
+        <div class="contact-info">
+          <a href="https://t.me/alaska45l" class="telegram-btn" target="_blank" rel="noopener">
+            <i class="fab fa-telegram"></i> Escribime por Telegram
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+      <section class="card section-spacing">
+        <h2 class="section-title">Redes sociales y plataformas</h2>
+        <div class="social-links">
+          <a class="social-link" href="https://github.com/Alaska45l" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+          <a class="social-link" href="https://steamcommunity.com/id/alaska45l" target="_blank" rel="noopener">
+            <i class="fab fa-steam"></i> Steam
+          </a>
+          <a class="social-link" href="https://discord.com/users/465393703935016960" target="_blank" rel="noopener">
+            <i class="fab fa-discord"></i> Discord
+          </a>
+          <a href="https://youtube.com/@alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-youtube"></i> YouTube
+          </a>
+          <a href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk" class="social-link" target="_blank" rel="noopener">
+            <i class="fas fa-music"></i> YT Playlist
+          </a>
+          <a href="https://twitch.tv/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-twitch"></i> Twitch
+          </a>
+          <a href="https://reddit.com/user/alaska45l" class="social-link" target="_blank" rel="noopener">
+            <i class="fab fa-reddit"></i> Reddit
+          </a>
+        </div>
+      </section>
+
+      <section class="card section-spacing">
+        <h2 class="section-title">Apoyo <i class="fa-solid fa-heart"></i></h2>
+        <p class="support-description">
+          Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.
+        </p>
+        <div class="payment-info">
+          <div class="payment-item">
+            <strong class="payment-label">CVU:</strong>
+            <div class="payment-copy-row">
+              <code class="payment-code">0000003100053873247568</code>
+              <button class="copy-btn" onclick="copyToClipboard(this, '0000003100053873247568')" title="Copiar CVU">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          <div class="payment-item">
+            <strong class="payment-label">Alias:</strong>
+            <div class="payment-copy-row">
+              <code class="payment-code payment-alias">AlaskaE45l</code>
+              <button class="copy-btn" onclick="copyToClipboard(this, 'AlaskaE45l')" title="Copiar alias">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>

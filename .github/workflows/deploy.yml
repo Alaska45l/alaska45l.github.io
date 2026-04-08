@@ -1,0 +1,53 @@
+# .github/workflows/deploy.yml
+name: Desplegar a GitHub Pages
+
+# Este flujo de trabajo se ejecutará cada vez que hagas push a la rama principal
+on:
+  push:
+    branches: ["main"] # Si tu rama principal se llama "master", cámbialo aquí
+  workflow_dispatch: # Permite ejecutarlo manualmente desde GitHub
+
+# Permisos necesarios para que GitHub Actions publique en Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita que se ejecuten despliegues duplicados al mismo tiempo
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+      
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          
+      - name: Instalar dependencias
+        run: npm ci
+        
+      - name: Construir el proyecto (Vite)
+        run: npm run build
+        
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Subir artefacto (carpeta dist)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+          
+      - name: Desplegar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
