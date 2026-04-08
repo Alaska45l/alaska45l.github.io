@@ -1,12 +1,48 @@
+// @ts-check
+'use strict';
+
 /**
- * terminal.js — Interactive terminal emulator, Bash/Konsole style
- *
- * Boot behaviour: renders a single live prompt on mount, immediately focused.
- * SPA-aware via MutationObserver on #app.
- * IIFE — zero global pollution.
+ * A single line of terminal output.
+ * `cls` is optional so bare `{ text: '' }` objects are valid.
+ * @typedef {{ text: string, cls?: string }} TermLine
  */
-(function () {
-  'use strict';
+
+// ── Public API ────────────────────────────────────────────────────────────
+// mountTerminal()   → called by homeController.mount()
+// unmountTerminal() → called by homeController.unmount()
+
+/**
+ * Mount the interactive terminal into the currently-rendered #about-terminal.
+ * Safe to call multiple times — the dataset guard inside init() prevents
+ * double-initialisation.
+ * @returns {void}
+ */
+export function mountTerminal() {
+  tryMount();
+}
+
+/**
+ * Tear down all async state so navigating away from home never leaks timers
+ * or leaves disabled inputs behind.
+ * @returns {void}
+ */
+export function unmountTerminal() {
+  // Cancel every pending ping setTimeout
+  pingTimers.forEach(id => clearTimeout(id));
+  pingTimers = [];
+
+  // Unblock the hidden input in case the terminal was mid-animation
+  state.animating = false;
+  const inp = getInput();
+  if (inp) inp.disabled = false;
+
+  // Remove the window-init guard so a future mount() starts fresh
+  const win = getWindow();
+  if (win) {
+    delete win.dataset.windowInit;
+    delete win.dataset.termInit;
+  }
+}
 
   /* ─────────────────────────────────────────────────────────────
    * CONFIGURATION
@@ -151,31 +187,42 @@
   };
 
   /* Tracks active ping setTimeout IDs so Ctrl+C can cancel them. */
-  var pingTimers = [];
+  /** @type {number[]} */
+  let pingTimers = [];
 
-  var currentPromptLine = null;
+  /** @type {HTMLElement|null} */
+  let currentPromptLine = null;
 
   /* Drag / z-index state (managed by window system) */
   var pos = { x: 0, y: 0 };
-  var zIndexCounter = 100;
+  let zIndexCounter = 100;
 
   /* ─────────────────────────────────────────────────────────────
    * Z-INDEX STACK MANAGER
    * ───────────────────────────────────────────────────────────── */
+  /** @param {HTMLElement} win */
   function bringToFront(win) {
     zIndexCounter++;
-    win.style.zIndex = zIndexCounter;
+    win.style.zIndex = String(zIndexCounter);
   }
 
   /* ─────────────────────────────────────────────────────────────
    * DOM HELPERS
    * ───────────────────────────────────────────────────────────── */
+  /** @returns {HTMLElement|null} */
   const getOutput = () => document.getElementById('terminal-output');
-  const getInput  = () => document.getElementById('terminal-input');
+  /** @returns {HTMLInputElement|null} */
+  const getInput  = () => /** @type {HTMLInputElement|null}  */ (document.getElementById('terminal-input'));
+  /** @returns {HTMLElement|null} */
   const getWindow = () => document.getElementById('about-terminal');
 
+  /**
+   * @param {string}  text
+   * @param {string=} cls
+   * @returns {HTMLElement}
+   */
   function makeLine(text, cls) {
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'tl' + (cls ? ' tl--' + cls : ' tl--output');
     el.textContent = text === '' ? '\u00a0' : text;
     return el;
@@ -191,14 +238,16 @@
    * echo "hello world"  → ['hello world']  (not ['"hello', 'world"'])
    * Unmatched quotes are treated as literal characters.
    * ───────────────────────────────────────────────────────────── */
+  /** @param {string} input @returns {string[]} */
   function parseCommandArgs(input) {
-    var args     = [];
-    var current  = '';
-    var inSingle = false;
-    var inDouble = false;
+    /** @type {string[]} */
+    const args     = [];
+    let current    = '';
+    let inSingle   = false;
+    let inDouble   = false;
 
-    for (var i = 0; i < input.length; i++) {
-      var c = input[i];
+    for (let i = 0; i < input.length; i++) {
+      const c = input[i];
       if (c === '"' && !inSingle) { inDouble = !inDouble; continue; }
       if (c === "'" && !inDouble) { inSingle = !inSingle; continue; }
       if (c === ' ' && !inSingle && !inDouble) {
@@ -215,11 +264,11 @@
    * LIVE PROMPT LINE
    * ───────────────────────────────────────────────────────────── */
   function createPromptLine() {
-    var out = getOutput();
-    var inp = getInput();
+    const out = getOutput();
+    const inp = getInput();
     if (!out) return;
 
-    var el = document.createElement('div');
+    const el = document.createElement('div');
     el.className = 'tl tl--cmd active-prompt';
     el.innerHTML =
       '<span class="t-prompt-echo">' + CONFIG.promptHtml + '</span>' +
@@ -233,17 +282,17 @@
     if (inp && !inp.disabled) inp.focus();
   }
 
+  /** @param {string} val */
   function updatePromptLine(val) {
     if (!currentPromptLine) return;
-    var cmdText = currentPromptLine.querySelector('.cmd-text');
+    const cmdText = currentPromptLine.querySelector('.cmd-text');
     if (cmdText) cmdText.textContent = val;
     scrollBottom();
   }
 
   function finalizePromptLine() {
     if (!currentPromptLine) return;
-    var cursor = currentPromptLine.querySelector('.terminal-cursor');
-    if (cursor) cursor.remove();
+    currentPromptLine.querySelector('.terminal-cursor')?.remove();
     currentPromptLine.classList.remove('active-prompt');
     currentPromptLine = null;
   }
@@ -253,14 +302,18 @@
    * ───────────────────────────────────────────────────────────── */
   const LINE_DELAY_MS = 36;
 
+  /**
+   * @param {TermLine[]}       lines
+   * @param {function():void=} onDone
+   */
   function printLines(lines, onDone) {
-    var out = getOutput();
-    var inp = getInput();
+    const out = getOutput();
+    const inp = getInput();
 
     state.animating = true;
     if (inp) inp.disabled = true;
 
-    var i = 0;
+    let i = 0;
     function next() {
       if (i >= lines.length) {
         state.animating = false;
@@ -268,15 +321,15 @@
         if (typeof onDone === 'function') onDone();
         return;
       }
-      var line = lines[i++];
-      var text = line.text !== undefined ? line.text : '';
-      var el   = makeLine(text, line.cls || 'output');
+      const line = lines[i++];
+      const text = line.text !== undefined ? line.text : '';
+      const el   = makeLine(text, line.cls ?? 'output');
 
       el.style.opacity   = '0';
       el.style.transform = 'translateY(5px)';
-      out.appendChild(el);
+      out?.appendChild(el);
 
-      requestAnimationFrame(function () {
+      requestAnimationFrame(() => {
         el.style.transition = 'opacity 0.20s ease, transform 0.20s ease';
         el.style.opacity    = '1';
         el.style.transform  = 'translateY(0)';
@@ -292,6 +345,7 @@
    * COMMAND HANDLERS
    * ───────────────────────────────────────────────────────────── */
 
+  /** @returns {TermLine[]} */
   function cmdHelp() {
     return [
       { text: 'Comandos disponibles:', cls: 'header' },
@@ -339,6 +393,7 @@
     ];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdWhoami(args) {
     if (args.indexOf('--full') !== -1 || args.indexOf('-f') !== -1) {
       return [
@@ -350,6 +405,7 @@
     return [{ text: 'alaska', cls: 'success' }, { text: '' }];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdLs(args) {
     var hasL = args.some(function (a) { return /^-[la]{1,2}$/.test(a); });
     var hasA = args.some(function (a) { return /^-[la]*a[la]*$/.test(a) || a === '-A' || a === '-lA'; });
@@ -370,7 +426,7 @@
         { text: '-rw-r--r-- 1 alaska alaska  1024 Mar 19 2025 studies.txt', cls: 'output' },
         { text: '-rw-r--r-- 1 alaska alaska 98304 Jan 26 2026 cv.pdf',      cls: 'success' },
       ]);
-      lines.push({ text: '' });
+      lines.push({ text: '', cls: 'output' });
       return lines;
     }
 
@@ -379,6 +435,7 @@
     return [{ text: files.join('    '), cls: 'output' }, { text: '' }];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdCat(args) {
     if (!args.length || args[0] === '') {
       return [
@@ -387,26 +444,29 @@
         { text: '' },
       ];
     }
-    var filename = args[0].toLowerCase();
-    var section  = CONFIG.files[filename];
+    const filename = args[0].toLowerCase();
+    const files    = /** @type {Record<string,string>} */ (CONFIG.files);
+    const sectionKey = files[filename];
 
-    if (!section) {
+    if (!sectionKey) {
       return [
         { text: 'cat: ' + filename + ': No such file or directory', cls: 'error' },
         { text: "Escrib\u00ed 'ls' para ver los archivos disponibles.", cls: 'muted' },
         { text: '' },
       ];
     }
-    if (section === '__cv__') {
+    if (sectionKey === '__cv__') {
       return [
         { text: 'cat: cv.pdf: es un archivo binario, no texto.', cls: 'error' },
         { text: 'Prob\u00e1 con:  xdg-open cv.pdf', cls: 'muted' },
         { text: '' },
       ];
     }
-    return CONFIG.sections[section];
+    const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
+    return sections[sectionKey];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdUname(args) {
     if (!args.length) return [{ text: 'Linux', cls: 'output' }, { text: '' }];
     if (args.indexOf('-a') !== -1) {
@@ -432,16 +492,19 @@
     ];
   }
 
+  /** @returns {TermLine[]} */
   function cmdPwd() {
     return [{ text: '/home/alaska', cls: 'output' }, { text: '' }];
   }
 
+  /** @returns {TermLine[]} */
   function cmdDate() {
-    var now    = new Date();
-    var days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var pad    = function (n) { return n < 10 ? '0' + n : '' + n; };
-    var str    =
+    const now    = new Date();
+    const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    /** @param {number} n @returns {string} */
+    const pad    = n => n < 10 ? '0' + n : '' + n;
+    const str    =
       days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' +
       pad(now.getDate()) + ' ' +
       pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) +
@@ -449,9 +512,11 @@
     return [{ text: str, cls: 'output' }, { text: '' }];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdEcho(args) {
     if (!args.length) return [{ text: '', cls: 'output' }, { text: '' }];
-    var env = {
+    /** @type {Record<string,string>} */
+    const env = {
       '$USER':   'alaska',
       '$HOME':   '/home/alaska',
       '$SHELL':  '/bin/bash',
@@ -461,14 +526,15 @@
       '$PAGER':  'less',
       '$PATH':   '/usr/local/bin:/usr/bin:/bin:/home/alaska/.local/bin',
     };
-    var expanded = args.join(' ');
-    Object.keys(env).forEach(function (v) {
-      var re = new RegExp('\\$\\{?' + v.slice(1) + '\\}?', 'gi');
+    let expanded = args.join(' ');
+    Object.keys(env).forEach(v => {
+      const re = new RegExp('\\$\\{?' + v.slice(1) + '\\}?', 'gi');
       expanded = expanded.replace(re, env[v]);
     });
     return [{ text: expanded, cls: 'output' }, { text: '' }];
   }
 
+  /** @returns {TermLine[]} */
   function cmdNeofetch() {
     return [
       { text: ' ⠀⠀⠀⠀⠀⠀⢀⡴⢾⣶⣴⠚⣫⠏⠉⠉⠛⠛⢭⡓⢶⣶⠶⣦⡀⠀⠀⠀⠀⠀   alaska@plasma',               cls: 'success' },
@@ -491,6 +557,7 @@
   }
 
   /* ── easter egg — intentionally absent from ALL_CMDS and help ── */
+  /** @returns {TermLine[]} */
   function cmdLauti() {
     return [
       { text: '⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣾⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⠶⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀', cls: 'lauti' },
@@ -524,29 +591,25 @@
 
   /* ── new system commands ───────────────────────────────────── */
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdSudo(args) {
-    if (!args.length) {
-      return [
-        { text: 'uso: sudo <comando>', cls: 'error' },
-        { text: '' },
-      ];
-    }
+    if (!args.length) return [{ text: 'uso: sudo <comando>', cls: 'error' }, { text: '' }];
     return [
       { text: 'alaska is not in the sudoers file. This incident will be reported.', cls: 'error' },
       { text: '' },
     ];
   }
 
+  /** @returns {TermLine[]} */
   function cmdHistory() {
-    if (!state.history.length) {
-      return [{ text: '(no hay historial)', cls: 'muted' }, { text: '' }];
-    }
-    // state.history is newest-first; display oldest-first like Bash
-    return state.history.slice().reverse().map(function (entry, i) {
-      return { text: '  ' + String(i + 1).padStart(4, ' ') + '  ' + entry, cls: 'output' };
-    }).concat([{ text: '' }]);
+    if (!state.history.length) return [{ text: '(no hay historial)', cls: 'muted' }, { text: '' }];
+    return state.history.slice().reverse().map(
+      /** @param {string} entry @param {number} i @returns {TermLine} */
+      (entry, i) => ({ text: '  ' + String(i + 1).padStart(4, ' ') + '  ' + entry, cls: 'output' })
+    ).concat([{ text: '' }]);
   }
 
+  /** @param {string} cmd @returns {TermLine[]} */
   function cmdFileOps(cmd) {
     return [
       { text: cmd + ': Permission denied. Read-only file system.', cls: 'error' },
@@ -554,6 +617,7 @@
     ];
   }
 
+  /** @param {string[]} args @returns {TermLine[]} */
   function cmdGrep(args) {
     if (args.length < 2) {
       return [
@@ -562,53 +626,52 @@
         { text: '' },
       ];
     }
-    var term     = args[0].toLowerCase();
-    var filename = args[1].toLowerCase();
-    var section  = CONFIG.files[filename];
+    const term     = args[0].toLowerCase();
+    const filename = args[1].toLowerCase();
+    const files    = /** @type {Record<string,string>} */ (CONFIG.files);
+    const sectionKey = files[filename];
 
-    if (!section || section === '__cv__') {
-      return [
-        { text: 'grep: ' + filename + ': No such file or directory', cls: 'error' },
-        { text: '' },
-      ];
+    if (!sectionKey || sectionKey === '__cv__') {
+      return [{ text: 'grep: ' + filename + ': No such file or directory', cls: 'error' }, { text: '' }];
     }
 
-    var matches = CONFIG.sections[section].filter(function (l) {
-      return l.text && l.text.toLowerCase().indexOf(term) !== -1;
-    });
+    const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
+    const matches  = sections[sectionKey].filter(l => l.text?.toLowerCase().includes(term));
 
-    if (!matches.length) {
-      // grep convention: no output when no matches; exit silently
-      return [{ text: '', cls: 'muted' }];
-    }
-
-    return matches.map(function (l) {
-      return { text: l.text, cls: 'success' };
-    }).concat([{ text: '' }]);
+    if (!matches.length) return [{ text: '', cls: 'muted' }];
+    /** @type {TermLine[]} */
+    const grepResult = matches.map(l => ({ text: l.text, cls: /** @type {string} */ ('success') }));
+    grepResult.push({ text: '' });
+    return grepResult;
   }
 
+  /**
+   * @param {string}   cmd
+   * @param {string[]} args
+   * @returns {TermLine[]}
+   */
   function cmdTailHead(cmd, args) {
     if (!args.length) {
-      return [
-        { text: cmd + ': uso: ' + cmd + ' <archivo>', cls: 'error' },
-        { text: '' },
-      ];
+      return [{ text: cmd + ': uso: ' + cmd + ' <archivo>', cls: 'error' }, { text: '' }];
     }
-    var filename = args[0].toLowerCase();
-    var section  = CONFIG.files[filename];
+    const filename  = args[0].toLowerCase();
+    const files     = /** @type {Record<string,string>} */ (CONFIG.files);
+    const sectionKey = files[filename];
 
-    if (!section || section === '__cv__') {
-      return [
-        { text: cmd + ': ' + filename + ': No such file or directory', cls: 'error' },
-        { text: '' },
-      ];
+    if (!sectionKey || sectionKey === '__cv__') {
+      return [{ text: cmd + ': ' + filename + ': No such file or directory', cls: 'error' }, { text: '' }];
     }
 
-    var all   = CONFIG.sections[section].filter(function (l) { return l.text !== undefined; });
-    var slice = cmd === 'tail' ? all.slice(-5) : all.slice(0, 5);
-    return slice.concat([{ text: '' }]);
+    const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
+    const all      = sections[sectionKey].filter(l => l.text !== undefined);
+    const slice    = cmd === 'tail' ? all.slice(-5) : all.slice(0, 5);
+    /** @type {TermLine[]} */
+    const thResult = [...slice];
+    thResult.push({ text: '' });
+    return thResult;
   }
 
+  /** @returns {TermLine[]} */
   function cmdTop() {
     var timeStr = new Date().toTimeString().slice(0, 8);
     return [
@@ -632,8 +695,9 @@
     ];
   }
 
+  /** @param {string} cmd @returns {TermLine[]} */
   function cmdEditor(cmd) {
-    var name = cmd === 'vim' ? 'Vim' : 'Nano';
+    const name = cmd === 'vim' ? 'Vim' : 'Nano';
     return [
       { text: "Did you really think I'd build " + name + " in JS? Use 'cat'.", cls: 'muted' },
       { text: '' },
@@ -642,27 +706,32 @@
 
   /* ── ping — async, cancellable via Ctrl+C ─────────────────── */
 
+  /** @param {string} host */
   function startPing(host) {
-    var out = getOutput();
-    var inp = getInput();
+    const out = getOutput();
+    const inp = getInput();
     if (!out) return;
+
+    // Rebind so the nested closure sees a non-null type
+    const outputEl = /** @type {HTMLElement} */ (out);
 
     state.animating = true;
     if (inp) inp.disabled = true;
 
-    var times = [
+    const times = [
       Math.floor(Math.random() * 15) + 5,
       Math.floor(Math.random() * 15) + 5,
       Math.floor(Math.random() * 15) + 5,
       Math.floor(Math.random() * 15) + 5,
     ];
-    var ip = '93.184.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
+    const ip = '93.184.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
 
+    /** @param {string} text @param {string=} cls */
     function addLine(text, cls) {
-      var el = makeLine(text, cls || 'output');
+      const el = makeLine(text, cls);
       el.style.opacity = '0';
-      out.appendChild(el);
-      requestAnimationFrame(function () {
+      outputEl.appendChild(el);
+      requestAnimationFrame(() => {
         el.style.transition = 'opacity 0.15s ease';
         el.style.opacity    = '1';
       });
@@ -671,17 +740,17 @@
 
     addLine('PING ' + host + ' (' + ip + '): 56 data bytes', 'muted');
 
-    times.forEach(function (ms, i) {
-      var t = setTimeout(function () {
+    times.forEach((ms, i) => {
+      const t = setTimeout(() => {
         addLine('64 bytes from ' + ip + ': icmp_seq=' + i + ' ttl=54 time=' + ms + '.0 ms');
       }, (i + 1) * 900);
       pingTimers.push(t);
     });
 
-    var doneId = setTimeout(function () {
-      var min = Math.min.apply(null, times);
-      var max = Math.max.apply(null, times);
-      var avg = Math.round(times.reduce(function (a, b) { return a + b; }, 0) / times.length);
+    const doneId = setTimeout(() => {
+      const min = Math.min(...times);
+      const max = Math.max(...times);
+      const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
       addLine('');
       addLine('--- ' + host + ' ping statistics ---', 'muted');
       addLine(times.length + ' packets transmitted, ' + times.length + ' received, 0.0% packet loss', 'success');
@@ -700,6 +769,11 @@
    * ROUTER COMMANDS
    * Returns true if the command was handled, false to fall through.
    * ───────────────────────────────────────────────────────────── */
+  /**
+   * @param {string}   cmd
+   * @param {string[]} args
+   * @returns {boolean}
+   */
   function handleRouterCommand(cmd, args) {
     if (cmd === 'back') {
       history.back();
@@ -763,6 +837,7 @@
     'cd', 'go', 'open', 'home', 'back',
   ];
 
+  /** @param {HTMLInputElement} inp */
   function autocomplete(inp) {
     var raw   = inp.value;
     var lower = raw.toLowerCase();
@@ -856,6 +931,7 @@
    * Precedence: clear → xdg-open/cv → ping (async) →
    *             built-in switch → router commands → fallback
    * ───────────────────────────────────────────────────────────── */
+  /** @param {string} raw */
   function execute(raw) {
     var trimmed = raw.trim();
 
@@ -871,7 +947,9 @@
     var cmd   = parts[0] ? parts[0].toLowerCase() : '';
     var args  = parts.slice(1);
 
-    if (state.history[0] !== trimmed) state.history.unshift(trimmed);
+    if (state.history.length === 0 || state.history[0] !== trimmed) {
+      state.history.unshift(trimmed);
+    }
     state.historyIdx = -1;
     state.draft      = '';
 
@@ -880,9 +958,10 @@
       localStorage.setItem('terminal_history', JSON.stringify(state.history.slice(0, 50)));
     } catch (e) { /* incognito / quota — fail silently */ }
 
-    // ── Highest-priority special cases ───────────────────────
+      // ── Highest-priority special cases ───────────────────────
     if (cmd === 'clear') {
-      getOutput().innerHTML = '';
+      const out = getOutput();
+      if (out) out.innerHTML = '';
       createPromptLine();
       return;
     }
@@ -981,12 +1060,14 @@
   /* ─────────────────────────────────────────────────────────────
    * KEYBOARD HANDLING
    * ───────────────────────────────────────────────────────────── */
+  /** @param {KeyboardEvent} e */
   function onKeyDown(e) {
-    var inp = e.currentTarget;
+    const inp = /** @type {HTMLInputElement} */ (e.currentTarget);
 
     // ── Ctrl shortcuts ────────────────────────────────────────
     if (e.ctrlKey) {
       var k = e.key.toLowerCase();
+
 
       // Ctrl+L — clear screen, keep current typed input
       if (k === 'l') {
@@ -995,7 +1076,9 @@
         inp.value = '';
         // Invalidate reference before wiping DOM so finalizePromptLine is safe
         currentPromptLine = null;
-        getOutput().innerHTML = '';
+        const out = getOutput();
+        if (out) out.innerHTML = '';
+
         createPromptLine();
         if (savedInput) {
           inp.value = savedInput;
@@ -1076,30 +1159,42 @@
   /* ─────────────────────────────────────────────────────────────
    * WINDOW STATE MANAGEMENT
    * ───────────────────────────────────────────────────────────── */
+  /**
+   * @param {HTMLElement}      win
+   * @param {string|null}      newState
+   */
   function setState(win, newState) {
     win.classList.remove('is-fullscreen');
     if (newState) {
       win.classList.add(newState);
     } else {
       win.style.transform = (pos.x !== 0 || pos.y !== 0)
-        ? 'translate(' + pos.x + 'px, ' + pos.y + 'px)'
+        ? `translate(${pos.x}px, ${pos.y}px)`
         : '';
     }
   }
 
+  /**
+   * @param {HTMLElement} win
+   * @param {HTMLElement} restoreBtn
+   */
   function closeTerminal(win, restoreBtn) {
     win.style.transform = '';
     win.classList.add('is-closed');
     restoreBtn.classList.add('visible');
   }
 
+  /**
+   * @param {HTMLElement} win
+   * @param {HTMLElement} restoreBtn
+   */
   function restoreTerminal(win, restoreBtn) {
     win.classList.remove('is-closed');
     restoreBtn.classList.remove('visible');
     bringToFront(win);
     if (pos.x !== 0 || pos.y !== 0) {
-      requestAnimationFrame(function () {
-        win.style.transform = 'translate(' + pos.x + 'px, ' + pos.y + 'px)';
+      requestAnimationFrame(() => {
+        win.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
       });
     }
   }
@@ -1108,17 +1203,20 @@
    * INITIALIZATION
    * ───────────────────────────────────────────────────────────── */
   function init() {
-    var inp = getInput();
-    var win = getWindow();
+    const inp = getInput();
+    const win = /** @type {HTMLElement|null} */ (getWindow());
+
+    // Hard guard — nothing below is safe without both elements
     if (!inp || !win) return;
+    if (win.dataset['windowInit']) return;
+    win.dataset['windowInit'] = 'true';
 
-    if (win.dataset.windowInit) return;
-    win.dataset.windowInit = 'true';
+    // Non-null aliases used throughout the rest of init()
+    const safeInp = /** @type {HTMLInputElement} */ (inp);
+    const safeWin = /** @type {HTMLElement}      */ (win);
 
-    pos.x = 0;
-    pos.y = 0;
-
-    bringToFront(win);
+    pos.x = 0; pos.y = 0;
+    bringToFront(safeWin);
 
     /* ── Boot sequence ────────────────────────────────────────
      * Runs once per init() call (already guarded by dataset.termInit).
@@ -1128,6 +1226,9 @@
     function bootSequence() {
       var out = getOutput();
       if (!out) { createPromptLine(); return; }
+
+      // Non-null rebound locals for nested closures
+      const outputEl = /** @type {HTMLElement} */ (out);
 
       // ── Stage 1: systemd-style boot messages ──────────────
       var bootLines = [
@@ -1167,6 +1268,7 @@
       var now      = new Date();
       var days     = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       var months   = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      /** @param {number} n @returns {string} */
       var pad      = function (n) { return n < 10 ? '0' + n : '' + n; };
       var lastLogin =
         days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' +
@@ -1199,10 +1301,10 @@
       // ── Chain stages ───────────────────────────────────────
       printLines(bootLines, function () {
         setTimeout(function () {
-          out.innerHTML = '';
+          outputEl.innerHTML = '';
           printLines(loginLines, function () {
             setTimeout(function () {
-              out.innerHTML = '';
+              outputEl.innerHTML = '';
               printLines(motdLines, createPromptLine);
             }, 600);
           });
@@ -1212,53 +1314,49 @@
 
     bootSequence();
 
-    inp.addEventListener('input', function () {
-      updatePromptLine(inp.value);
-    });
-
-    inp.addEventListener('keydown', onKeyDown);
+    safeInp.addEventListener('input', () => updatePromptLine(safeInp.value));
+    safeInp.addEventListener('keydown', onKeyDown);
 
     // Focus management
-    win.addEventListener('mousedown', function () {
-      bringToFront(win);
-    });
+    safeWin.addEventListener('mousedown', () => bringToFront(safeWin));
 
-    win.addEventListener('click', function (e) {
-      if (e.target.closest('.kwm-btn')) return;
-      if (!state.animating) inp.focus();
+    safeWin.addEventListener('click', e => {
+      const target = /** @type {Element} */ (e.target);
+      if (target.closest('.kwm-btn')) return;
+      if (!state.animating) safeInp.focus();
     });
 
     // ── Restore button ────────────────────────────────────────
-    var restoreBtn = document.getElementById('terminal-restore');
-    if (!restoreBtn) {
-      restoreBtn = document.createElement('button');
-      restoreBtn.id        = 'terminal-restore';
-      restoreBtn.className = 'terminal-restore-btn';
-      restoreBtn.setAttribute('aria-label', 'Abrir terminal');
-      restoreBtn.textContent = '>_';
-      document.body.appendChild(restoreBtn);
+    let rawRestore = document.getElementById('terminal-restore');
+    if (!rawRestore) {
+      rawRestore = document.createElement('button');
+      rawRestore.id        = 'terminal-restore';
+      rawRestore.className = 'terminal-restore-btn';
+      rawRestore.setAttribute('aria-label', 'Abrir terminal');
+      rawRestore.textContent = '>_';
+      document.body.appendChild(rawRestore);
     }
-    restoreBtn.classList.remove('visible');
+    const rb = /** @type {HTMLElement} */ (rawRestore);
+    rb.classList.remove('visible');
 
-    if (!restoreBtn.dataset.listenerBound) {
-      restoreBtn.dataset.listenerBound = 'true';
-      restoreBtn.addEventListener('click', function () {
-        var w = document.querySelector('.konsole-window');
+    if (!rb.dataset['listenerBound']) {
+      rb.dataset['listenerBound'] = 'true';
+      rb.addEventListener('click', () => {
+        const w = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
         if (!w) return;
-        restoreTerminal(w, restoreBtn);
-        var i = document.getElementById('terminal-input');
-        if (i) i.focus();
+        restoreTerminal(w, rb);
+        getInput()?.focus();
       });
     }
 
     // ── Fullscreen button (injected into titlebar) ────────────
-    var controls = win.querySelector('.kwm-controls');
+    const controls = safeWin.querySelector('.kwm-controls');
     if (controls && !controls.querySelector('#kwm-fullscreen')) {
-      var btnFs = document.createElement('button');
-      btnFs.id          = 'kwm-fullscreen';
-      btnFs.type        = 'button';
-      btnFs.className   = 'kwm-btn kwm-btn--fullscreen';
-      btnFs.title       = 'Pantalla completa';
+      const btnFs = document.createElement('button');
+      btnFs.id        = 'kwm-fullscreen';
+      btnFs.type      = 'button';
+      btnFs.className = 'kwm-btn kwm-btn--fullscreen';
+      btnFs.title     = 'Pantalla completa';
       btnFs.setAttribute('aria-label',   'Pantalla completa');
       btnFs.setAttribute('aria-pressed', 'false');
       btnFs.textContent = '⛶';
@@ -1266,33 +1364,34 @@
     }
 
     // ── Drag ──────────────────────────────────────────────────
-    var titlebar = win.querySelector('.konsole-titlebar');
+    const titlebar = /** @type {HTMLElement|null} */ (safeWin.querySelector('.konsole-titlebar'));
     if (titlebar) {
-      titlebar.addEventListener('mousedown', function (e) {
-        if (e.target.closest('.kwm-btn')) return;
-        if (win.classList.contains('is-fullscreen')) return;
+      titlebar.addEventListener('mousedown', /** @param {MouseEvent} e */ e => {
+        const target = /** @type {Element} */ (e.target);
+        if (target.closest('.kwm-btn')) return;
+        if (safeWin.classList.contains('is-fullscreen')) return;
 
-        bringToFront(win);
-        win.classList.add('is-dragging');
+        bringToFront(safeWin);
+        safeWin.classList.add('is-dragging');
 
-        var startX = e.clientX - pos.x;
-        var startY = e.clientY - pos.y;
-
+        const startX = e.clientX - pos.x;
+        const startY = e.clientY - pos.y;
         titlebar.style.cursor          = 'grabbing';
         document.body.style.userSelect = 'none';
 
-        function onMouseMove(e) {
-          var ww = win.offsetWidth || 400;
-          pos.x = Math.max(-(ww - 60), Math.min(window.innerWidth  - 60, e.clientX - startX));
-          pos.y = Math.max(0,           Math.min(window.innerHeight - 30, e.clientY - startY));
-          win.style.transform = 'translate(' + pos.x + 'px, ' + pos.y + 'px)';
+        /** @param {MouseEvent} mv */
+        function onMouseMove(mv) {
+          const ww = safeWin.offsetWidth || 400;
+          pos.x = Math.max(-(ww - 60), Math.min(window.innerWidth  - 60, mv.clientX - startX));
+          pos.y = Math.max(0,           Math.min(window.innerHeight - 30, mv.clientY - startY));
+          safeWin.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
         }
 
         function onMouseUp() {
-          titlebar.style.cursor          = '';
+          if (titlebar) titlebar.style.cursor = '';
           document.body.style.userSelect = '';
-          win.classList.remove('is-dragging');
-          bringToFront(win);
+          safeWin.classList.remove('is-dragging');
+          bringToFront(safeWin);
           document.removeEventListener('mousemove', onMouseMove);
           document.removeEventListener('mouseup',   onMouseUp);
         }
@@ -1302,84 +1401,66 @@
       });
     }
 
-    // ── Window control buttons ────────────────────────────────
-    var btnClose    = document.getElementById('kwm-close');
-    var btnMinimize = document.getElementById('kwm-minimize');
-    var btnMaximize = document.getElementById('kwm-maximize');
-    var btnFullscreen = win.querySelector('#kwm-fullscreen');
+    // ── Control buttons ───────────────────────────────────────────────────
+    const btnClose      = document.getElementById('kwm-close');
+    const btnMinimize   = document.getElementById('kwm-minimize');
+    const btnMaximize   = document.getElementById('kwm-maximize');
+    const btnFullscreen = /** @type {HTMLElement|null} */ (safeWin.querySelector('#kwm-fullscreen'));
 
-    if (btnClose) {
-      btnClose.addEventListener('click', function () {
-        closeTerminal(win, restoreBtn);
-      });
-    }
+    btnClose?.addEventListener('click',    () => closeTerminal(safeWin, rb));
+    btnMinimize?.addEventListener('click', () => closeTerminal(safeWin, rb));
 
-    if (btnMinimize) {
-      btnMinimize.addEventListener('click', function () {
-        closeTerminal(win, restoreBtn);
-      });
-    }
+    btnMaximize?.addEventListener('click', () => {
+      if (safeWin.classList.contains('is-fullscreen')) {
+        setState(safeWin, null);
+        btnMaximize.setAttribute('aria-pressed', 'false');
+        bringToFront(safeWin);
+      } else {
+        setState(safeWin, 'is-fullscreen');
+        btnMaximize.setAttribute('aria-pressed', 'true');
+        scrollBottom();
+      }
+    });
 
-    if (btnMaximize) {
-      btnMaximize.addEventListener('click', function () {
-        if (win.classList.contains('is-fullscreen')) {
-          setState(win, null);
-          btnMaximize.setAttribute('aria-pressed', 'false');
-          bringToFront(win);
-        } else {
-          setState(win, 'is-fullscreen');
-          btnMaximize.setAttribute('aria-pressed', 'true');
-          scrollBottom();
-        }
-      });
-    }
+    btnFullscreen?.addEventListener('click', () => {
+      if (safeWin.classList.contains('is-fullscreen')) {
+        setState(safeWin, null);
+        btnFullscreen.setAttribute('aria-pressed', 'false');
+        bringToFront(safeWin);
+      } else {
+        setState(safeWin, 'is-fullscreen');
+        btnFullscreen.setAttribute('aria-pressed', 'true');
+        scrollBottom();
+      }
+    });
 
-    if (btnFullscreen) {
-      btnFullscreen.addEventListener('click', function () {
-        if (win.classList.contains('is-fullscreen')) {
-          setState(win, null);
-          btnFullscreen.setAttribute('aria-pressed', 'false');
-          bringToFront(win);
-        } else {
-          setState(win, 'is-fullscreen');
-          btnFullscreen.setAttribute('aria-pressed', 'true');
-          scrollBottom();
-        }
-      });
-    }
-
-    // ── Global: backtick restores closed terminal ─────────────
-    if (!document.body.dataset.terminalRestoreBound) {
-      document.body.dataset.terminalRestoreBound = 'true';
-      document.addEventListener('keydown', function (e) {
+    // ── Global: backtick restore ──────────────────────────────────────────
+    if (!document.body.dataset['terminalRestoreBound']) {
+      document.body.dataset['terminalRestoreBound'] = 'true';
+      document.addEventListener('keydown', e => {
         if (e.key !== '`') return;
-        var w = document.querySelector('.konsole-window');
-        if (!w || !w.classList.contains('is-closed')) return;
-        var rb = document.getElementById('terminal-restore');
-        if (rb) restoreTerminal(w, rb);
-        var i = document.getElementById('terminal-input');
-        if (i) i.focus();
+        const w   = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
+        const rbk = /** @type {HTMLElement|null} */ (document.getElementById('terminal-restore'));
+        if (!w || !rbk || !w.classList.contains('is-closed')) return;
+        restoreTerminal(w, rbk);
+        getInput()?.focus();
       });
     }
 
-    // ── Global: Ctrl+C cancels ping when input is disabled ────
-    if (!document.body.dataset.terminalCtrlBound) {
-      document.body.dataset.terminalCtrlBound = 'true';
-      document.addEventListener('keydown', function (e) {
+    // ── Global: Ctrl+C cancels ping ───────────────────────────────────────
+    if (!document.body.dataset['terminalCtrlBound']) {
+      document.body.dataset['terminalCtrlBound'] = 'true';
+      document.addEventListener('keydown', e => {
         if (!e.ctrlKey || (e.key !== 'c' && e.key !== 'C')) return;
         if (!pingTimers.length) return;
         e.preventDefault();
-        pingTimers.forEach(function (t) { clearTimeout(t); });
+        pingTimers.forEach(t => clearTimeout(t));
         pingTimers = [];
         state.animating = false;
-        var i = getInput();
+        const i = getInput();
         if (i) i.disabled = false;
-        var out = getOutput();
-        if (out) {
-          var el = makeLine('^C', 'muted');
-          out.appendChild(el);
-          scrollBottom();
-        }
+        const o = getOutput();
+        if (o) { o.appendChild(makeLine('^C', 'muted')); scrollBottom(); }
         createPromptLine();
       });
     }
@@ -1401,5 +1482,3 @@
     var app = document.getElementById('app') || document.body;
     new MutationObserver(tryMount).observe(app, { childList: true, subtree: true });
   });
-
-}());
