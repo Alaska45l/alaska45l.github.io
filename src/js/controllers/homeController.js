@@ -3,7 +3,6 @@
 
 import { mountTerminal, unmountTerminal } from '../terminal.js';
 import { handleFormSubmit }               from '../form.js';
-import { initEasterEgg }                  from '../easterEgg.js';
 
 /**
  * @typedef {{ unmount: () => void }} ControllerInstance
@@ -25,12 +24,6 @@ export function mount() {
   /** @param {SubmitEvent} e */
   function onSubmit(e) { handleFormSubmit(e, 'contact-form'); }
   form?.addEventListener('submit', onSubmit);
-
-  // ── Easter egg ──────────────────────────────────────────────────────────
-  const avatar = document.getElementById('hero-avatar');
-  if (avatar && window.router) {
-    initEasterEgg(avatar, path => window.router?.navigate(path));
-  }
 
   // ── Unmount ─────────────────────────────────────────────────────────────
   return {

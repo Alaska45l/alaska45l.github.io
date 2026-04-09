@@ -8,32 +8,17 @@ import { initDispatcher } from './eventDispatcher.js';
 import './theme.js';
 import './menu.js';
 
-// ── Game entity files must load before game.js; Vite handles ordering via
-//   static imports so we can replace the legacy <script> tag order.
-import './game/config.js';
-import './game/entities.js';
-import './game/renderer.js';
-import './game/game.js';
-
 // ── Shared accordion utility (copyToClipboard, toggleAccordion)
 import './accordion.js';
 
-// ── Experience accordion — SPA-aware, self-initialising
-import './experienceAccordion.js';
-
 // ── Carousel
 import './carousel.js';
-
-// ── Easter egg
-import './easterEgg.js';
 
 const router = new SPARouter();
 
 // ── Lazy controller loaders — code-split per route ────────────────────────
 router.registerControllers({
   '/':           () => import('./controllers/homeController.js'),
-  '/experience': () => import('./controllers/experienceController.js'),
-  '/game':       () => import('./controllers/gameController.js'),
 });
 
 // ── Nav performance hooks (mirrors the inline <script> from old index.html)

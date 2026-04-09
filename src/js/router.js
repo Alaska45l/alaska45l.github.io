@@ -30,8 +30,6 @@ export class SPARouter {
     this.addRoute('/',           '/pages/home.html');
     this.addRoute('/index.html', '/pages/home.html');
     this.addRoute('/home',       '/pages/home.html');
-    this.addRoute('/experience', '/pages/experience.html');
-    this.addRoute('/game',       '/pages/game.html');
 
     this.handleRedirect();
 
@@ -235,20 +233,6 @@ export class SPARouter {
     const baseUrl = 'https://alaska45l.github.io';
     /** @type {Record<string, {title:string,description:string,ogTitle:string,ogDesc:string,url:string}>} */
     const meta = {
-      '/experience': {
-        title:       'Experiencia Profesional — Alaska E. González',
-        description: 'Trayectoria profesional, habilidades técnicas y experiencia.',
-        ogTitle:     'Experiencia Profesional — Alaska E. González',
-        ogDesc:      'Descubrí mi experiencia laboral.',
-        url:         `${baseUrl}/experience`,
-      },
-      '/game': {
-        title:       'Quantum Cat Invaders — Alaska E. González',
-        description: 'Un Space Invaders con temática cuántica.',
-        ogTitle:     'Quantum Cat Invaders 🐱',
-        ogDesc:      'Easter egg en el portafolio de Alaska.',
-        url:         `${baseUrl}/game`,
-      },
       '/': {
         title:       'Alaska E. González — Portafolio',
         description: 'Portafolio profesional de Alaska E. González.',
