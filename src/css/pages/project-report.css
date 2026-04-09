@@ -1,0 +1,605 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+
+/* ============================================================
+   TOKENS LOCALES
+   Definidos en .latex-report, no en :root, para aislamiento
+   total. body.dark-mode .latex-report sobreescribe solo los
+   valores que cambian en modo oscuro.
+   ============================================================ */
+
+.latex-report {
+  /* Superficies */
+  --lr-paper-bg:        #fffef9;
+  --lr-page-bg:         var(--bg-secondary);
+  --lr-abstract-bg:     #f4f1e8;
+
+  /* Texto */
+  --lr-text:            #1a1a14;
+  --lr-text-secondary:  #46463c;
+  --lr-text-muted:      #7a7a6e;
+
+  /* Lineas y bordes */
+  --lr-rule:            #c4c0b0;
+  --lr-border:          #d8d4c4;
+
+  /* Tipografia */
+  --lr-font-body:       'EB Garamond', Georgia, 'Times New Roman', serif;
+  --lr-font-mono:       'Share Tech Mono', 'Courier New', monospace;
+  --lr-size-body:       1.125rem;   /* 18px — optimo para lectura academica */
+  --lr-leading:         1.78;
+
+  /* Layout */
+  --lr-max-width:       1200px;
+  --lr-pad-inline:      clamp(1.75rem, 8vw, 4.5rem);
+  --lr-pad-block:       clamp(2rem,    5vw, 3.5rem);
+
+  /* Sombra del papel — multicapa, muy sutil */
+  --lr-paper-shadow:
+    0  1px  2px  rgba(0, 0, 0, 0.04),
+    0  4px  12px rgba(0, 0, 0, 0.07),
+    0 20px  48px rgba(0, 0, 0, 0.05);
+}
+
+/* Overrides para dark mode — solo los tokens que varían */
+body.dark-mode .latex-report {
+  --lr-paper-bg:        #1e1c17;
+  --lr-page-bg:         var(--bg-primary);
+  --lr-abstract-bg:     #252319;
+  --lr-text:            #e8e4d9;
+  --lr-text-secondary:  #b4b0a4;
+  --lr-text-muted:      #7e7a6e;
+  --lr-rule:            #3a3828;
+  --lr-border:          #34311f;
+  --lr-paper-shadow:
+    0  1px  2px  rgba(0, 0, 0, 0.20),
+    0  4px  12px rgba(0, 0, 0, 0.30),
+    0 20px  48px rgba(0, 0, 0, 0.22);
+}
+
+
+/* ============================================================
+   ENVOLTORIO DE PAGINA
+   ============================================================ */
+
+.latex-report {
+  min-height: 100vh;
+  background: var(--lr-page-bg);
+  padding-block:  var(--lr-pad-block);
+  padding-inline: var(--spacing, 1.5rem);
+  font-family: var(--lr-font-body);
+  color: var(--lr-text);
+}
+
+
+/* ============================================================
+   NAVEGACION — VOLVER
+   ============================================================ */
+
+.latex-report__nav {
+  max-width: var(--lr-max-width);
+  margin-inline: auto;
+  margin-bottom: 1.125rem;
+}
+
+.latex-report__back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--lr-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--lr-text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0.05em;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.latex-report__back-link:hover {
+  color: var(--lr-text);
+  border-bottom-color: var(--lr-rule);
+}
+
+.latex-report__back-link:focus-visible {
+  outline: 2px solid var(--primary-color, #f3a9c4);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   PAPEL — CONTENEDOR PRINCIPAL DEL DOCUMENTO
+   Actua como hoja fisica: fondo propio, sombra, radio minimo.
+   counter-reset inicializa el contador de figuras del cuerpo.
+   ============================================================ */
+
+.latex-report__paper {
+  max-width: var(--lr-max-width);
+  margin-inline: auto;
+  background: var(--lr-paper-bg);
+  color: var(--lr-text);
+  padding-inline: var(--lr-pad-inline);
+  padding-block: var(--lr-pad-block);
+  box-shadow: var(--lr-paper-shadow);
+  /* Radio minimo: el papel tiene esquinas casi rectas */
+  border-radius: 2px;
+  counter-reset: lr-figure;
+}
+
+
+/* ============================================================
+   REGLA HORIZONTAL — \hrule de LaTeX
+   ============================================================ */
+
+.latex-report__rule {
+  height: 1px;
+  background: var(--lr-rule);
+  margin-block: 2rem;
+  border: none;
+}
+
+
+/* ============================================================
+   HEADER DEL DOCUMENTO
+   Centro de gravedad tipografico: categoria > titulo > subtitulo > meta
+   ============================================================ */
+
+.latex-report__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.latex-report__category {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lr-text-muted);
+  margin-bottom: 1.25rem;
+  font-style: normal;
+}
+
+.latex-report__title {
+  font-family: var(--lr-font-body);
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: var(--lr-text);
+  margin-bottom: 0.9rem;
+  /* Anula la regla de text-indent del cuerpo si aplica */
+  text-indent: 0;
+}
+
+.latex-report__subtitle {
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--lr-text-secondary);
+  line-height: 1.55;
+  max-width: 56ch;
+  margin-inline: auto;
+  margin-bottom: 1.375rem;
+}
+
+/* Linea de autoria — rol de lista para a11y sin <ul> */
+.latex-report__meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  color: var(--lr-text-secondary);
+}
+
+.latex-report__meta-sep {
+  color: var(--lr-rule);
+  user-select: none;
+}
+
+
+/* ============================================================
+   FIGURA DE PORTADA
+   No incrementa el contador lr-figure (clase diferente).
+   ============================================================ */
+
+.latex-report__cover {
+  margin-block: 1.75rem;
+  margin-inline: calc(var(--lr-pad-inline) * -0.4);
+  text-align: center;
+}
+
+.latex-report__cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--lr-border);
+  /* Sin border-radius — las imagenes de papel no se redondean */
+}
+
+.latex-report__cover figcaption {
+  font-size: 0.83rem;
+  font-style: italic;
+  color: var(--lr-text-muted);
+  line-height: 1.5;
+  margin-top: 0.55rem;
+  text-align: center;
+}
+
+
+/* ============================================================
+   ABSTRACT
+   Equivale a \begin{abstract}...\end{abstract} de LaTeX:
+   texto mas pequeno, mrgenes internos sangrados, sin titulo
+   numerado.
+   ============================================================ */
+
+.latex-report__abstract {
+  margin-inline: clamp(0.75rem, 6%, 2.25rem);
+  margin-block: 1.75rem;
+  padding: 1.125rem 1.5rem;
+  background: var(--lr-abstract-bg);
+  border-left: 2px solid var(--lr-rule);
+}
+
+.latex-report__abstract-title {
+  font-family: var(--lr-font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lr-text-muted);
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.latex-report__abstract p {
+  font-size: 0.94rem;
+  line-height: 1.7;
+  color: var(--lr-text-secondary);
+  text-align: justify;
+  hyphens: auto;
+  margin: 0;
+  text-indent: 0;          /* El abstract no lleva sangrado */
+}
+
+
+/* ============================================================
+   TITULOS DE SECCION DEL CUERPO
+   ============================================================ */
+
+/* h2 — nivel de seccion (1. Introduccion, 2. Arquitectura...) */
+.latex-report__paper section > h2 {
+  font-family: var(--lr-font-body);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--lr-text);
+  margin-top: 2.25rem;
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6ch;
+  text-indent: 0;
+}
+
+/* h3 — nivel de subseccion (estilo italic, sin numero) */
+.latex-report__paper section > h3 {
+  font-family: var(--lr-font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--lr-text);
+  margin-top: 1.5rem;
+  margin-bottom: 0.625rem;
+  text-indent: 0;
+}
+
+/* Numero de seccion — peso ligero para no competir con el titulo */
+.latex-report__section-num {
+  color: var(--lr-text-muted);
+  font-weight: 400;
+  /* Anchura fija evita desplazamiento al pasar de 9 a 10 */
+  min-width: 1.8ch;
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   CUERPO DE TEXTO
+   Convencion LaTeX aplicada:
+   - Primer parrafo de seccion: sin sangrado.
+   - Paragrafos subsiguientes (p + p): sangrado de primera linea.
+   - Tras figura o abstract: sin sangrado (nuevo inicio visual).
+   ============================================================ */
+
+.latex-report__paper p {
+  font-size: var(--lr-size-body);
+  line-height: var(--lr-leading);
+  color: var(--lr-text);
+  text-align: justify;
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+  margin-bottom: 0;       /* El espaciado entre parrafos viene del sangrado */
+}
+
+/* Sangrado de primera linea en parrafos consecutivos */
+.latex-report__paper p + p {
+  text-indent: 1.5em;
+}
+
+/* Cancela el sangrado cuando el parrafo sigue a una interrupcion visual */
+.latex-report__figure  + p,
+.latex-report__cover   + p,
+.latex-report__abstract + p,
+.latex-report__rule    + p {
+  text-indent: 0;
+}
+
+/* strong / em dentro del cuerpo — no rompe el ritmo de color */
+.latex-report__paper strong {
+  font-weight: 700;
+  color: var(--lr-text);
+}
+
+.latex-report__paper em {
+  font-style: italic;
+  color: var(--lr-text);
+}
+
+
+/* ============================================================
+   CODIGO INLINE Y BLOQUES
+   ============================================================ */
+
+.latex-report__paper code {
+  font-family: var(--lr-font-mono);
+  font-size: 0.855em;
+  background: var(--lr-abstract-bg);
+  color: var(--lr-text);
+  padding: 0.08em 0.38em;
+  border: 1px solid var(--lr-border);
+  border-radius: 2px;
+  /* Evita saltos de linea dentro de identificadores */
+  white-space: nowrap;
+}
+
+.latex-report__paper pre {
+  font-family: var(--lr-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  background: var(--lr-abstract-bg);
+  border: 1px solid var(--lr-border);
+  border-left: 3px solid var(--lr-rule);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin-block: 1.5rem;
+  border-radius: 0;       /* Pre-tags sin radio — coherente con estetica papel */
+}
+
+.latex-report__paper pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  white-space: pre;
+  font-size: inherit;
+}
+
+
+/* ============================================================
+   LISTAS
+   ============================================================ */
+
+.latex-report__paper ul,
+.latex-report__paper ol {
+  padding-left: 2em;
+  color: var(--lr-text);
+  margin-block: 0.5em;
+}
+
+.latex-report__paper li {
+  font-size: var(--lr-size-body);
+  line-height: var(--lr-leading);
+  margin-bottom: 0.2em;
+}
+
+/* Lista que sigue a un parrafo no lleva margen extra */
+.latex-report__paper p + ul,
+.latex-report__paper p + ol {
+  margin-top: 0.25em;
+}
+
+
+/* ============================================================
+   FIGURAS DEL CUERPO
+   counter-increment: lr-figure incrementa por cada elemento
+   con clase .latex-report__figure.
+   figcaption::before inyecta "Figura N: " automaticamente.
+   ============================================================ */
+
+.latex-report__figure {
+  counter-increment: lr-figure;
+  margin-block: 2rem;
+  text-align: center;
+}
+
+.latex-report__figure img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-inline: auto;
+  border: 1px solid var(--lr-border);
+}
+
+.latex-report__figure figcaption {
+  font-size: 0.84rem;
+  font-style: italic;
+  color: var(--lr-text-muted);
+  line-height: 1.5;
+  margin-top: 0.6rem;
+  text-align: center;
+  max-width: 54ch;
+  margin-inline: auto;
+}
+
+/* Prefijo numerico auto-generado */
+.latex-report__figure figcaption::before {
+  content: "Figura " counter(lr-figure) ": ";
+  font-style: normal;
+  font-weight: 700;
+  color: var(--lr-text-secondary);
+}
+
+
+/* ============================================================
+   FOOTER DEL DOCUMENTO
+   ============================================================ */
+
+.latex-report__footer {
+  margin-top: 2.5rem;
+}
+
+.latex-report__footer-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lr-text-muted);
+  margin-bottom: 1rem;
+  text-indent: 0;
+}
+
+/* nav dentro del footer — lista horizontal de enlaces */
+.latex-report__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.latex-report__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--lr-font-mono);
+  font-size: 0.8rem;
+  color: var(--lr-text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--lr-border);
+  padding-bottom: 0.08em;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.latex-report__link:hover {
+  color: var(--lr-text);
+  border-bottom-color: var(--lr-text-muted);
+}
+
+.latex-report__link:focus-visible {
+  outline: 2px solid var(--primary-color, #f3a9c4);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+
+/* ============================================================
+   RESPONSIVE — PANTALLAS ANGOSTAS (< 600px)
+   A anchos pequenos, la justificacion con hyphens genera
+   "rios" en lineas cortas. Se revierte a alineacion izquierda
+   y se elimina el sangrado de primera linea.
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .latex-report__paper {
+    border-radius: 0;       /* En movil, el papel ocupa todo el ancho */
+  }
+
+  .latex-report__cover {
+    margin-inline: 0;
+  }
+
+  .latex-report__abstract {
+    margin-inline: 0;
+    padding: 1rem 1.125rem;
+  }
+
+  /* Revertir justificacion en lineas cortas */
+  .latex-report__paper p,
+  .latex-report__abstract p {
+    text-align: left;
+    hyphens: none;
+  }
+
+  /* Eliminar sangrado en movil — menos legible a anchos estrecho */
+  .latex-report__paper p + p {
+    text-indent: 0;
+    margin-top: 0.75em;   /* Compensar visualmente la ausencia del sangrado */
+  }
+
+  .latex-report__paper pre {
+    font-size: 0.76rem;
+    padding: 0.875rem;
+  }
+
+  .latex-report__links {
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+}
+
+
+/* ============================================================
+   ESTILOS DE IMPRESION
+   Permite guardar como PDF con apariencia limpia.
+   ============================================================ */
+
+@media print {
+  .latex-report {
+    background: white;
+    padding: 0;
+  }
+
+  .latex-report__paper {
+    box-shadow: none;
+    max-width: 100%;
+    padding-inline: 2cm;
+  }
+
+  .latex-report__nav {
+    display: none;
+  }
+
+  .latex-report__footer .latex-report__links {
+    display: none;
+  }
+
+  .latex-report__paper p {
+    text-align: justify;
+    hyphens: auto;
+    orphans: 4;
+    widows: 4;
+  }
+
+  .latex-report__figure {
+    break-inside: avoid;
+  }
+
+  .latex-report__paper section {
+    break-inside: avoid-page;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .latex-report__back-link,
+  .latex-report__link {
+    transition: none;
+  }
+}

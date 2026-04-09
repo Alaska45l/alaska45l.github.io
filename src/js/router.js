@@ -30,6 +30,7 @@ export class SPARouter {
     this.addRoute('/',           '/pages/home.html');
     this.addRoute('/index.html', '/pages/home.html');
     this.addRoute('/home',       '/pages/home.html');
+    this.addRoute('/proyectos/jobbot', '/pages/jobbot.html');
 
     this.handleRedirect();
 

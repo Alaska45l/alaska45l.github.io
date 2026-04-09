@@ -211,6 +211,152 @@
 
     <!-- Sidebar -->
     <aside>
+      <!-- Projects Section -->
+      <section id="proyectos" class="card" aria-labelledby="proyectos-title">
+        <h2 class="section-title" id="proyectos-title">Proyectos</h2>
+
+        <div
+          class="projects-scroll-container"
+          role="region"
+          aria-label="Lista de proyectos destacados"
+          tabindex="0"
+        >
+          <ul class="projects-grid" role="list">
+
+            <!-- =====================================================
+                VARIANTE A — Software / Codigo
+                Proyecto: JobBot v2.4
+                ===================================================== -->
+            <li>
+              <article
+                class="project-card project-card--software"
+                aria-labelledby="proj-jobbot-title"
+              >
+                <header class="project-card__header">
+                  <span class="project-card__type-badge" aria-label="Tipo de proyecto: Software">
+                    <i class="fas fa-code" aria-hidden="true"></i>
+                    Software
+                  </span>
+                  <span class="status-badge in-development" aria-label="Estado: En desarrollo">
+                    <i class="fas fa-circle-dot" aria-hidden="true"></i>
+                    En desarrollo
+                  </span>
+                </header>
+
+                <div class="project-card__body">
+                  <h3 class="project-card__title" id="proj-jobbot-title">JobBot v2.4</h3>
+                  <p class="project-card__description">
+                    Pipeline asíncrono de prospección B2B. Automatiza dorking OSINT
+                    a nivel nacional, scraping con evasión de WAFs (Cloudflare,
+                    Datadome) y despacho de CVs compilados dinamicamente con Typst
+                    via SMTP y WhatsApp Web.
+                  </p>
+                  <ul
+                    class="project-card__badges"
+                    role="list"
+                    aria-label="Tecnologias utilizadas"
+                  >
+                    <li class="badge">Python 3.11</li>
+                    <li class="badge">Playwright</li>
+                    <li class="badge">SQLite 3</li>
+                    <li class="badge">Typst</li>
+                    <li class="badge">SMTP</li>
+                    <li class="badge">asyncio</li>
+                  </ul>
+                </div>
+
+                <footer class="project-card__footer">
+                  <a
+                    href="https://github.com/Alaska45l/jobbot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-secondary"
+                    aria-label="Ver repositorio de JobBot en GitHub (abre en nueva pestana)"
+                  >
+                    <i class="fab fa-github" aria-hidden="true"></i>
+                    Repositorio
+                  </a>
+                  <a
+                    href="/proyectos/jobbot"
+                    data-router-link
+                    class="btn btn-primary"
+                    aria-label="Ver detalles del proyecto JobBot"
+                  >
+                    Ver detalles
+                  </a>
+                </footer>
+              </article>
+            </li>
+
+            <!-- =====================================================
+                VARIANTE B — Documento / Auditoria
+                Proyecto: Auditoria de Seguridad — Plataforma de Contratacion
+                ===================================================== -->
+            <li>
+              <article
+                class="project-card project-card--document"
+                aria-labelledby="proj-audit-title"
+              >
+                <header class="project-card__header">
+                  <span class="project-card__type-badge" aria-label="Tipo de proyecto: Auditoria de seguridad">
+                    <i class="fas fa-shield-halved" aria-hidden="true"></i>
+                    Auditoria
+                  </span>
+                  <span class="status-badge completed" aria-label="Estado: Completado">
+                    <i class="fas fa-circle-check" aria-hidden="true"></i>
+                    Completado
+                  </span>
+                </header>
+
+                <div class="project-card__body">
+                  <h3 class="project-card__title" id="proj-audit-title">
+                    Auditoria de Seguridad — Plataforma de Contratacion
+                  </h3>
+                  <p class="project-card__description">
+                    Divulgacion responsable de nueve vulnerabilidades criticas y
+                    de alta severidad (OWASP Top 10) en un sistema de empleo
+                    publico. Hallazgos incluyen Broken Authentication, IDOR, BOLA,
+                    Unrestricted File Upload y Stored XSS potencial.
+                  </p>
+                  <ul
+                    class="project-card__badges"
+                    role="list"
+                    aria-label="Categorias de hallazgos"
+                  >
+                    <li class="badge">OWASP Top 10</li>
+                    <li class="badge">9 hallazgos</li>
+                    <li class="badge">Pentest</li>
+                    <li class="badge">Divulgacion responsable</li>
+                  </ul>
+                </div>
+
+                <footer class="project-card__footer">
+                  <a
+                    href="/assets/auditoria-seguridad.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-secondary"
+                    aria-label="Abrir informe de auditoria en PDF (abre en nueva pestana)"
+                  >
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    Informe PDF
+                  </a>
+                  <a
+                    href="/proyectos/auditoria-contratacion"
+                    data-router-link
+                    class="btn btn-primary"
+                    aria-label="Ver analisis del caso de auditoria de seguridad"
+                  >
+                    Ver caso
+                  </a>
+                </footer>
+              </article>
+            </li>
+
+          </ul>
+        </div><!-- /.projects-scroll-container -->
+      </section>
+
       <section class="card section-spacing">
         <h2 class="section-title">Redes sociales y plataformas</h2>
         <div class="social-links">

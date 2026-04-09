@@ -1,0 +1,381 @@
+<!-- Fragmento SPA — inyectado en #app por el router.
+     NO incluye DOCTYPE, <html>, <head> ni <body>.
+     Requiere: src/css/pages/project-report.css en src/index.html
+     Requiere: ruta '/proyectos/jobbot' registrada en router.js -->
+
+<main
+  class="latex-report"
+  id="main-content"
+  aria-label="Detalle del proyecto JobBot v2.4"
+>
+
+  <!-- =====================================================
+       NAVEGACION — VOLVER
+       ===================================================== -->
+  <nav class="latex-report__nav" aria-label="Navegacion del documento">
+    <a
+      href="/"
+      data-router-link
+      class="latex-report__back-link"
+      aria-label="Volver al portafolio"
+    >
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      Volver al portafolio
+    </a>
+  </nav>
+
+  <!-- =====================================================
+       PAPEL / DOCUMENTO
+       ===================================================== -->
+  <article
+    class="latex-report__paper"
+    aria-labelledby="lr-title"
+    lang="es"
+  >
+
+    <!-- HEADER DEL DOCUMENTO -->
+    <header class="latex-report__header">
+      <p class="latex-report__category">
+        Proyecto de Software &middot; Automatizacion B2B &middot; OSINT
+      </p>
+
+      <h1 class="latex-report__title" id="lr-title">JobBot v2.4</h1>
+
+      <p class="latex-report__subtitle">
+        Pipeline asincrono de prospeccion y contacto automatizado mediante
+        dorking nacional, scraping stealth y compilacion dinamica de curricula
+      </p>
+
+      <div class="latex-report__meta" role="list">
+        <span role="listitem">Alaska Elaina Gonzalez</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <span role="listitem">Mar del Plata, Argentina</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <time role="listitem" datetime="2025">2025</time>
+      </div>
+
+      <div class="latex-report__rule" aria-hidden="true"></div>
+    </header>
+
+    <!-- IMAGEN DE PORTADA -->
+    <figure class="latex-report__cover">
+      <img
+        src="/assets/projects/jobbot-tui.webp"
+        alt="Panel TUI de JobBot en ejecucion daemon mostrando metricas de prospeccion: empresas procesadas, correos despachados y score promedio de prospectos en tiempo real"
+        width="780"
+        height="440"
+        loading="eager"
+      >
+      <figcaption>
+        Panel de telemetria Rich TUI de JobBot durante una sesion de ejecucion
+        continua. La interfaz muestra el estado de cada fase del pipeline y las
+        metricas acumuladas de la campana activa.
+      </figcaption>
+    </figure>
+
+    <!-- ABSTRACT -->
+    <section
+      class="latex-report__abstract"
+      aria-labelledby="lr-abstract"
+    >
+      <h2 class="latex-report__abstract-title" id="lr-abstract">Resumen</h2>
+      <p>
+        JobBot es un sistema de prospeccion laboral automatizada disenado para
+        circunvalar las limitaciones estructurales de los portales de empleo
+        tradicionales. Mediante la combinacion de tecnicas de Google Dorking
+        a escala nacional, scraping con evasion de sistemas de proteccion WAF
+        (Cloudflare, Datadome), un motor de puntuacion lexico determinista y
+        un pipeline de compilacion tipografica con Typst, el sistema construye
+        y despacha curricula hiper-contextualizados de forma autonoma. Este
+        documento describe la arquitectura del pipeline de cuatro fases, las
+        decisiones tecnicas que guiaron su implementacion, las estrategias de
+        evasion stealth empleadas, y las consideraciones operacionales de un
+        daemon resiliente disenado para ejecucion continua.
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         SECCION 1 — MOTIVACION Y CONTEXTO
+         =================================================== -->
+    <section aria-labelledby="lr-s1">
+      <h2 id="lr-s1">
+        <span class="latex-report__section-num">1.</span>
+        Motivacion y Contexto
+      </h2>
+
+      <p>
+        Despues de meses de enviar solicitudes a traves de portales de empleo
+        convencionales (ZonaJobs, Bumeran, LinkedIn) con tasas de respuesta
+        inferiores al tres por ciento, la hipotesis de trabajo fue que el
+        problema no residia en el perfil del postulante sino en el canal de
+        comunicacion. Los portales intermedian la relacion entre candidato y
+        empresa, filtran el CV antes de que llegue a un decision-maker, e
+        introducen latencias de semanas en un proceso que podria completarse
+        en horas.
+      </p>
+
+      <p>
+        La solucion conceptual era simple: eliminar el intermediario y
+        entregar el curriculo directamente en la puerta de la empresa, tal
+        como se hacia antes de la digitalizacion masiva. La implementacion,
+        sin embargo, requeria resolver problemas tecnicos no triviales: como
+        identificar empresas relevantes a escala nacional, como extraer datos
+        de contacto de sitios que activamente resisten el scraping, y como
+        personalizar cada comunicacion lo suficiente para que no sea
+        descartada como spam.
+      </p>
+
+      <p>
+        Al evaluar herramientas de automatizacion de cold emailing y OSINT
+        disponibles en GitHub, se encontro un patron recurrente: la mayoria
+        de los repositorios existentes funcionan como wrappers de APIs de IA
+        generativa de pago (OpenAI, Anthropic) para realizar tareas de
+        clasificacion que un motor lexico determinista puede ejecutar con mayor
+        precision y sin costo marginal. JobBot nace de ese vacio.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 2 — ARQUITECTURA DEL PIPELINE
+         =================================================== -->
+    <section aria-labelledby="lr-s2">
+      <h2 id="lr-s2">
+        <span class="latex-report__section-num">2.</span>
+        Arquitectura del Pipeline
+      </h2>
+
+      <p>
+        El sistema se organiza en cuatro fases secuenciales, cada una
+        implementada como un modulo Python independiente que lee y escribe
+        en una base de datos SQLite compartida (<code>jobbot.db</code>). Este
+        diseno permite ejecutar cada fase de forma aislada durante el desarrollo
+        o encadenarlas en modo daemon continuo mediante el flag
+        <code>--auto</code>.
+      </p>
+
+      <figure class="latex-report__figure">
+        <img
+          src="/assets/projects/jobbot-pipeline.svg"
+          alt="Diagrama de flujo del pipeline de cuatro fases: Dorking Engine genera URLs de empresas objetivo, el modulo Scraper extrae datos de contacto y los puntua, el Dispatcher selecciona prospectos por score minimo y el Motor Typst compila y envia el CV personalizado"
+          width="900"
+          height="420"
+          loading="lazy"
+        >
+        <figcaption>
+          Flujo de datos entre las cuatro fases del pipeline. Cada modulo
+          opera de forma asincrona y puede ser invocado de forma independiente
+          a traves de la CLI.
+        </figcaption>
+      </figure>
+
+      <p>
+        La <strong>Fase 1 (Dorking Engine)</strong> automatiza consultas
+        avanzadas de Google usando listas de rubros industriales definidas en
+        un archivo externo (<code>rubros.txt</code>). Los terminos de busqueda
+        se construyen dinamicamente combinando el rubro con operadores de
+        dorking que filtran sitios con datos de contacto expuestos (emails,
+        formularios de contacto, paginas &ldquo;Quienes somos&rdquo;). Las
+        URLs resultantes se almacenan como semillas en la base de datos con
+        estado <code>PENDIENTE</code>.
+      </p>
+
+      <p>
+        La <strong>Fase 2 (Scraping)</strong> procesa las semillas pendientes
+        con un pool de navegadores Playwright en paralelo, configurable mediante
+        el parametro <code>--concurrencia</code>. Cada navegador opera en un
+        contexto de browser aislado con configuracion stealth activa. El modulo
+        extrae emails, numeros de telefono y nombres de contacto usando un
+        conjunto de expresiones regulares construidas a partir de patrones de
+        estructura de sitios corporativos argentinos.
+      </p>
+
+      <p>
+        La <strong>Fase 3 (Scoring)</strong> aplica un motor lexico propio que
+        puntua cada prospecto en base a criterios como tamano estimado de la
+        empresa, presencia de keywords relevantes al perfil del candidato, y
+        calidad del dato de contacto extraido. El score resultante (0&ndash;100)
+        determina si el prospecto ingresa a la cola de despacho.
+      </p>
+
+      <p>
+        La <strong>Fase 4 (Dispatch)</strong> opera tanto sobre SMTP como sobre
+        WhatsApp Web. Para el canal de correo, el orquestador invoca el
+        compilador Typst con las keywords extraidas de la web de la empresa,
+        genera un PDF personalizado en milisegundos, y lo adjunta al correo
+        antes del envio.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 3 — EVASION STEALTH
+         =================================================== -->
+    <section aria-labelledby="lr-s3">
+      <h2 id="lr-s3">
+        <span class="latex-report__section-num">3.</span>
+        Tecnicas de Evasion Stealth
+      </h2>
+
+      <p>
+        Una fraccion significativa de los sitios corporativos argentinos opera
+        detras de sistemas de proteccion WAF como Cloudflare o servicios de
+        deteccion de bots como Datadome. Superar estas protecciones sin
+        incurrir en comportamiento ilegal requiere emular, con fidelidad
+        suficiente, el patron de navegacion de un usuario humano real.
+      </p>
+
+      <p>
+        El modulo stealth combina cuatro estrategias complementarias. En primer
+        lugar, <strong>playwright-stealth</strong> parchea las propiedades del
+        objeto <code>navigator</code> que los sistemas anti-bot utilizan como
+        fingerprint (WebDriver flag, plugins, lenguajes). En segundo lugar, se
+        aplica <strong>rotacion de contextos de browser</strong>: cada solicitud
+        se ejecuta en un contexto fresco con un user-agent generado
+        aleatoriamente de un conjunto de cadenas reales obtenidas de trafico
+        de produccion. En tercer lugar, se realiza <strong>spoofing de zona
+        horaria</strong> para que el perfil temporal del navegador coincida con
+        la geolocalización del servidor objetivo. Finalmente, se simula
+        <strong>biometria humana</strong> mediante movimientos de mouse y
+        eventos de scroll aleatorios interpolados con curvas de Bezier antes
+        de cualquier interaccion con el DOM.
+      </p>
+
+      <figure class="latex-report__figure">
+        <img
+          src="/assets/projects/jobbot-stealth.webp"
+          alt="Captura del panel de DevTools de Chrome mostrando las propiedades del objeto navigator sin las marcas tipicas de WebDriver que los sistemas anti-bot detectan, confirmando que el parcheo stealth es efectivo"
+          width="700"
+          height="380"
+          loading="lazy"
+        >
+        <figcaption>
+          Inspeccion del objeto <code>navigator</code> en un contexto Playwright
+          con stealth activo. La ausencia de la propiedad
+          <code>webdriver: true</code> y la presencia de plugins reales
+          confirman que el fingerprint pasa los controles basicos de deteccion.
+        </figcaption>
+      </figure>
+
+      <p>
+        El sistema implementa ademas un mecanismo de <strong>jitter
+        adaptativo</strong>: entre cada solicitud se introduce una pausa
+        aleatoria cuya duracion sigue una distribucion uniforme entre valores
+        configurables, lo que evita que el patron temporal del scraping sea
+        detectable por analisis estadistico de intervalos entre requests.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 4 — MOTOR DE CVS CON TYPST
+         =================================================== -->
+    <section aria-labelledby="lr-s4">
+      <h2 id="lr-s4">
+        <span class="latex-report__section-num">4.</span>
+        Motor de Curricula Dinamicos con Typst
+      </h2>
+
+      <p>
+        El diferenciador principal de JobBot frente a soluciones de cold
+        emailing convencionales es la capacidad de generar un documento PDF
+        unico por destinatario en tiempo de ejecucion. Typst es un sistema
+        de composicion tipografica moderno que compila documentos desde un
+        lenguaje de marcado propio a PDF en tiempos inferiores a 200ms, lo
+        que hace viable su invocacion dentro del loop de despacho.
+      </p>
+
+      <p>
+        El proceso de personalizacion opera en tres pasos. Primero, el
+        orquestador realiza una solicitud GET a la pagina principal de la
+        empresa objetivo y extrae los terminos mas frecuentes del contenido
+        visible usando el mismo motor lexico del modulo de scoring. Segundo,
+        esos terminos se inyectan como variables en la plantilla Typst
+        (<code>cvs/template.typ</code>) mediante sustitucion de parametros.
+        Tercero, el binario de Typst se invoca como subproceso con
+        <code>subprocess.run</code>, y el PDF resultante se escribe en un
+        directorio temporal antes de adjuntarse al correo.
+      </p>
+
+      <p>
+        El resultado es un documento donde el resumen profesional y la
+        descripcion de habilidades referencian terminologia propia del sector
+        y la empresa destinataria, lo que aumenta la tasa de apertura y reduce
+        la probabilidad de clasificacion automatica como spam.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 5 — DAEMON Y RESILIENCIA
+         =================================================== -->
+    <section aria-labelledby="lr-s5">
+      <h2 id="lr-s5">
+        <span class="latex-report__section-num">5.</span>
+        Daemon 24/7 y Consideraciones Operacionales
+      </h2>
+
+      <p>
+        En modo <code>--auto</code>, JobBot ejecuta el ciclo completo
+        (Dork &rarr; Scrape &rarr; Mail) en un loop infinito gestionado por
+        <code>asyncio</code>. El proceso esta disenado para correr bajo
+        <code>tmux</code> o como servicio <code>systemd</code>. La resiliencia
+        del daemon se garantiza mediante tres mecanismos: manejo explícito de
+        señales POSIX (<code>SIGTERM</code>, <code>SIGINT</code>) para un
+        apagado seguro sin corrupcion de la base de datos; timeouts estrictos
+        configurables en cada fase para prevenir livelocks ante sitios que no
+        responden; y un cooldown de 90 dias por dominio destinatario,
+        almacenado en la tabla <code>campanas_envios</code>, que evita el
+        envio repetido al mismo contacto.
+      </p>
+
+      <p>
+        El limite de envios SMTP esta configurado para respetar los rate
+        limits de Gmail con App Passwords (500 correos/dia). Para volumen
+        mayor, el modulo SMTP puede configurarse contra un servidor propio
+        o un relay transaccional sin modificaciones a la logica de negocio.
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         FOOTER DEL DOCUMENTO
+         =================================================== -->
+    <footer class="latex-report__footer">
+      <p class="latex-report__footer-label">Referencias y Recursos</p>
+      <nav
+        class="latex-report__links"
+        aria-label="Recursos externos del proyecto JobBot"
+      >
+        <a
+          href="https://github.com/Alaska45l/jobbot"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="Repositorio de JobBot en GitHub (abre en nueva pestana)"
+        >
+          <i class="fab fa-github" aria-hidden="true"></i>
+          github.com/Alaska45l/jobbot
+        </a>
+        <a
+          href="https://typst.app/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="Documentacion oficial de Typst (abre en nueva pestana)"
+        >
+          Documentacion Typst
+        </a>
+        <a
+          href="https://playwright.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="Documentacion oficial de Playwright (abre en nueva pestana)"
+        >
+          Playwright Docs
+        </a>
+      </nav>
+    </footer>
+
+  </article>
+</main>

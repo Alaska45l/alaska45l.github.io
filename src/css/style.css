@@ -3,36 +3,43 @@
    ========================================== */
 
 :root {
-    --bg-primary: #fef6fb;       /* declared; currently unused — body bg via ::before/::after */
-    --bg-secondary: #fff0f6;
-    --card-bg: #ffffff;
-    --primary-color: #f3a9c4;
-    --secondary-color: #cce5ff;
-    --accent-color: #e6e0ff;
-    --text-primary: #333;
-    --text-secondary: #666;
-    --text-muted: #888;
-    --border-light: rgba(0,0,0,0.06);
-    --shadow-soft: 0 4px 20px rgba(0,0,0,0.08);
-    --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+--bg-primary: #f9f5d7;       /* Blanco sepia muy suave (papel cálido) */
+    --bg-secondary: #ebdbb2;     /* Un tono más tostado para contraste */
+    --card-bg: #f2e5bc;          /* Fondo de tarjetas ligeramente crema */
+    
+    --primary-color: #c87a5f;    /* Terracota pastel / Ladrillo suave */
+    --secondary-color: #7e99a8;  /* Azul pizarra empolvado */
+    --accent-color: #a8889c;     /* Malva / Púrpura apagado */
+    
+    --text-primary: #3c3836;     /* Gris cálido muy oscuro (casi negro) */
+    --text-secondary: #504945;   /* Gris cálido medio para lectura */
+    --text-muted: #7c6f64;       /* Tinta gastada */
+    
+    --border-light: rgba(60, 56, 54, 0.08); /* Borde café muy translúcido */
+    --shadow-soft: 0 4px 20px rgba(60, 56, 54, 0.05);
+    --shadow-hover: 0 8px 30px rgba(60, 56, 54, 0.10);
+
+    /* Layout metrics */
     --radius: 16px;
     --radius-small: 12px;
     --max-width: 1200px;
     --spacing: 1.5rem;
 
-    /* Dark mode source values — consumed only by body.dark-mode reassignments below */
-    --dark-bg-primary: #0f0f23;
-    --dark-bg-secondary: #1a1a2e;
-    --dark-card-bg: #16213e;
-    --dark-primary-color: #ff6b9d;
-    --dark-secondary-color: #4ecdc4;
-    --dark-accent-color: #45b7d1;
-    --dark-text-primary: #ffffff;
-    --dark-text-secondary: #b8bcc8;
-    --dark-text-muted: #9ca3af;
-    --dark-border-light: rgba(255,255,255,0.1);
-    --dark-shadow-soft: 0 4px 20px rgba(0,0,0,0.3);
-    --dark-shadow-hover: 0 8px 30px rgba(0,0,0,0.4);
+    --dark-bg-primary: #161514;     /* Gris asfalto casi negro, muy frío */
+    --dark-bg-secondary: #1d1c1a;   /* Un gris apenas más cálido, tipo barro seco */
+    --dark-card-bg: #252422;        /* Fondo de las tarjetas, oscuro y sin vida */
+    
+    --dark-primary-color: #8da173;  /* Verde oliva desaturado (como lona militar vieja) */
+    --dark-secondary-color: #bc825f;/* Naranja óxido / hierro viejo */
+    --dark-accent-color: #727a68;   /* Un verde musgo muy apagado */
+    
+    --dark-text-primary: #d4c8b3;   /* Beige / blanco roto (papel envejecido) */
+    --dark-text-secondary: #9c9384; /* Texto secundario empolvado */
+    --dark-text-muted: #6b6559;     /* Texto silenciado, como tinta gastada */
+    
+    --dark-border-light: rgba(212, 200, 179, 0.08); /* Borde sutil color beige */
+    --dark-shadow-soft: 0 4px 20px rgba(0,0,0,0.4);
+    --dark-shadow-hover: 0 8px 30px rgba(0,0,0,0.6); /* Sombras un poco más duras */
 }
 
 /* ==========================================
@@ -81,11 +88,10 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../assets/background.webp');
-    background-size: cover;
-    background-position: center;
-    z-index: -2;
-    will-change: transform;
+    background-image: radial-gradient(rgba(60, 56, 54, 0.15) 2px, transparent 2px);
+    background-size: 22px 22px;
+    z-index: -1; 
+    pointer-events: none; 
 }
 
 body::before {
@@ -95,16 +101,16 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(254, 246, 251, 0.82);
-    z-index: -1;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    z-index: -2;
+}
+
+body.dark-mode::after {
+    background-image: radial-gradient(rgba(212, 200, 179, 0.12) 2px, transparent 2px);
 }
 
 /* ==========================================
    DARK MODE — TOKEN OVERRIDES ONLY
-   Component overrides → theme/dark.css
-   Layout overrides    → layout.css
-   Carousel overrides  → components/carousel.css
-   Timeline overrides  → components/timeline.css
    ========================================== */
 
 body.dark-mode {
@@ -123,9 +129,8 @@ body.dark-mode {
 }
 
 body.dark-mode::before {
-    background: rgba(15, 15, 35, 0.85);
+    background: rgba(22, 21, 20, 0.90);
 }
-
 /* ==========================================
    TÍTULOS DE SECCIÓN
    ========================================== */

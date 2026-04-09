@@ -16,13 +16,13 @@
    ========================================== */
 
 .header {
-    background: rgba(255, 255, 255, 0.95);
+    background: #f2e5bc;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-light);
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 20px rgba(60, 56, 54, 0.05);
 }
 
 .header-content {
@@ -71,7 +71,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--bg-primary);
     font-weight: bold;
 }
 
@@ -95,7 +95,7 @@
 
 .nav a:hover {
     background: var(--primary-color);
-    color: white;
+    color: var(--bg-primary);
     transform: translateY(-2px);
 }
 
@@ -217,7 +217,7 @@
    ========================================== */
 
 body.dark-mode .header {
-    background: rgba(22, 33, 62, 0.95);
+    background: rgba(22, 21, 20, 0.95);
 }
 
 body.dark-mode .mobile-menu .theme-toggle {
