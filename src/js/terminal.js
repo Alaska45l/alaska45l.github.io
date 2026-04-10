@@ -10,17 +10,6 @@
  * }} MountCtx
  */
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MOUNT CONTEXT
-// Un objeto nuevo se crea en cada mountTerminal(). Todos los closures creados
-// durante ese ciclo de vida capturan UNA REFERENCIA a este objeto (no su valor),
-// por lo que setear .cancelled = true en unmountTerminal() es suficiente para
-// detener cualquier animación o timer pendiente sin necesidad de un AbortController.
-//
-// Por qué no AbortController: AbortController está diseñado para cancelar fetch().
-// Para callbacks de setTimeout encadenados, un token de objeto mutable es el
-// patrón correcto (menor overhead, sin dependencia de la plataforma de fetch).
-// ─────────────────────────────────────────────────────────────────────────────
 /** @type {MountCtx | null} */
 let _mountCtx = null;
 
@@ -31,10 +20,6 @@ let _mountCtx = null;
  * @returns {void}
  */
 export function mountTerminal() {
-  // Nuevo contexto por mount: todos los closures generados durante esta
-  // instancia capturan esta referencia. La próxima llamada a mountTerminal()
-  // crea un objeto NUEVO, de forma que los snapshots del mount anterior
-  // (ya cancelados) nunca interfieren con el nuevo.
   _mountCtx = { cancelled: false, activeDragCleanup: null };
   tryMount();
 }
@@ -46,14 +31,7 @@ export function mountTerminal() {
  */
 export function unmountTerminal() {
   if (_mountCtx) {
-    // Señal de cancelación para todos los frames de printLines pendientes.
-    // El check ctx.cancelled al inicio de cada next() los detiene sin
-    // writes adicionales al DOM ni llamadas a onDone.
     _mountCtx.cancelled = true;
-
-    // Elimina mousemove/mouseup del document si el usuario estaba arrastrando
-    // cuando se desmontó el componente. Sin esto, onMouseMove quedaría vivo
-    // hasta que el usuario suelte el botón del mouse en el siguiente mount.
     _mountCtx.activeDragCleanup?.();
     _mountCtx = null;
   }
@@ -65,15 +43,12 @@ export function unmountTerminal() {
   const inp = getInput();
   if (inp) inp.disabled = false;
 
-  // Elimina los guards de inicialización para que el próximo mount comience limpio.
   const win = getWindow();
   if (win) {
     delete win.dataset['windowInit'];
     delete win.dataset['termInit'];
   }
 
-  // Descarta la referencia al prompt activo para evitar escrituras en nodos
-  // detached durante el cleanup final de la sesión de animación.
   currentPromptLine = null;
 }
 
@@ -324,29 +299,17 @@ function finalizePromptLine() {
   currentPromptLine = null;
 }
 
-/* ─────────────────────────────────────────────────────────────
- * LINE ANIMATION — con cancelación por MountCtx
- *
- * Por qué snapshot del contexto: _mountCtx es reemplazado en cada
- * mountTerminal(). Al capturar `const ctx = _mountCtx` al inicio de
- * printLines(), la closure next() siempre evalúa el token del mount
- * que originó esta animación, no el mount activo en el momento de
- * cada frame. Esto elimina la condición de carrera donde un mount
- * nuevo podría cancelar accidentalmente animaciones del anterior.
- * ───────────────────────────────────────────────────────────── */
 const LINE_DELAY_MS = 36;
 
 /**
  * @param {TermLine[]}    lines
- * @param {(() => void)=} onDone  No se llama si la animación es cancelada.
+ * @param {(() => void)=} onDone 
  */
 function printLines(lines, onDone) {
-  // Snapshot del contexto en el momento de la llamada.
   const ctx = _mountCtx;
   const out = getOutput();
   const inp = getInput();
 
-  // Si el componente ya fue desmontado antes de esta llamada, salir limpio.
   if (!out || !ctx) {
     onDone?.();
     return;
@@ -357,12 +320,6 @@ function printLines(lines, onDone) {
 
   let i = 0;
   function next() {
-    // ── CANCELLATION CHECK ───────────────────────────────────────────────
-    // Este check corre al inicio de CADA frame, incluyendo los que ya están
-    // encolados en el event loop vía setTimeout. Al retornar aquí:
-    //   • No se escriben más nodos al DOM (cero "ghost writes").
-    //   • No se llama a onDone (no se crea un nuevo prompt huérfano).
-    //   • unmountTerminal() ya se encargó de deshabilitar el input.
   if (!ctx || ctx.cancelled) return;
 
     if (i >= lines.length) {
@@ -589,21 +546,27 @@ function cmdEcho(args) {
 /** @returns {TermLine[]} */
 function cmdNeofetch() {
   return [
-    { text: ' ⠀⠀⠀⠀⠀⠀⢀⡴⢾⣶⣴⠚⣫⠏⠉⠉⠛⠛⢭⡓⢶⣶⠶⣦⡀⠀⠀⠀⠀⠀   alaska@plasma',               cls: 'success' },
-    { text: ' ⠀⠀⠀⠀⠀⣰⠋⡀⣠⠟⢁⣾⠇⠀⣀⣷⠀⠀⠓⣝⠂⠙⣆⢄⢻⡞⢢⠀⠀    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500', cls: 'success' },
-    { text: ' ⠀⠀⠀⠀⢠⡇⢸⢡⠃⢠⡞⠁⠀⣰⡟⠉⢦⣄⠀⠈⢆⠀⢻⣾⡄⢧⢸⠀⠀⠀    OS:     Arch Linux x86_64',   cls: 'output'  },
-    { text: ' ⠀⠀⠀⠀⢸⠀⡇⡌⠀⡞⠀⢀⣴⡋⠀⠀⠀⣙⣷⡀⠘⡄⠘⣿⣧⢸⣼⣥⠀⠀    Kernel: 6.8.0-human',          cls: 'output'  },
-    { text: ' ⣀⣀⣀⣀⣞⣰⠁⡇⠀⣧⠴⠛⠛⠁⠀⠀⠀⠉⠉⠙⠦⡇⠀⣿⣸⣼⣿⣇⣀⣀   DE:     KDE Plasma 6.8',         cls: 'output'  },
-    { text: ' ⠳⢽⣷⠺⡟⡿⣯⡇⠰⣧⠠⣿⡷⠂⠀⠀⠀⠐⣾⠷⠀⡀⠀⣿⡟⣴⠶⢁⡨⠊   Shell:  bash 5.2.37',            cls: 'output'  },
-    { text: ' ⠀⠀⠉⢳⢦⣅⠘⣿⣄⢿⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⢀⣏⣳⣿⣴⡞⠈⠀    Editor: nvim',                  cls: 'output'  },
-    { text: ' ⠀⠀⠀⣼⢸⡅⢹⣿⣿⣾⣟⠀⠀⢠⣀⣄⣠⠀⠀⢠⣾⣿⡿⣿⢻⠁⢹⣷⡀⠀ ' },
-    { text: ' ⠀⠀⠸⡏⠸⡇⢼⣿⡿⠟⠛⠓⣦⣄⣀⣀⣀⣀⡤⠴⠿⢿⡟⠛⠺⣦⣬⣗⠀⠀  Edad     23 a\u00f1os',            cls: 'muted'   },
-    { text: ' ⠀⠀⢰⡇⠀⡇⠸⡏⠀⠀⢰⠋⠙⠛⠛⠉⠉⢹⠀⠀⠀⠀⡇⠀⠀⣿⣿⣿⣿⡇   Ciudad   Mar del Plata, AR',      cls: 'muted'   },
-    { text: ' ⠀⡐⣾⠀⡀⢹⠀⣿⣄⠀⢸⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⢠⣇⠀⠀⣿⣿⣿⣿⣿    Estudio  F\u00edsica \u2014 UNMDP', cls: 'muted'   },
-    { text: ' ⣰⣿⣿⠀⡇⠘⡄⢸⣿⠆⠈⡇⠀⠀⠀⠀⠈⢉⠃⠀⣰⡾⠻⠃⢰⣿⣿⣿⣿⡇  Skills   IT \u00b7 Barismo \u00b7 Gesti\u00f3n', cls: 'muted' },
-    { text: ' ⣿⣿⣿⡆⢷⠀⢧⠈⣿⠤⠤⣇⠀⠀⠀⠀⢀⣸⣠⢾⠟⠓⡶⢤⣾⣿⣿⣿⣿⣷  Idiomas  Espa\u00f1ol (nativo) \u00b7 Ingl\u00e9s (B2)', cls: 'muted' },
+    { text: '                   -`                    guest@Alaska', cls: 'success' },
+    { text: '                  .o+`                   -------------', cls: 'success' },
+    { text: '                 `ooo/                   OS: Arch Linux x86_64', cls: 'output' },
+    { text: '                `+oooo:                  Host: ASUSTeK COMPUTER INC. E1504FA', cls: 'output' },
+    { text: '               `+oooooo:                 Kernel: 6.19.10-1-cachyos', cls: 'output' },
+    { text: '               -+oooooo+:                Uptime: 23 years,1 day, 5 hours, 43 mins', cls: 'output' },
+    { text: '             `/:-:++oooo+:               Packages: 1151 (pacman), 14 (flatpak)', cls: 'output' },
+    { text: '            `/++++/+++++++:              Shell: zsh 5.9', cls: 'output' },
+    { text: '           `/++++++++++++++:             Resolution: 1920x1080', cls: 'output' },
+    { text: '          `/+++ooooooooooooo/`           DE: Plasma 6.6.4 (Wayland)', cls: 'output' },
+    { text: '         ./ooosssso++osssssso+`          WM: kwin_wayland_wr', cls: 'output' },
+    { text: '        .oossssso-````/ossssss+`         Theme: Breeze-Dark [GTK2], Breeze [GTK3]', cls: 'output' },
+    { text: '       -osssssso.      :ssssssso.        Icons: Tela-nord-dark [GTK2/3]', cls: 'output' },
+    { text: '      :osssssss/        osssso+++.       Terminal: kitty', cls: 'output' },
+    { text: '     /ossssssss/        +ssssooo/-       Terminal Font: FiraCode Nerd Font 12.0', cls: 'output' },
+    { text: '   `/ossssso+/:-        -:/+osssso+-     CPU: AMD Ryzen 3 7320U with Radeon Graphics (8) @ 4.151GHz', cls: 'output' },
+    { text: '  `+sso+:-`              `.-/+oso:       GPU: AMD ATI Radeon 610M', cls: 'output' },
+    { text: ' `++:.                         `-/+/     Memory: 5508MiB / 7204MiB', cls: 'output' },
+    { text: ' .`                              `/' },
     { text: '' },
-    { text: '  \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588 \u2588\u2588\u2588', cls: 'success' },
+    { text: '  ███ ███ ███ ███ ███ ███ ███ ███', cls: 'success' },
     { text: '' },
   ];
 }
@@ -1207,11 +1170,6 @@ function init() {
 
     printLines(bootLines, () => {
       setTimeout(() => {
-        // IMPORTANTE: anular la referencia al prompt antes de limpiar innerHTML.
-        // Si currentPromptLine no es null en este punto, apuntaría a un nodo
-        // que está a punto de ser eliminado del DOM. El próximo acceso al
-        // nodo detached (querySelector, appendChild) puede ser silencioso
-        // o lanzar dependiendo del browser y del modo de rendering.
         currentPromptLine = null;
         outputEl.innerHTML = '';
         printLines(loginLines, () => {
@@ -1313,11 +1271,6 @@ function init() {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup',   onMouseUp);
-
-      // Registrar la función de cleanup en el mount context.
-      // Si el componente se desmonta mientras el usuario arrastra,
-      // unmountTerminal() llamará activeDragCleanup() y eliminará
-      // estos listeners sin esperar al mouseup.
       if (_mountCtx) _mountCtx.activeDragCleanup = dragCleanup;
     });
   }
@@ -1355,12 +1308,6 @@ function init() {
     }
   });
 
-  // ── Backtick restore — global, sin guard de dataset ────────
-  // Nota: estos listeners globales son permanentes (module-level) porque
-  // deben funcionar incluso cuando el terminal está cerrado. El guard
-  // anterior de `dataset.*Bound` los hacía quedar zombie tras HMR.
-  // Al no usar guards, la SPA garantiza que solo existe una instancia
-  // del módulo (ES module singleton), por lo que no hay duplicados.
   if (!document.body.dataset['terminalRestoreBound']) {
     document.body.dataset['terminalRestoreBound'] = 'true';
     document.addEventListener('keydown', e => {
@@ -1402,10 +1349,6 @@ function tryMount() {
   }
 }
 
-// El MutationObserver sigue siendo module-level porque debe detectar
-// cuándo el router inyecta la vista home (con #about-terminal) después
-// de cada navegación. No lo desconectamos en unmountTerminal porque
-// es necesario para el próximo mount.
 document.addEventListener('DOMContentLoaded', () => {
   tryMount();
   const app = document.getElementById('app') ?? document.body;
