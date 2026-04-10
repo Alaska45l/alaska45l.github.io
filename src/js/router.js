@@ -31,6 +31,7 @@ export class SPARouter {
     this.addRoute('/index.html', '/pages/home.html');
     this.addRoute('/home',       '/pages/home.html');
     this.addRoute('/proyectos/jobbot', '/pages/jobbot.html');
+    this.addRoute('/proyectos/auditoria-contratacion', '/pages/auditoria-contratacion.html');
 
     this.handleRedirect();
 

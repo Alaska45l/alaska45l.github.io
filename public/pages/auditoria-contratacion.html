@@ -1,0 +1,479 @@
+<!-- Fragmento SPA — inyectado en #app por el router.
+     NO incluye DOCTYPE, <html>, <head> ni <body>.
+     Requiere: src/css/pages/project-report.css en src/index.html
+     Requiere: ruta '/proyectos/auditoria-contratacion' registrada en router.js -->
+
+<main
+  class="latex-report"
+  id="main-content"
+  aria-label="Detalle del proyecto: Auditoría de Seguridad — Plataforma de Contratación"
+>
+
+  <!-- =====================================================
+       NAVEGACION — VOLVER
+       ===================================================== -->
+  <nav class="latex-report__nav" aria-label="Navegacion del documento">
+    <a
+      href="/"
+      data-router-link
+      class="latex-report__back-link"
+      aria-label="Volver al portafolio"
+    >
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      Volver al portafolio
+    </a>
+  </nav>
+
+  <!-- =====================================================
+       PAPEL / DOCUMENTO
+       ===================================================== -->
+  <article
+    class="latex-report__paper"
+    aria-labelledby="lr-title"
+    lang="es"
+  >
+
+    <!-- HEADER DEL DOCUMENTO -->
+    <header class="latex-report__header">
+      <p class="latex-report__category">
+        Auditoría de Seguridad &middot; Divulgación Responsable &middot; OWASP Top 10
+      </p>
+
+      <h1 class="latex-report__title" id="lr-title">
+        Auditoría de Seguridad — Plataforma de Contratación
+      </h1>
+
+      <p class="latex-report__subtitle">
+        Descubrimiento y divulgación responsable de nueve vulnerabilidades críticas
+        y de alta severidad en un sistema de empleo público, incluyendo
+        Broken Authentication, IDOR, BOLA, Unrestricted File Upload y Stored XSS potencial
+      </p>
+
+      <div class="latex-report__meta" role="list">
+        <span role="listitem">Alaska Elaina Gonzalez</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <span role="listitem">Mar del Plata, Argentina</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <time role="listitem" datetime="2025">2025</time>
+      </div>
+
+      <div class="latex-report__rule" aria-hidden="true"></div>
+    </header>
+
+    <!-- ABSTRACT -->
+    <section
+      class="latex-report__abstract"
+      aria-labelledby="lr-abstract"
+    >
+      <h2 class="latex-report__abstract-title" id="lr-abstract">Resumen</h2>
+      <p>
+        Este documento describe el proceso de descubrimiento, análisis y divulgación
+        responsable de nueve vulnerabilidades críticas y de alta severidad en una
+        plataforma de contratación laboral de acceso público. El hallazgo inicial fue
+        accidental: surgió mientras completaba mi perfil en el portal tras recibir una
+        respuesta de la empresa a través de JobBot. A partir de una anomalía en el
+        guardado de fechas, la investigación se expandió hasta revelar fallas
+        estructurales que permitían extraer, corromper y suplantar registros de todos
+        los usuarios registrados. El informe fue entregado al equipo técnico de la
+        organización en cumplimiento de los principios de divulgación responsable.
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         SECCION 1 — CÓMO EMPEZÓ TODO
+         =================================================== -->
+    <section aria-labelledby="lr-s1">
+      <h2 id="lr-s1">
+        <span class="latex-report__section-num">1.</span>
+        Cómo empezó todo: de un mail automático a un hallazgo de seguridad
+      </h2>
+
+      <p>
+        Todo comenzó de la manera más mundana posible. JobBot, el pipeline de
+        prospección B2B que desarrollo en paralelo, había despachado automáticamente
+        mi CV a una empresa del sector. Días después recibí una respuesta genuina:
+        me invitaban a completar mi perfil en su portal de contratación propio para
+        continuar con el proceso de selección.
+      </p>
+
+      <p>
+        Ingresé al portal, comencé a completar el formulario y, al llegar a los campos
+        de fecha —año de egreso, fecha de inicio de experiencia laboral— noté algo
+        extraño: el sistema guardaba el año <code>2026</code> como <code>2022</code>.
+        No era un problema de visualización; el dato persistido en el servidor era
+        incorrecto.
+      </p>
+
+      <p>
+        Por instinto, abrí las herramientas de desarrollador del navegador e inspeccioné
+        el DOM. Lo que encontré fue inmediato y evidente: los <code>value</code> de los
+        <code>&lt;option&gt;</code> del selector de año estaban mal asignados en el
+        propio HTML. Al modificarlos directamente desde la consola y volver a enviar el
+        formulario, el servidor aceptó y persistió el valor corregido sin ningún tipo
+        de validación adicional.
+      </p>
+
+      <p>
+        Eso confirmaba que toda la lógica de validación vivía exclusivamente en el
+        cliente. El servidor aceptaba cualquier valor que llegara en el cuerpo de la
+        solicitud, sin importar si era semánticamente válido o no. Curioso por saber
+        hasta dónde llegaba esa permisividad, probé lo siguiente: el campo de mes
+        aceptaba valores del <code>1</code> al <code>12</code>. Cambié el
+        <code>value</code> del selector a <code>13</code> y confirmé el formulario.
+      </p>
+
+      <p>
+        El servidor procesó la solicitud sin error. Mi perfil quedó completamente
+        corrompido en la base de datos. Lo que empezó como una corrección de un
+        bug cosmético se había convertido en la demostración de una falla de
+        validación generalizada del lado del servidor. Y eso era solo el comienzo.
+      </p>
+
+      <p>
+        Dado que el servidor no validaba los datos de entrada, la pregunta lógica
+        siguiente era: ¿tampoco validaba la identidad del solicitante? Abrí DevTools,
+        fui a la pestaña <em>Application</em> y revisé el <code>localStorage</code>.
+        Ahí estaba: un objeto JSON con mi <code>id</code> de usuario y un campo
+        <code>logeado: true</code>. Modifiqué el <code>id</code> por el de otro
+        usuario, recargué la página, y el sistema me presentó el perfil completo de
+        esa persona como si fuera el mío propio. Sin contraseña, sin token, sin
+        ninguna verificación del lado del servidor. A partir de ese momento, la
+        auditoría era inevitable.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 2 — METODOLOGÍA
+         =================================================== -->
+    <section aria-labelledby="lr-s2">
+      <h2 id="lr-s2">
+        <span class="latex-report__section-num">2.</span>
+        Metodología de análisis
+      </h2>
+
+      <p>
+        Una vez confirmada la ausencia de controles del lado del servidor, la
+        investigación se estructuró en dos fases. La primera, orientada al
+        análisis del frontend: comportamiento de la sesión, exposición de
+        identificadores y políticas de acceso a recursos. La segunda, centrada
+        en el backend: endpoints de la API, manejo de archivos, métodos HTTP
+        utilizados y documentación expuesta.
+      </p>
+
+      <p>
+        Todas las pruebas se realizaron exclusivamente sobre mi propia cuenta y,
+        en los casos donde se verificó acceso a datos de terceros, no se extrajeron,
+        almacenaron ni divulgaron registros ajenos. El objetivo en todo momento fue
+        documentar la superficie de ataque, no explotarla. Las pruebas de concepto
+        incluidas en el informe son suficientes para reproducir los hallazgos en un
+        entorno controlado, sin necesidad de acceder a datos reales de otros usuarios.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 3 — HALLAZGOS: FRONTEND
+         =================================================== -->
+    <section aria-labelledby="lr-s3">
+      <h2 id="lr-s3">
+        <span class="latex-report__section-num">3.</span>
+        Hallazgos — Primera Fase: Frontend
+      </h2>
+
+      <h3>Falla 1 — Autenticación delegada al cliente (OWASP A07:2021) — CRÍTICO</h3>
+
+      <p>
+        El mecanismo de autenticación de la plataforma no existía del lado del
+        servidor. La sesión se representaba mediante un objeto en
+        <code>localStorage</code> con la forma <code>{ id: N, logeado: true }</code>.
+        El servidor interpretaba cualquier solicitud que llegara con un ID como una
+        sesión válida, sin verificar tokens, cookies seguras ni credenciales.
+      </p>
+
+      <p>
+        La prueba de concepto era de dos líneas ejecutadas en la consola del navegador:
+      </p>
+
+      <pre><code>localStorage.setItem('user', JSON.stringify({ id: 1234, logeado: true }));
+// Tras recargar: acceso completo al perfil del usuario 1234.</code></pre>
+
+      <p>
+        Esta falla es la base sobre la que se sostienen todas las vulnerabilidades
+        de control de acceso identificadas en el sistema. Sin autenticación real del
+        lado del servidor, cualquier otro control resulta inefectivo.
+      </p>
+
+      <h3>Falla 2 — IDOR: Acceso no autorizado a registros (OWASP A01:2021) — CRÍTICO</h3>
+
+      <p>
+        Los identificadores de usuario eran valores numéricos secuenciales y
+        predecibles. Combinando la suplantación de sesión descrita en la falla
+        anterior con la iteración sobre el rango de IDs observado, cualquier
+        actor externo podía acceder a la totalidad de los perfiles registrados.
+        Cada perfil exponía nombre completo, fotografía, DNI, correo, teléfono,
+        domicilio exacto, CV en PDF, historial laboral y académico, entre otros datos.
+      </p>
+
+      <p>
+        La ausencia de ofuscación en los identificadores, combinada con la falta
+        de validación de pertenencia en cada solicitud, hacía que la extracción
+        de la base de datos completa fuera realizable mediante automatización
+        básica en cuestión de horas, sin generar alertas significativas en el
+        monitoreo de red.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 4 — HALLAZGOS: BACKEND
+         =================================================== -->
+    <section aria-labelledby="lr-s4">
+      <h2 id="lr-s4">
+        <span class="latex-report__section-num">4.</span>
+        Hallazgos — Segunda Fase: Backend
+      </h2>
+
+      <h3>Falla 3 — Carga de archivos sin restricciones (OWASP A04:2021) — CRÍTICO</h3>
+
+      <p>
+        Los endpoints de carga de imágenes y documentos no verificaban la extensión
+        del archivo, el tipo MIME ni la estructura interna (Magic Bytes). Se verificó
+        la capacidad de alojar scripts ejecutables disfrazados de imágenes en formato
+        Base64. Un atacante con acceso al sistema podría utilizar esta superficie para
+        ejecutar código arbitrario en la infraestructura del servidor.
+      </p>
+
+      <pre><code>POST /api/[redacted]/ImagenUpload
+Content-Type: application/json
+
+{
+  "fileData": "data:image/png;base64,&lt;payload_codificado&gt;",
+  "fileNameOriginal": "exploit.[redacted]"
+}</code></pre>
+
+      <h3>Falla 4 — BOLA: Modificación ilegítima de registros (OWASP A01:2021) — CRÍTICO</h3>
+
+      <p>
+        El endpoint de actualización de perfil procesaba solicitudes
+        <code>PUT</code> confiando exclusivamente en el campo <code>id</code>
+        del cuerpo JSON, sin verificar que el solicitante fuera el propietario
+        legítimo del recurso. Cualquier usuario autenticado —o que simulara
+        estarlo— podía sobrescribir el perfil completo de cualquier otro usuario,
+        incluyendo el reemplazo del CV asociado por un recurso malicioso.
+      </p>
+
+      <h3>Falla 5 — Credenciales expuestas en URL (OWASP A02:2021) — ALTO</h3>
+
+      <p>
+        El mecanismo de inicio de sesión operaba mediante el método HTTP
+        <code>GET</code>, enviando el correo electrónico y la contraseña como
+        parámetros en la cadena de consulta (<em>Query String</em>). Esta práctica
+        expone las credenciales en el historial del navegador, los registros del
+        servidor web y cualquier nodo intermediario de la red.
+      </p>
+
+      <pre><code>GET /api/[redacted]/Acceso?email=[redacted]&amp;clave=[redacted]</code></pre>
+
+      <h3>Falla 6 — Documentación interna expuesta en producción — MEDIO</h3>
+
+      <p>
+        La especificación OpenAPI (<code>swagger.yaml</code>) estaba accesible
+        públicamente en el entorno de producción sin ningún control de acceso.
+        Este documento entrega un diagrama completo de todos los servicios,
+        esquemas y parámetros de la API, reduciendo significativamente el esfuerzo
+        necesario para un atacante que quiera mapear la superficie de ataque.
+      </p>
+
+      <h3>Falla 7 — XSS Almacenado potencial en nombre de archivo (OWASP A03:2021) — MEDIO</h3>
+
+      <p>
+        El sistema almacenaba en base de datos el nombre original de los archivos
+        cargados sin aplicar ningún tipo de sanitización del lado del servidor.
+        Se verificó que payloads de inyección HTML y JavaScript en el nombre del
+        archivo eran persistidos correctamente:
+      </p>
+
+      <pre><code>test &lt;u&gt;Test&lt;/u&gt;.pdf
+&lt;script&gt;alert(document.cookie)&lt;/script&gt;.pdf
+"&gt;&lt;img src=x onerror=alert(1)&gt;.pdf</code></pre>
+
+      <h3>Falla 8 — Lógica de negocio y validación de entrada ausente (OWASP A04:2021) — MEDIO</h3>
+
+      <p>
+        Como se describió en la sección introductoria, las restricciones sobre
+        los campos de formulario existían únicamente en el cliente. El servidor
+        aceptaba y persistía valores semánticamente inválidos —como el mes
+        <code>13</code>— sin emitir errores de validación. Adicionalmente, al
+        manipular las respuestas HTTP se obtenían trazas internas del servidor
+        que revelaban detalles de implementación útiles para un atacante.
+      </p>
+
+      <h3>Falla 9 — Infraestructura End-of-Life (OWASP A06:2021) — CRÍTICO</h3>
+
+      <p>
+        El servidor web base había alcanzado su fecha de fin de vida (EOL) más
+        de doce meses antes del momento de la auditoría. La infraestructura
+        operaba sin parches de seguridad críticos por parte del proveedor, lo
+        que agravaba considerablemente el riesgo de las fallas de ejecución de
+        código identificadas en la Falla 3.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 5 — DATOS EXPUESTOS
+         =================================================== -->
+    <section aria-labelledby="lr-s5">
+      <h2 id="lr-s5">
+        <span class="latex-report__section-num">5.</span>
+        Alcance de los datos expuestos
+      </h2>
+
+      <p>
+        Cada registro accesible a través de las vulnerabilidades descritas exponía
+        la siguiente información personal de cada usuario registrado en la plataforma:
+        fotografía de perfil, nombre completo, número de documento de identidad,
+        correo electrónico, género y fecha de nacimiento, líneas telefónicas,
+        domicilio exacto, zona geográfica, enlaces profesionales, CV en formato PDF,
+        formación académica, competencias en idiomas e historial de experiencia laboral.
+      </p>
+
+      <p>
+        El marco normativo aplicable incluye la legislación local de protección de
+        datos personales. La combinación de identificadores únicos (DNI, correo,
+        teléfono) con datos de localización exacta y documentación laboral representa
+        un riesgo elevado de uso fraudulento en caso de exposición.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 6 — PLAN DE REMEDIACIÓN
+         =================================================== -->
+    <section aria-labelledby="lr-s6">
+      <h2 id="lr-s6">
+        <span class="latex-report__section-num">6.</span>
+        Plan de remediación sugerido
+      </h2>
+
+      <p>
+        El informe entregado al equipo técnico incluía las siguientes
+        acciones correctivas ordenadas por prioridad:
+      </p>
+
+      <p>
+        <strong>Autenticación:</strong> implementar gestión de sesión del lado del
+        servidor mediante JWTs firmados o cookies <code>HttpOnly</code> /
+        <code>Secure</code>, eliminando cualquier dependencia del
+        <code>localStorage</code> para verificar la identidad del usuario.
+      </p>
+
+      <p>
+        <strong>Control de acceso:</strong> verificar en cada solicitud que el
+        identificador de recurso manipulado corresponda estrictamente a la sesión
+        validada del solicitante, rechazando cualquier intento de acceso cruzado.
+      </p>
+
+      <p>
+        <strong>Identificadores:</strong> reemplazar las secuencias numéricas
+        predecibles por identificadores únicos universales (UUID v4) para eliminar
+        la posibilidad de enumeración y scraping de perfiles.
+      </p>
+
+      <p>
+        <strong>Gestión de archivos:</strong> establecer listas de formatos
+        permitidos y verificar criptográficamente la estructura real de cada
+        archivo cargado mediante análisis de Magic Bytes, rechazando cualquier
+        carga que no supere ambas validaciones.
+      </p>
+
+      <p>
+        <strong>Seguridad de la API:</strong> migrar el endpoint de login al
+        método <code>POST</code>, transmitiendo las credenciales exclusivamente
+        en el cuerpo cifrado de la solicitud (TLS). Retirar la especificación
+        OpenAPI del entorno de producción o protegerla mediante autenticación.
+      </p>
+
+      <p>
+        <strong>Infraestructura:</strong> planificar la migración urgente de los
+        servidores a un sistema operativo y gestor web con soporte activo del
+        proveedor, priorizando la aplicación de parches de seguridad pendientes.
+      </p>
+    </section>
+
+    <!-- ===================================================
+         SECCION 7 — DIVULGACIÓN RESPONSABLE
+         =================================================== -->
+    <section aria-labelledby="lr-s7">
+      <h2 id="lr-s7">
+        <span class="latex-report__section-num">7.</span>
+        Proceso de divulgación responsable
+      </h2>
+
+      <p>
+        Una vez documentados los hallazgos, elaboré un informe técnico completo
+        y lo entregué directamente al equipo interno de la organización afectada.
+        Durante todo el proceso de investigación no se realizó extracción masiva
+        de datos, no se alteraron registros de terceros más allá de las pruebas
+        de concepto mínimas necesarias para verificar la vulnerabilidad, y ninguna
+        información de otros usuarios fue divulgada o almacenada.
+      </p>
+
+      <p>
+        El objetivo de este trabajo fue exclusivamente permitir que la organización
+        identificara y corrigiera los problemas antes de que pudieran ser descubiertos
+        y explotados por actores maliciosos. La distribución del informe técnico
+        completo está restringida al equipo técnico interno de la organización.
+      </p>
+
+      <p>
+        Este caso de estudio público omite deliberadamente el nombre de la
+        organización afectada, los rangos exactos de IDs observados, las rutas
+        completas de los endpoints y cualquier otro dato que pudiera facilitar la
+        reproducción de los ataques contra sistemas en producción.
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         FOOTER DEL DOCUMENTO
+         =================================================== -->
+    <footer class="latex-report__footer">
+      <p class="latex-report__footer-label">Referencias</p>
+      <nav
+        class="latex-report__links"
+        aria-label="Recursos externos de la auditoría"
+      >
+        <a
+          href="/assets/auditoria-seguridad.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="Informe completo en PDF (abre en nueva pestaña)"
+        >
+          <i class="fas fa-file-pdf" aria-hidden="true"></i>
+          Informe completo (PDF, acceso restringido)
+        </a>
+        <a
+          href="https://owasp.org/www-project-top-ten/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="OWASP Top 10 (abre en nueva pestaña)"
+        >
+          OWASP Top 10
+        </a>
+        <a
+          href="https://github.com/Alaska45l/jobbot"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label="Repositorio de JobBot en GitHub (abre en nueva pestaña)"
+        >
+          <i class="fab fa-github" aria-hidden="true"></i>
+          JobBot — origen del hallazgo
+        </a>
+      </nav>
+    </footer>
+
+  </article>
+</main>
