@@ -1,112 +1,167 @@
-<!-- Main Content -->
+<!-- SPA fragment — injected into #app by the router.
+     Does NOT include DOCTYPE, <html>, <head> or <body>.
+     All user-visible strings are resolved at runtime via data-i18n / data-i18n-attr.
+     The router calls i18n.translateDOM(app) immediately after setting innerHTML. -->
+
 <main class="container">
-  <!-- Hero Section -->
+
+  <!-- =====================================================
+       HERO SECTION
+       ===================================================== -->
   <section class="hero card">
     <div class="hero-content">
+
       <div class="hero-left">
         <img
           class="hero-avatar"
           id="hero-avatar"
           src="assets/profile.webp"
-          alt="Foto de Alaska González"
+          alt=""
+          data-i18n-attr='{"alt":"home.hero.avatar_alt"}'
           loading="lazy"
         />
       </div>
+
       <div class="hero-text">
-        <h1>Alaska Elaina Gonzalez</h1>
-        <p class="hero-subtitle">Ciberseguridad & Ethical Hacking · Soporte IT</p>
+        <h1 data-i18n="home.hero.name"></h1>
+        <p class="hero-subtitle" data-i18n="home.hero.subtitle"></p>
       </div>
+
       <div class="hero-right">
         <div class="cta-buttons">
-          <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener">
-            <i class="fas fa-external-link"></i> Ver CV
+          <a
+            href="assets/alaskaGonzalez_cv.pdf"
+            class="btn btn-primary"
+            target="_blank"
+            rel="noopener"
+            data-i18n-attr='{"aria-label":"home.hero.cv_aria"}'
+            aria-label=""
+          >
+            <i class="fas fa-external-link" aria-hidden="true"></i>
+            <span data-i18n="home.hero.cv_btn"></span>
           </a>
-          <a href="https://instagram.com/alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-instagram"></i> Instagram
+
+          <a
+            href="https://instagram.com/alaska45l"
+            class="social-link"
+            target="_blank"
+            rel="noopener"
+            data-i18n-attr='{"aria-label":"home.hero.instagram_label"}'
+            aria-label=""
+          >
+            <i class="fab fa-instagram" aria-hidden="true"></i>
+            <span data-i18n="home.hero.instagram_label"></span>
           </a>
-          <a href="https://x.com/alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-x-twitter"></i> X (Twitter)
+
+          <a
+            href="https://x.com/alaska45l"
+            class="social-link"
+            target="_blank"
+            rel="noopener"
+            data-i18n-attr='{"aria-label":"home.hero.twitter_label"}'
+            aria-label=""
+          >
+            <i class="fab fa-x-twitter" aria-hidden="true"></i>
+            <span data-i18n="home.hero.twitter_label"></span>
           </a>
-          <a href="https://linkedin.com/in/alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-linkedin-in"></i> LinkedIn
+
+          <a
+            href="https://linkedin.com/in/alaska45l"
+            class="social-link"
+            target="_blank"
+            rel="noopener"
+            data-i18n-attr='{"aria-label":"home.hero.linkedin_label"}'
+            aria-label=""
+          >
+            <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+            <span data-i18n="home.hero.linkedin_label"></span>
           </a>
-          <a href="#contacto" class="btn btn-secondary" data-router-link>Contactar</a>
+
+          <a
+            href="#contacto"
+            class="btn btn-secondary"
+            data-router-link
+            data-i18n="home.hero.contact_btn"
+          ></a>
         </div>
       </div>
+
     </div>
   </section>
 
   <div class="main-grid">
     <div>
 
+      <!-- =====================================================
+           ABOUT — INTERACTIVE TERMINAL
+           ===================================================== -->
       <section id="sobre" class="card konsole-card">
-        <h2 class="section-title">Sobre mí</h2>
+        <h2 class="section-title" data-i18n="home.about.section_title"></h2>
 
         <div
           class="konsole-window"
           id="about-terminal"
           role="region"
-          aria-label="Terminal interactivo — Sobre mí"
+          aria-label=""
+          data-i18n-attr='{"aria-label":"home.about.terminal_region"}'
         >
 
-          <div class="konsole-titlebar" aria-label="Controles de ventana">
-            <div class="kwm-controls" role="group" aria-label="Botones de ventana">
-
+          <div
+            class="konsole-titlebar"
+            aria-label=""
+            data-i18n-attr='{"aria-label":"home.about.controls_group"}'
+          >
+            <div
+              class="kwm-controls"
+              role="group"
+              aria-label=""
+              data-i18n-attr='{"aria-label":"home.about.controls_group"}'
+            >
               <button
                 class="kwm-btn kwm-btn--close"
                 id="kwm-close"
                 type="button"
-                title="Cerrar terminal"
-                aria-label="Cerrar terminal"
+                title=""
+                aria-label=""
+                data-i18n-attr='{"title":"home.about.btn_close_title","aria-label":"home.about.btn_close_label"}'
               ></button>
               <button
                 class="kwm-btn kwm-btn--minimize"
                 id="kwm-minimize"
                 type="button"
-                title="Minimizar / restaurar"
-                aria-label="Minimizar terminal"
+                title=""
+                aria-label=""
                 aria-pressed="false"
+                data-i18n-attr='{"title":"home.about.btn_minimize_title","aria-label":"home.about.btn_minimize_label"}'
               ></button>
               <button
                 class="kwm-btn kwm-btn--maximize"
                 id="kwm-maximize"
                 type="button"
-                title="Expandir / contraer"
-                aria-label="Expandir terminal"
+                title=""
+                aria-label=""
                 aria-pressed="false"
+                data-i18n-attr='{"title":"home.about.btn_maximize_title","aria-label":"home.about.btn_maximize_label"}'
               ></button>
             </div>
 
-            <!-- Título informativo — no es interactivo, solo identifica la ventana -->
-            <span class="konsole-title" aria-hidden="true">
-              guest : bash — Konsole
-            </span>
+            <span class="konsole-title" aria-hidden="true" data-i18n="home.about.terminal_title"></span>
           </div>
           <!-- /.konsole-titlebar -->
 
-          <!--
-            .terminal-body — todo lo que se colapsa con minimize.
-            Separado del titlebar para que minimize solo oculte esto.
-          -->
           <div class="terminal-body" id="terminal-body">
 
-            <!-- Área de salida scrollable con gradiente -->
             <div
               class="terminal-output"
               id="terminal-output"
               role="log"
               aria-live="polite"
-              aria-label="Salida del terminal"
+              aria-label=""
               tabindex="-1"
+              data-i18n-attr='{"aria-label":"home.about.output_label"}'
             ></div>
 
-            <!-- Fila de prompt + input -->
             <div class="terminal-input-row">
-              <!--
-                Prompt descompuesto en spans con clase semántica.
-                Los colores se aplican en CSS vía variables del portfolio.
-                aria-hidden porque el input tiene su propio aria-label completo.
-              -->
               <span class="terminal-prompt-label" aria-hidden="true">
                 <span class="tp-user">alaska</span><span
                 class="tp-at">@</span><span
@@ -124,8 +179,9 @@
                 autocorrect="off"
                 autocapitalize="off"
                 spellcheck="false"
-                aria-label="Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial."
-                placeholder="escribí un comando..."
+                aria-label=""
+                placeholder=""
+                data-i18n-attr='{"aria-label":"home.about.input_aria","placeholder":"home.about.input_placeholder"}'
               />
             </div>
             <!-- /.terminal-input-row -->
@@ -138,123 +194,170 @@
 
       </section>
 
-      <!-- Education -->
+      <!-- =====================================================
+           EDUCATION
+           ===================================================== -->
       <section id="estudios" class="card">
-        <h2 class="section-title">Estudios</h2>
+        <h2 class="section-title" data-i18n="home.education.section_title"></h2>
         <div class="education-list">
+
           <div class="education-item">
-            <strong class="education-year">2025 - Presente</strong>
-            <p class="education-degree">Licenciatura en Física</p>
-            <p class="education-institution">Universidad Nacional de Mar del Plata</p>
+            <strong class="education-year" data-i18n="home.education.items.0.period"></strong>
+            <p class="education-degree"      data-i18n="home.education.items.0.degree"></p>
+            <p class="education-institution" data-i18n="home.education.items.0.institution"></p>
           </div>
+
           <div class="education-item">
-            <strong class="education-year">2024 - 2025</strong>
-            <p class="education-degree">Licenciatura en Medicina — Ciclo Básico</p>
-            <p class="education-institution">Universidad Nacional de Mar del Plata</p>
+            <strong class="education-year" data-i18n="home.education.items.1.period"></strong>
+            <p class="education-degree"      data-i18n="home.education.items.1.degree"></p>
+            <p class="education-institution" data-i18n="home.education.items.1.institution"></p>
           </div>
+
           <div class="education-item">
-            <strong class="education-year">2022 - 2024</strong>
-            <p class="education-degree">Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas — Ciclo Básico</p>
-            <p class="education-institution">Universidad Nacional del Centro de Buenos Aires</p>
+            <strong class="education-year" data-i18n="home.education.items.2.period"></strong>
+            <p class="education-degree"      data-i18n="home.education.items.2.degree"></p>
+            <p class="education-institution" data-i18n="home.education.items.2.institution"></p>
           </div>
+
           <div class="education-item">
-            <strong class="education-year">2015 - 2021</strong>
-            <p class="education-degree">Bachiller en Ciencias Naturales</p>
-            <p class="education-institution">Escuela Secundaria N°2 "Florentino Ameghino"</p>
+            <strong class="education-year" data-i18n="home.education.items.3.period"></strong>
+            <p class="education-degree"      data-i18n="home.education.items.3.degree"></p>
+            <p class="education-institution" data-i18n="home.education.items.3.institution"></p>
           </div>
+
         </div>
       </section>
 
-      <!-- Contact Section -->
+      <!-- =====================================================
+           CONTACT
+           ===================================================== -->
       <section id="contacto" class="card section-spacing">
-        <h2 class="section-title">Contacto</h2>
+        <h2 class="section-title" data-i18n="home.contact.section_title"></h2>
+
         <div class="contact-info">
-          <a href="mailto:alaskagonzalez@outlook.com" class="contact-box" target="_blank">
-            <i class="fas fa-envelope"></i>
+          <a
+            href="mailto:alaskagonzalez@outlook.com"
+            class="contact-box"
+            target="_blank"
+            data-i18n-attr='{"aria-label":"home.contact.email_box_label"}'
+            aria-label=""
+          >
+            <i class="fas fa-envelope" aria-hidden="true"></i>
             <strong>alaskagonzalez@outlook.com</strong>
           </a>
         </div>
+
         <div class="contact-form-container">
-          <h3 class="form-title">Enviar mensaje</h3>
+          <h3 class="form-title" data-i18n="home.contact.form_title"></h3>
           <form
             id="contact-form"
             class="contact-form"
             action="https://formspree.io/f/xqalwwvp"
             method="POST"
-            onsubmit="handleFormSubmit(event, 'contact-form')"
           >
             <div class="form-group">
-              <label for="name">Nombre *</label>
-              <input type="text" id="name" name="name" required>
+              <label for="name" data-i18n="home.contact.name_label"></label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                data-i18n-attr='{"aria-label":"home.contact.name_label"}'
+                aria-label=""
+              >
             </div>
             <div class="form-group">
-              <label for="email">Email *</label>
-              <input type="email" id="email" name="_replyto" required>
+              <label for="email" data-i18n="home.contact.email_label"></label>
+              <input
+                type="email"
+                id="email"
+                name="_replyto"
+                required
+                data-i18n-attr='{"aria-label":"home.contact.email_label"}'
+                aria-label=""
+              >
             </div>
             <div class="form-group">
-              <label for="message">Mensaje *</label>
-              <textarea id="message" name="message" required></textarea>
+              <label for="message" data-i18n="home.contact.message_label"></label>
+              <textarea
+                id="message"
+                name="message"
+                required
+                data-i18n-attr='{"aria-label":"home.contact.message_label"}'
+                aria-label=""
+              ></textarea>
             </div>
             <button type="submit" class="btn btn-primary">
-              <i class="fas fa-paper-plane"></i> Enviar mensaje
+              <i class="fas fa-paper-plane" aria-hidden="true"></i>
+              <span data-i18n="home.contact.submit_btn"></span>
             </button>
           </form>
         </div>
+
         <div class="contact-info">
-          <a href="https://t.me/alaska45l" class="telegram-btn" target="_blank" rel="noopener">
-            <i class="fab fa-telegram"></i> Escribime por Telegram
+          <a
+            href="https://t.me/alaska45l"
+            class="telegram-btn"
+            target="_blank"
+            rel="noopener"
+            data-i18n-attr='{"aria-label":"home.contact.telegram_btn"}'
+            aria-label=""
+          >
+            <i class="fab fa-telegram" aria-hidden="true"></i>
+            <span data-i18n="home.contact.telegram_btn"></span>
           </a>
         </div>
       </section>
+
     </div>
 
-    <!-- Sidebar -->
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
     <aside>
-      <!-- Projects Section -->
+
+      <!-- PROJECTS -->
       <section id="proyectos" class="card" aria-labelledby="proyectos-title">
-        <h2 class="section-title" id="proyectos-title">Proyectos</h2>
+        <h2 class="section-title" id="proyectos-title" data-i18n="home.projects.section_title"></h2>
 
         <div
           class="projects-scroll-container"
           role="region"
-          aria-label="Lista de proyectos destacados"
+          aria-label=""
           tabindex="0"
+          data-i18n-attr='{"aria-label":"home.projects.scroll_region_label"}'
         >
           <ul class="projects-grid" role="list">
 
-            <!-- =====================================================
-                VARIANTE A — Software / Codigo
-                Proyecto: JobBot v2.4
-                ===================================================== -->
+            <!-- ── JobBot v2.4 ───────────────────────────────── -->
             <li>
               <article
                 class="project-card project-card--software"
                 aria-labelledby="proj-jobbot-title"
               >
                 <header class="project-card__header">
-                  <span class="project-card__type-badge" aria-label="Tipo de proyecto: Software">
+                  <span
+                    class="project-card__type-badge"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.jobbot.type_aria"}'
+                  >
                     <i class="fas fa-code" aria-hidden="true"></i>
-                    Software
+                    <span data-i18n="home.projects.jobbot.type_badge"></span>
                   </span>
-                  <span class="status-badge in-development" aria-label="Estado: En desarrollo">
+                  <span
+                    class="status-badge in-development"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.jobbot.status_aria"}'
+                  >
                     <i class="fas fa-circle-dot" aria-hidden="true"></i>
-                    En desarrollo
+                    <span data-i18n="home.projects.jobbot.status"></span>
                   </span>
                 </header>
 
                 <div class="project-card__body">
-                  <h3 class="project-card__title" id="proj-jobbot-title">JobBot v2.4</h3>
-                  <p class="project-card__description">
-                    Pipeline asíncrono de prospección B2B. Automatiza dorking OSINT
-                    a nivel nacional, scraping con evasión de WAFs (Cloudflare,
-                    Datadome) y despacho de CVs compilados dinamicamente con Typst
-                    via SMTP y WhatsApp Web.
-                  </p>
-                  <ul
-                    class="project-card__badges"
-                    role="list"
-                    aria-label="Tecnologias utilizadas"
-                  >
+                  <h3 class="project-card__title" id="proj-jobbot-title" data-i18n="home.projects.jobbot.title"></h3>
+                  <p class="project-card__description" data-i18n="home.projects.jobbot.description"></p>
+                  <ul class="project-card__badges" role="list" aria-label="Tech stack">
                     <li class="badge">Python 3.11</li>
                     <li class="badge">Playwright</li>
                     <li class="badge">SQLite 3</li>
@@ -270,62 +373,58 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     class="btn btn-secondary"
-                    aria-label="Ver repositorio de JobBot en GitHub (abre en nueva pestana)"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.jobbot.repo_aria"}'
                   >
                     <i class="fab fa-github" aria-hidden="true"></i>
-                    Repositorio
+                    <span data-i18n="home.projects.jobbot.repo_btn"></span>
                   </a>
                   <a
                     href="/proyectos/jobbot"
                     data-router-link
                     class="btn btn-primary"
-                    aria-label="Ver detalles del proyecto JobBot"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.jobbot.detail_aria"}'
                   >
-                    Ver detalles
+                    <span data-i18n="home.projects.jobbot.detail_btn"></span>
                   </a>
                 </footer>
               </article>
             </li>
 
-            <!-- =====================================================
-                VARIANTE B — Documento / Auditoria
-                Proyecto: Auditoria de Seguridad — Plataforma de Contratacion
-                ===================================================== -->
+            <!-- ── Security Audit ────────────────────────────── -->
             <li>
               <article
                 class="project-card project-card--document"
                 aria-labelledby="proj-audit-title"
               >
                 <header class="project-card__header">
-                  <span class="project-card__type-badge" aria-label="Tipo de proyecto: Auditoria de seguridad">
+                  <span
+                    class="project-card__type-badge"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.audit.type_aria"}'
+                  >
                     <i class="fas fa-shield-halved" aria-hidden="true"></i>
-                    Auditoria
+                    <span data-i18n="home.projects.audit.type_badge"></span>
                   </span>
-                  <span class="status-badge completed" aria-label="Estado: Completado">
+                  <span
+                    class="status-badge completed"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.audit.status_aria"}'
+                  >
                     <i class="fas fa-circle-check" aria-hidden="true"></i>
-                    Completado
+                    <span data-i18n="home.projects.audit.status"></span>
                   </span>
                 </header>
 
                 <div class="project-card__body">
-                  <h3 class="project-card__title" id="proj-audit-title">
-                    Auditoria de Seguridad — Plataforma de Contratacion
-                  </h3>
-                  <p class="project-card__description">
-                    Divulgacion responsable de nueve vulnerabilidades criticas y
-                    de alta severidad (OWASP Top 10) en un sistema de empleo
-                    publico. Hallazgos incluyen Broken Authentication, IDOR, BOLA,
-                    Unrestricted File Upload y Stored XSS potencial.
-                  </p>
-                  <ul
-                    class="project-card__badges"
-                    role="list"
-                    aria-label="Categorias de hallazgos"
-                  >
+                  <h3 class="project-card__title" id="proj-audit-title" data-i18n="home.projects.audit.title"></h3>
+                  <p class="project-card__description" data-i18n="home.projects.audit.description"></p>
+                  <ul class="project-card__badges" role="list" aria-label="Finding categories">
                     <li class="badge">OWASP Top 10</li>
-                    <li class="badge">9 hallazgos</li>
+                    <li class="badge">9 findings</li>
                     <li class="badge">Pentest</li>
-                    <li class="badge">Divulgacion responsable</li>
+                    <li class="badge">Responsible Disclosure</li>
                   </ul>
                 </div>
 
@@ -335,18 +434,20 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     class="btn btn-secondary"
-                    aria-label="Abrir informe de auditoria en PDF (abre en nueva pestana)"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.audit.pdf_aria"}'
                   >
                     <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                    Informe PDF
+                    <span data-i18n="home.projects.audit.pdf_btn"></span>
                   </a>
                   <a
                     href="/proyectos/auditoria-contratacion"
                     data-router-link
                     class="btn btn-primary"
-                    aria-label="Ver analisis del caso de auditoria de seguridad"
+                    aria-label=""
+                    data-i18n-attr='{"aria-label":"home.projects.audit.detail_aria"}'
                   >
-                    Ver caso
+                    <span data-i18n="home.projects.audit.detail_btn"></span>
                   </a>
                 </footer>
               </article>
@@ -356,59 +457,64 @@
         </div><!-- /.projects-scroll-container -->
       </section>
 
+      <!-- SOCIAL LINKS -->
       <section class="card section-spacing">
-        <h2 class="section-title">Redes sociales y plataformas</h2>
+        <h2 class="section-title" data-i18n="home.social.section_title"></h2>
         <div class="social-links">
-          <a class="social-link" href="https://github.com/Alaska45l" target="_blank" rel="noopener">
-            <i class="fab fa-github"></i> GitHub
-          </a>
-          <a class="social-link" href="https://steamcommunity.com/id/alaska45l" target="_blank" rel="noopener">
-            <i class="fab fa-steam"></i> Steam
-          </a>
-          <a class="social-link" href="https://discord.com/users/465393703935016960" target="_blank" rel="noopener">
-            <i class="fab fa-discord"></i> Discord
-          </a>
-          <a href="https://youtube.com/@alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-youtube"></i> YouTube
-          </a>
-          <a href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk" class="social-link" target="_blank" rel="noopener">
-            <i class="fas fa-music"></i> YT Playlist
-          </a>
-          <a href="https://twitch.tv/alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-twitch"></i> Twitch
-          </a>
-          <a href="https://reddit.com/user/alaska45l" class="social-link" target="_blank" rel="noopener">
-            <i class="fab fa-reddit"></i> Reddit
-          </a>
+          <a class="social-link" href="https://github.com/Alaska45l"                                  target="_blank" rel="noopener"><i class="fab fa-github"   aria-hidden="true"></i> GitHub</a>
+          <a class="social-link" href="https://steamcommunity.com/id/alaska45l"                        target="_blank" rel="noopener"><i class="fab fa-steam"    aria-hidden="true"></i> Steam</a>
+          <a class="social-link" href="https://discord.com/users/465393703935016960"                   target="_blank" rel="noopener"><i class="fab fa-discord"  aria-hidden="true"></i> Discord</a>
+          <a class="social-link" href="https://youtube.com/@alaska45l"                                 target="_blank" rel="noopener"><i class="fab fa-youtube"  aria-hidden="true"></i> YouTube</a>
+          <a class="social-link" href="https://music.youtube.com/playlist?list=PLpeXrZ1O6mUlwpoE2k_c_3lRFwKccW9rk" target="_blank" rel="noopener"><i class="fas fa-music"   aria-hidden="true"></i> YT Playlist</a>
+          <a class="social-link" href="https://twitch.tv/alaska45l"                                    target="_blank" rel="noopener"><i class="fab fa-twitch"   aria-hidden="true"></i> Twitch</a>
+          <a class="social-link" href="https://reddit.com/user/alaska45l"                              target="_blank" rel="noopener"><i class="fab fa-reddit"   aria-hidden="true"></i> Reddit</a>
         </div>
       </section>
 
+      <!-- SUPPORT / PAYMENTS -->
       <section class="card section-spacing">
-        <h2 class="section-title">Apoyo <i class="fa-solid fa-heart"></i></h2>
-        <p class="support-description">
-          Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.
-        </p>
+        <h2 class="section-title">
+          <span data-i18n="home.support.section_title"></span>
+          <i class="fa-solid fa-heart" aria-hidden="true"></i>
+        </h2>
+        <p class="support-description" data-i18n="home.support.description"></p>
         <div class="payment-info">
+
           <div class="payment-item">
-            <strong class="payment-label">CVU:</strong>
+            <strong class="payment-label" data-i18n="home.support.cvu_label"></strong>
             <div class="payment-copy-row">
               <code class="payment-code">0000003100053873247568</code>
-              <button class="copy-btn" onclick="copyToClipboard(this, '0000003100053873247568')" title="Copiar CVU">
-                <i class="fas fa-copy"></i>
+              <button
+                class="copy-btn"
+                onclick="copyToClipboard(this, '0000003100053873247568')"
+                title=""
+                data-i18n-attr='{"title":"home.support.copy_cvu_title","aria-label":"home.support.copy_cvu_title"}'
+                aria-label=""
+              >
+                <i class="fas fa-copy" aria-hidden="true"></i>
               </button>
             </div>
           </div>
+
           <div class="payment-item">
-            <strong class="payment-label">Alias:</strong>
+            <strong class="payment-label" data-i18n="home.support.alias_label"></strong>
             <div class="payment-copy-row">
               <code class="payment-code payment-alias">AlaskaE45l</code>
-              <button class="copy-btn" onclick="copyToClipboard(this, 'AlaskaE45l')" title="Copiar alias">
-                <i class="fas fa-copy"></i>
+              <button
+                class="copy-btn"
+                onclick="copyToClipboard(this, 'AlaskaE45l')"
+                title=""
+                data-i18n-attr='{"title":"home.support.copy_alias_title","aria-label":"home.support.copy_alias_title"}'
+                aria-label=""
+              >
+                <i class="fas fa-copy" aria-hidden="true"></i>
               </button>
             </div>
           </div>
+
         </div>
       </section>
+
     </aside>
   </div>
 </main>

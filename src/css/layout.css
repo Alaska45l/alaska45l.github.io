@@ -34,6 +34,12 @@
     justify-content: space-between;
 }
 
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 /* ==========================================
    LOGO
    ========================================== */
@@ -156,7 +162,6 @@
     padding: 0.5rem;
     border-radius: var(--radius-small);
     transition: all 0.3s ease;
-    margin-right: 1rem;
 }
 
 .theme-toggle-desktop:hover {

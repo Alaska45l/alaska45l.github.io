@@ -1,0 +1,332 @@
+{
+  "errors": {
+    "not_found_title": "Página no encontrada",
+    "not_found_back":  "← Volver al inicio"
+  },
+
+  "nav": {
+    "logo_aria":        "Ir al inicio del portafolio",
+    "toggle_theme":     "Cambiar tema",
+    "toggle_language":  "Switch to English"
+  },
+
+  "footer": {
+    "copyright": "© 2025 Alaska E. González — Diseñado con ♥ y café"
+  },
+
+  "meta": {
+    "home": {
+      "title":          "Alaska E. González — Portafolio",
+      "description":    "Portafolio profesional de Alaska E. González. Ciberseguridad, Ethical Hacking y Desarrollo de Software.",
+      "og_title":       "Alaska E. González — Portafolio profesional",
+      "og_description": "Explorá proyectos, habilidades y contacto."
+    },
+    "jobbot": {
+      "title":          "JobBot v2.4 — Alaska E. González",
+      "description":    "Documentación técnica del pipeline de prospección laboral automatizada JobBot v2.4.",
+      "og_title":       "JobBot v2.4 — Pipeline de prospección B2B",
+      "og_description": "Arquitectura, estrategias de evasión stealth y motor de CVs dinámicos con Typst."
+    },
+    "auditoria": {
+      "title":          "Auditoría de Seguridad — Alaska E. González",
+      "description":    "Caso de estudio: divulgación responsable de nueve vulnerabilidades críticas en una plataforma de contratación pública.",
+      "og_title":       "Auditoría de Seguridad — Plataforma de Contratación",
+      "og_description": "Broken Authentication, IDOR, BOLA, Unrestricted File Upload y Stored XSS potencial."
+    }
+  },
+
+  "home": {
+    "hero": {
+      "avatar_alt":        "Foto de Alaska González",
+      "cv_btn":            "Ver CV",
+      "cv_aria":           "Ver CV (abre en nueva pestaña)",
+      "instagram_label":   "Instagram",
+      "twitter_label":     "X (Twitter)",
+      "linkedin_label":    "LinkedIn",
+      "contact_btn":       "Contactar",
+      "name":              "Alaska Elaina Gonzalez",
+      "subtitle":          "Ciberseguridad & Ethical Hacking · Soporte IT"
+    },
+
+    "about": {
+      "section_title":       "Sobre mí",
+      "terminal_region":     "Terminal interactivo — Sobre mí",
+      "controls_group":      "Controles de ventana",
+      "btn_close_title":     "Cerrar terminal",
+      "btn_close_label":     "Cerrar terminal",
+      "btn_minimize_title":  "Minimizar / restaurar",
+      "btn_minimize_label":  "Minimizar terminal",
+      "btn_maximize_title":  "Expandir / contraer",
+      "btn_maximize_label":  "Expandir terminal",
+      "terminal_title":      "guest : bash — Konsole",
+      "output_label":        "Salida del terminal",
+      "input_aria":          "Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial.",
+      "input_placeholder":   "escribí un comando..."
+    },
+
+    "education": {
+      "section_title":  "Estudios",
+      "items": [
+        {
+          "period":      "2025 - Presente",
+          "degree":      "Licenciatura en Física",
+          "institution": "Universidad Nacional de Mar del Plata"
+        },
+        {
+          "period":      "2024 - 2025",
+          "degree":      "Licenciatura en Medicina — Ciclo Básico",
+          "institution": "Universidad Nacional de Mar del Plata"
+        },
+        {
+          "period":      "2022 - 2024",
+          "degree":      "Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas — Ciclo Básico",
+          "institution": "Universidad Nacional del Centro de Buenos Aires"
+        },
+        {
+          "period":      "2015 - 2021",
+          "degree":      "Bachiller en Ciencias Naturales",
+          "institution": "Escuela Secundaria N°2 \"Florentino Ameghino\""
+        }
+      ]
+    },
+
+    "contact": {
+      "section_title":         "Contacto",
+      "form_title":            "Enviar mensaje",
+      "email_box_label":       "alaskagonzalez@outlook.com",
+      "name_label":            "Nombre *",
+      "email_label":           "Email *",
+      "message_label":         "Mensaje *",
+      "submit_btn":            "Enviar mensaje",
+      "submit_icon_label":     "Ícono de avión de papel",
+      "telegram_btn":          "Escribime por Telegram"
+    },
+
+    "projects": {
+      "section_title":        "Proyectos",
+      "scroll_region_label":  "Lista de proyectos destacados",
+
+      "jobbot": {
+        "type_badge":    "Software",
+        "type_aria":     "Tipo de proyecto: Software",
+        "status":        "En desarrollo",
+        "status_aria":   "Estado: En desarrollo",
+        "title":         "JobBot v2.4",
+        "description":   "Pipeline asíncrono de prospección B2B. Automatiza dorking OSINT a nivel nacional, scraping con evasión de WAFs (Cloudflare, Datadome) y despacho de CVs compilados dinámicamente con Typst via SMTP y WhatsApp Web.",
+        "repo_btn":      "Repositorio",
+        "repo_aria":     "Ver repositorio de JobBot en GitHub (abre en nueva pestaña)",
+        "detail_btn":    "Ver detalles",
+        "detail_aria":   "Ver detalles del proyecto JobBot"
+      },
+
+      "audit": {
+        "type_badge":    "Auditoría",
+        "type_aria":     "Tipo de proyecto: Auditoría de seguridad",
+        "status":        "Completado",
+        "status_aria":   "Estado: Completado",
+        "title":         "Auditoría de Seguridad — Plataforma de Contratación",
+        "description":   "Divulgación responsable de nueve vulnerabilidades críticas y de alta severidad (OWASP Top 10) en un sistema de empleo público. Hallazgos incluyen Broken Authentication, IDOR, BOLA, Unrestricted File Upload y Stored XSS potencial.",
+        "pdf_btn":       "Informe PDF",
+        "pdf_aria":      "Abrir informe de auditoría en PDF (abre en nueva pestaña)",
+        "detail_btn":    "Ver caso",
+        "detail_aria":   "Ver análisis del caso de auditoría de seguridad"
+      }
+    },
+
+    "social": {
+      "section_title":  "Redes sociales y plataformas"
+    },
+
+    "support": {
+      "section_title":       "Apoyo",
+      "description":         "Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.",
+      "cvu_label":           "CVU:",
+      "alias_label":         "Alias:",
+      "copy_cvu_title":      "Copiar CVU",
+      "copy_alias_title":    "Copiar alias"
+    }
+  },
+
+  "jobbot": {
+    "nav": {
+      "back_aria":   "Volver al portafolio",
+      "back_label":  "Volver al portafolio"
+    },
+
+    "header": {
+      "category":   "Proyecto de Software · Automatización B2B · OSINT",
+      "title":      "JobBot v2.4",
+      "subtitle":   "Pipeline asíncrono de prospección y contacto automatizado mediante dorking nacional, scraping stealth y compilación dinámica de currículas",
+      "author":     "Alaska Elaina González",
+      "location":   "Mar del Plata, Argentina",
+      "year":       "2025"
+    },
+
+    "cover": {
+      "alt":        "Panel TUI de JobBot en ejecución daemon mostrando métricas de prospección: empresas procesadas, correos despachados y score promedio de prospectos en tiempo real",
+      "caption":    "Panel de telemetría Rich TUI de JobBot durante una sesión de ejecución continua. La interfaz muestra el estado de cada fase del pipeline y las métricas acumuladas de la campaña activa."
+    },
+
+    "abstract": {
+      "title": "Resumen",
+      "body":  "JobBot es un sistema de prospección laboral automatizada diseñado para circunvalar las limitaciones estructurales de los portales de empleo tradicionales. Mediante la combinación de técnicas de Google Dorking a escala nacional, scraping con evasión de sistemas de protección WAF (Cloudflare, Datadome), un motor de puntuación léxico determinista y un pipeline de compilación tipográfica con Typst, el sistema construye y despacha currículas hiper-contextualizados de forma autónoma. Este documento describe la arquitectura del pipeline de cuatro fases, las decisiones técnicas que guiaron su implementación, las estrategias de evasión stealth empleadas, y las consideraciones operacionales de un daemon resiliente diseñado para ejecución continua."
+    },
+
+    "s1": {
+      "heading":  "1. Motivación y Contexto",
+      "p1":       "Después de meses de enviar solicitudes a través de portales de empleo convencionales (ZonaJobs, Bumeran, LinkedIn) con tasas de respuesta inferiores al tres por ciento, la hipótesis de trabajo fue que el problema no residía en el perfil del postulante sino en el canal de comunicación. Los portales intermedian la relación entre candidato y empresa, filtran el CV antes de que llegue a un decision-maker, e introducen latencias de semanas en un proceso que podría completarse en horas.",
+      "p2":       "La solución conceptual era simple: eliminar el intermediario y entregar el currículo directamente en la puerta de la empresa, tal como se hacía antes de la digitalización masiva. La implementación, sin embargo, requería resolver problemas técnicos no triviales: cómo identificar empresas relevantes a escala nacional, cómo extraer datos de contacto de sitios que activamente resisten el scraping, y cómo personalizar cada comunicación lo suficiente para que no sea descartada como spam.",
+      "p3":       "Al evaluar herramientas de automatización de cold emailing y OSINT disponibles en GitHub, se encontró un patrón recurrente: la mayoría de los repositorios existentes funcionan como wrappers de APIs de IA generativa de pago (OpenAI, Anthropic) para realizar tareas de clasificación que un motor léxico determinista puede ejecutar con mayor precisión y sin costo marginal. JobBot nace de ese vacío."
+    },
+
+    "s2": {
+      "heading":  "2. Arquitectura del Pipeline",
+      "p1":       "El sistema se organiza en cuatro fases secuenciales, cada una implementada como un módulo Python independiente que lee y escribe en una base de datos SQLite compartida (jobbot.db). Este diseño permite ejecutar cada fase de forma aislada durante el desarrollo o encadenarlas en modo daemon continuo mediante el flag --auto.",
+      "fig1_alt":     "Diagrama de flujo del pipeline de cuatro fases: Dorking Engine genera URLs de empresas objetivo, el módulo Scraper extrae datos de contacto y los puntúa, el Dispatcher selecciona prospectos por score mínimo y el Motor Typst compila y envía el CV personalizado",
+      "fig1_caption": "Flujo de datos entre las cuatro fases del pipeline. Cada módulo opera de forma asíncrona y puede ser invocado de forma independiente a través de la CLI.",
+      "p2":       "La Fase 1 (Dorking Engine) automatiza consultas avanzadas de Google usando listas de rubros industriales definidas en un archivo externo (rubros.txt). Los términos de búsqueda se construyen dinámicamente combinando el rubro con operadores de dorking que filtran sitios con datos de contacto expuestos (emails, formularios de contacto, páginas «Quiénes somos»). Las URLs resultantes se almacenan como semillas en la base de datos con estado PENDIENTE.",
+      "p3":       "La Fase 2 (Scraping) procesa las semillas pendientes con un pool de navegadores Playwright en paralelo, configurable mediante el parámetro --concurrencia. Cada navegador opera en un contexto de browser aislado con configuración stealth activa. El módulo extrae emails, números de teléfono y nombres de contacto usando un conjunto de expresiones regulares construidas a partir de patrones de estructura de sitios corporativos argentinos.",
+      "p4":       "La Fase 3 (Scoring) aplica un motor léxico propio que puntúa cada prospecto en base a criterios como tamaño estimado de la empresa, presencia de keywords relevantes al perfil del candidato, y calidad del dato de contacto extraído. El score resultante (0–100) determina si el prospecto ingresa a la cola de despacho.",
+      "p5":       "La Fase 4 (Dispatch) opera tanto sobre SMTP como sobre WhatsApp Web. Para el canal de correo, el orquestador invoca el compilador Typst con las keywords extraídas de la web de la empresa, genera un PDF personalizado en milisegundos, y lo adjunta al correo antes del envío."
+    },
+
+    "s3": {
+      "heading":  "3. Técnicas de Evasión Stealth",
+      "p1":       "Una fracción significativa de los sitios corporativos argentinos opera detrás de sistemas de protección WAF como Cloudflare o servicios de detección de bots como Datadome. Superar estas protecciones sin incurrir en comportamiento ilegal requiere emular, con fidelidad suficiente, el patrón de navegación de un usuario humano real.",
+      "p2":       "El módulo stealth combina cuatro estrategias complementarias. En primer lugar, playwright-stealth parchea las propiedades del objeto navigator que los sistemas anti-bot utilizan como fingerprint (WebDriver flag, plugins, lenguajes). En segundo lugar, se aplica rotación de contextos de browser: cada solicitud se ejecuta en un contexto fresco con un user-agent generado aleatoriamente de un conjunto de cadenas reales obtenidas de tráfico de producción. En tercer lugar, se realiza spoofing de zona horaria para que el perfil temporal del navegador coincida con la geolocalización del servidor objetivo. Finalmente, se simula biometría humana mediante movimientos de mouse y eventos de scroll aleatorios interpolados con curvas de Bezier antes de cualquier interacción con el DOM.",
+      "fig2_alt":     "Captura del panel de DevTools de Chrome mostrando las propiedades del objeto navigator sin las marcas típicas de WebDriver que los sistemas anti-bot detectan, confirmando que el parcheo stealth es efectivo",
+      "fig2_caption": "Inspección del objeto navigator en un contexto Playwright con stealth activo. La ausencia de la propiedad webdriver: true y la presencia de plugins reales confirman que el fingerprint pasa los controles básicos de detección.",
+      "p3":       "El sistema implementa además un mecanismo de jitter adaptativo: entre cada solicitud se introduce una pausa aleatoria cuya duración sigue una distribución uniforme entre valores configurables, lo que evita que el patrón temporal del scraping sea detectable por análisis estadístico de intervalos entre requests."
+    },
+
+    "s4": {
+      "heading":  "4. Motor de Currículas Dinámicos con Typst",
+      "p1":       "El diferenciador principal de JobBot frente a soluciones de cold emailing convencionales es la capacidad de generar un documento PDF único por destinatario en tiempo de ejecución. Typst es un sistema de composición tipográfica moderno que compila documentos desde un lenguaje de marcado propio a PDF en tiempos inferiores a 200 ms, lo que hace viable su invocación dentro del loop de despacho.",
+      "p2":       "El proceso de personalización opera en tres pasos. Primero, el orquestador realiza una solicitud GET a la página principal de la empresa objetivo y extrae los términos más frecuentes del contenido visible usando el mismo motor léxico del módulo de scoring. Segundo, esos términos se inyectan como variables en la plantilla Typst (cvs/template.typ) mediante sustitución de parámetros. Tercero, el binario de Typst se invoca como subproceso con subprocess.run, y el PDF resultante se escribe en un directorio temporal antes de adjuntarse al correo.",
+      "p3":       "El resultado es un documento donde el resumen profesional y la descripción de habilidades referencian terminología propia del sector y la empresa destinataria, lo que aumenta la tasa de apertura y reduce la probabilidad de clasificación automática como spam."
+    },
+
+    "s5": {
+      "heading":  "5. Daemon 24/7 y Consideraciones Operacionales",
+      "p1":       "En modo --auto, JobBot ejecuta el ciclo completo (Dork → Scrape → Mail) en un loop infinito gestionado por asyncio. El proceso está diseñado para correr bajo tmux o como servicio systemd. La resiliencia del daemon se garantiza mediante tres mecanismos: manejo explícito de señales POSIX (SIGTERM, SIGINT) para un apagado seguro sin corrupción de la base de datos; timeouts estrictos configurables en cada fase para prevenir livelocks ante sitios que no responden; y un cooldown de 90 días por dominio destinatario, almacenado en la tabla campanas_envios, que evita el envío repetido al mismo contacto.",
+      "p2":       "El límite de envíos SMTP está configurado para respetar los rate limits de Gmail con App Passwords (500 correos/día). Para volumen mayor, el módulo SMTP puede configurarse contra un servidor propio o un relay transaccional sin modificaciones a la lógica de negocio."
+    },
+
+    "footer": {
+      "references_label":  "Referencias y Recursos",
+      "nav_aria":          "Recursos externos del proyecto JobBot",
+      "github_aria":       "Repositorio de JobBot en GitHub (abre en nueva pestaña)",
+      "typst_aria":        "Documentación oficial de Typst (abre en nueva pestaña)",
+      "playwright_aria":   "Documentación oficial de Playwright (abre en nueva pestaña)",
+      "github_label":      "github.com/Alaska45l/jobbot",
+      "typst_label":       "Documentación Typst",
+      "playwright_label":  "Playwright Docs"
+    }
+  },
+
+  "auditoria": {
+    "nav": {
+      "back_aria":   "Volver al portafolio",
+      "back_label":  "Volver al portafolio"
+    },
+
+    "header": {
+      "category":   "Auditoría de Seguridad · Divulgación Responsable · OWASP Top 10",
+      "title":      "Auditoría de Seguridad — Plataforma de Contratación",
+      "subtitle":   "Descubrimiento y divulgación responsable de nueve vulnerabilidades críticas y de alta severidad en un sistema de empleo público, incluyendo Broken Authentication, IDOR, BOLA, Unrestricted File Upload y Stored XSS potencial",
+      "author":     "Alaska Elaina González",
+      "location":   "Mar del Plata, Argentina",
+      "year":       "2025"
+    },
+
+    "abstract": {
+      "title": "Resumen",
+      "body":  "Este documento describe el proceso de descubrimiento, análisis y divulgación responsable de nueve vulnerabilidades críticas y de alta severidad en una plataforma de contratación laboral de acceso público. El hallazgo inicial fue accidental: surgió mientras completaba mi perfil en el portal tras recibir una respuesta de la empresa a través de JobBot. A partir de una anomalía en el guardado de fechas, la investigación se expandió hasta revelar fallas estructurales que permitían extraer, corromper y suplantar registros de todos los usuarios registrados. El informe fue entregado al equipo técnico de la organización en cumplimiento de los principios de divulgación responsable."
+    },
+
+    "s1": {
+      "heading":  "1. Cómo empezó todo: de un mail automático a un hallazgo de seguridad",
+      "p1":       "Todo comenzó de la manera más mundana posible. JobBot, el pipeline de prospección B2B que desarrollo en paralelo, había despachado automáticamente mi CV a una empresa del sector. Días después recibí una respuesta genuina: me invitaban a completar mi perfil en su portal de contratación propio para continuar con el proceso de selección.",
+      "p2":       "Ingresé al portal, comencé a completar el formulario y, al llegar a los campos de fecha —año de egreso, fecha de inicio de experiencia laboral— noté algo extraño: el sistema guardaba el año 2026 como 2022. No era un problema de visualización; el dato persistido en el servidor era incorrecto.",
+      "p3":       "Por instinto, abrí las herramientas de desarrollador del navegador e inspeccioné el DOM. Lo que encontré fue inmediato y evidente: los value de los <option> del selector de año estaban mal asignados en el propio HTML. Al modificarlos directamente desde la consola y volver a enviar el formulario, el servidor aceptó y persistió el valor corregido sin ningún tipo de validación adicional.",
+      "p4":       "Eso confirmaba que toda la lógica de validación vivía exclusivamente en el cliente. El servidor aceptaba cualquier valor que llegara en el cuerpo de la solicitud, sin importar si era semánticamente válido o no. Curioso por saber hasta dónde llegaba esa permisividad, probé lo siguiente: el campo de mes aceptaba valores del 1 al 12. Cambié el value del selector a 13 y confirmé el formulario.",
+      "p5":       "El servidor procesó la solicitud sin error. Mi perfil quedó completamente corrompido en la base de datos. Lo que empezó como una corrección de un bug cosmético se había convertido en la demostración de una falla de validación generalizada del lado del servidor. Y eso era solo el comienzo.",
+      "p6":       "Dado que el servidor no validaba los datos de entrada, la pregunta lógica siguiente era: ¿tampoco validaba la identidad del solicitante? Abrí DevTools, fui a la pestaña Application y revisé el localStorage. Ahí estaba: un objeto JSON con mi id de usuario y un campo logeado: true. Modifiqué el id por el de otro usuario, recargué la página, y el sistema me presentó el perfil completo de esa persona como si fuera el mío propio. Sin contraseña, sin token, sin ninguna verificación del lado del servidor. A partir de ese momento, la auditoría era inevitable."
+    },
+
+    "s2": {
+      "heading":  "2. Metodología de análisis",
+      "p1":       "Una vez confirmada la ausencia de controles del lado del servidor, la investigación se estructuró en dos fases. La primera, orientada al análisis del frontend: comportamiento de la sesión, exposición de identificadores y políticas de acceso a recursos. La segunda, centrada en el backend: endpoints de la API, manejo de archivos, métodos HTTP utilizados y documentación expuesta.",
+      "p2":       "Todas las pruebas se realizaron exclusivamente sobre mi propia cuenta y, en los casos donde se verificó acceso a datos de terceros, no se extrajeron, almacenaron ni divulgaron registros ajenos. El objetivo en todo momento fue documentar la superficie de ataque, no explotarla. Las pruebas de concepto incluidas en el informe son suficientes para reproducir los hallazgos en un entorno controlado, sin necesidad de acceder a datos reales de otros usuarios."
+    },
+
+    "s3": {
+      "heading":     "3. Hallazgos — Primera Fase: Frontend",
+      "flaw1_title": "Falla 1 — Autenticación delegada al cliente (OWASP A07:2021) — CRÍTICO",
+      "flaw1_p1":    "El mecanismo de autenticación de la plataforma no existía del lado del servidor. La sesión se representaba mediante un objeto en localStorage con la forma { id: N, logeado: true }. El servidor interpretaba cualquier solicitud que llegara con un ID como una sesión válida, sin verificar tokens, cookies seguras ni credenciales.",
+      "flaw1_p2":    "La prueba de concepto era de dos líneas ejecutadas en la consola del navegador:",
+      "flaw1_p3":    "Esta falla es la base sobre la que se sostienen todas las vulnerabilidades de control de acceso identificadas en el sistema. Sin autenticación real del lado del servidor, cualquier otro control resulta inefectivo.",
+      "flaw2_title": "Falla 2 — IDOR: Acceso no autorizado a registros (OWASP A01:2021) — CRÍTICO",
+      "flaw2_p1":    "Los identificadores de usuario eran valores numéricos secuenciales y predecibles. Combinando la suplantación de sesión descrita en la falla anterior con la iteración sobre el rango de IDs observado, cualquier actor externo podía acceder a la totalidad de los perfiles registrados. Cada perfil exponía nombre completo, fotografía, DNI, correo, teléfono, domicilio exacto, CV en PDF, historial laboral y académico, entre otros datos.",
+      "flaw2_p2":    "La ausencia de ofuscación en los identificadores, combinada con la falta de validación de pertenencia en cada solicitud, hacía que la extracción de la base de datos completa fuera realizable mediante automatización básica en cuestión de horas, sin generar alertas significativas en el monitoreo de red."
+    },
+
+    "s4": {
+      "heading":     "4. Hallazgos — Segunda Fase: Backend",
+      "flaw3_title": "Falla 3 — Carga de archivos sin restricciones (OWASP A04:2021) — CRÍTICO",
+      "flaw3_p1":    "Los endpoints de carga de imágenes y documentos no verificaban la extensión del archivo, el tipo MIME ni la estructura interna (Magic Bytes). Se verificó la capacidad de alojar scripts ejecutables disfrazados de imágenes en formato Base64. Un atacante con acceso al sistema podría utilizar esta superficie para ejecutar código arbitrario en la infraestructura del servidor.",
+      "flaw4_title": "Falla 4 — BOLA: Modificación ilegítima de registros (OWASP A01:2021) — CRÍTICO",
+      "flaw4_p1":    "El endpoint de actualización de perfil procesaba solicitudes PUT confiando exclusivamente en el campo id del cuerpo JSON, sin verificar que el solicitante fuera el propietario legítimo del recurso. Cualquier usuario autenticado —o que simulara estarlo— podía sobrescribir el perfil completo de cualquier otro usuario, incluyendo el reemplazo del CV asociado por un recurso malicioso.",
+      "flaw5_title": "Falla 5 — Credenciales expuestas en URL (OWASP A02:2021) — ALTO",
+      "flaw5_p1":    "El mecanismo de inicio de sesión operaba mediante el método HTTP GET, enviando el correo electrónico y la contraseña como parámetros en la cadena de consulta (Query String). Esta práctica expone las credenciales en el historial del navegador, los registros del servidor web y cualquier nodo intermediario de la red.",
+      "flaw6_title": "Falla 6 — Documentación interna expuesta en producción — MEDIO",
+      "flaw6_p1":    "La especificación OpenAPI (swagger.yaml) estaba accesible públicamente en el entorno de producción sin ningún control de acceso. Este documento entrega un diagrama completo de todos los servicios, esquemas y parámetros de la API, reduciendo significativamente el esfuerzo necesario para un atacante que quiera mapear la superficie de ataque.",
+      "flaw7_title": "Falla 7 — XSS Almacenado potencial en nombre de archivo (OWASP A03:2021) — MEDIO",
+      "flaw7_p1":    "El sistema almacenaba en base de datos el nombre original de los archivos cargados sin aplicar ningún tipo de sanitización del lado del servidor. Se verificó que payloads de inyección HTML y JavaScript en el nombre del archivo eran persistidos correctamente:",
+      "flaw8_title": "Falla 8 — Lógica de negocio y validación de entrada ausente (OWASP A04:2021) — MEDIO",
+      "flaw8_p1":    "Como se describió en la sección introductoria, las restricciones sobre los campos de formulario existían únicamente en el cliente. El servidor aceptaba y persistía valores semánticamente inválidos —como el mes 13— sin emitir errores de validación. Adicionalmente, al manipular las respuestas HTTP se obtenían trazas internas del servidor que revelaban detalles de implementación útiles para un atacante.",
+      "flaw9_title": "Falla 9 — Infraestructura End-of-Life (OWASP A06:2021) — CRÍTICO",
+      "flaw9_p1":    "El servidor web base había alcanzado su fecha de fin de vida (EOL) más de doce meses antes del momento de la auditoría. La infraestructura operaba sin parches de seguridad críticos por parte del proveedor, lo que agravaba considerablemente el riesgo de las fallas de ejecución de código identificadas en la Falla 3."
+    },
+
+    "s5": {
+      "heading":  "5. Alcance de los datos expuestos",
+      "p1":       "Cada registro accesible a través de las vulnerabilidades descritas exponía la siguiente información personal de cada usuario registrado en la plataforma: fotografía de perfil, nombre completo, número de documento de identidad, correo electrónico, género y fecha de nacimiento, líneas telefónicas, domicilio exacto, zona geográfica, enlaces profesionales, CV en formato PDF, formación académica, competencias en idiomas e historial de experiencia laboral.",
+      "p2":       "El marco normativo aplicable incluye la legislación local de protección de datos personales. La combinación de identificadores únicos (DNI, correo, teléfono) con datos de localización exacta y documentación laboral representa un riesgo elevado de uso fraudulento en caso de exposición."
+    },
+
+    "s6": {
+      "heading":     "6. Plan de remediación sugerido",
+      "intro":       "El informe entregado al equipo técnico incluía las siguientes acciones correctivas ordenadas por prioridad:",
+      "auth_title":  "Autenticación:",
+      "auth_body":   "implementar gestión de sesión del lado del servidor mediante JWTs firmados o cookies HttpOnly / Secure, eliminando cualquier dependencia del localStorage para verificar la identidad del usuario.",
+      "ac_title":    "Control de acceso:",
+      "ac_body":     "verificar en cada solicitud que el identificador de recurso manipulado corresponda estrictamente a la sesión validada del solicitante, rechazando cualquier intento de acceso cruzado.",
+      "ids_title":   "Identificadores:",
+      "ids_body":    "reemplazar las secuencias numéricas predecibles por identificadores únicos universales (UUID v4) para eliminar la posibilidad de enumeración y scraping de perfiles.",
+      "files_title": "Gestión de archivos:",
+      "files_body":  "establecer listas de formatos permitidos y verificar criptográficamente la estructura real de cada archivo cargado mediante análisis de Magic Bytes, rechazando cualquier carga que no supere ambas validaciones.",
+      "api_title":   "Seguridad de la API:",
+      "api_body":    "migrar el endpoint de login al método POST, transmitiendo las credenciales exclusivamente en el cuerpo cifrado de la solicitud (TLS). Retirar la especificación OpenAPI del entorno de producción o protegerla mediante autenticación.",
+      "infra_title": "Infraestructura:",
+      "infra_body":  "planificar la migración urgente de los servidores a un sistema operativo y gestor web con soporte activo del proveedor, priorizando la aplicación de parches de seguridad pendientes."
+    },
+
+    "s7": {
+      "heading":  "7. Proceso de divulgación responsable",
+      "p1":       "Una vez documentados los hallazgos, elaboré un informe técnico completo y lo entregué directamente al equipo interno de la organización afectada. Durante todo el proceso de investigación no se realizó extracción masiva de datos, no se alteraron registros de terceros más allá de las pruebas de concepto mínimas necesarias para verificar la vulnerabilidad, y ninguna información de otros usuarios fue divulgada o almacenada.",
+      "p2":       "El objetivo de este trabajo fue exclusivamente permitir que la organización identificara y corrigiera los problemas antes de que pudieran ser descubiertos y explotados por actores maliciosos. La distribución del informe técnico completo está restringida al equipo técnico interno de la organización.",
+      "p3":       "Este caso de estudio público omite deliberadamente el nombre de la organización afectada, los rangos exactos de IDs observados, las rutas completas de los endpoints y cualquier otro dato que pudiera facilitar la reproducción de los ataques contra sistemas en producción."
+    },
+
+    "footer": {
+      "references_label":  "Referencias",
+      "nav_aria":          "Recursos externos de la auditoría",
+      "pdf_aria":          "Informe completo en PDF (abre en nueva pestaña)",
+      "pdf_label":         "Informe completo (PDF, acceso restringido)",
+      "owasp_label":       "OWASP Top 10",
+      "github_aria":       "Repositorio de JobBot en GitHub (abre en nueva pestaña)",
+      "github_label":      "JobBot — origen del hallazgo"
+    }
+  }
+}

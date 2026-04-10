@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Alaska González">
-  <meta id="meta-description" name="description" content="Portafolio profesional de Alaska E. González.">
+  <meta id="meta-description" name="description" content="">
 
   <meta property="og:type"  content="website">
   <meta id="meta-og-url"    property="og:url"   content="https://alaska45l.github.io">
-  <meta id="meta-og-title"  property="og:title" content="Alaska E. González — Portafolio profesional">
-  <meta id="meta-og-description" property="og:description" content="Explora el portafolio de Alaska E. González.">
+  <meta id="meta-og-title"  property="og:title" content="">
+  <meta id="meta-og-description" property="og:description" content="">
   <meta property="og:image" content="https://alaska45l.github.io/assets/profile.webp">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta id="meta-twitter-url"         name="twitter:url"         content="https://alaska45l.github.io">
-  <meta id="meta-twitter-title"       name="twitter:title"       content="Alaska E. González — Portafolio profesional">
-  <meta id="meta-twitter-description" name="twitter:description" content="Explora el portafolio de Alaska E. González.">
+  <meta id="meta-twitter-title"       name="twitter:title"       content="">
+  <meta id="meta-twitter-description" name="twitter:description" content="">
   <meta name="twitter:image" content="https://alaska45l.github.io/assets/profile.webp">
 
   <title id="page-title">Alaska E. González — Portafolio</title>
@@ -29,21 +29,61 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
   <link rel="manifest" href="/assets/favicon/site.webmanifest">
-  <script type="module" crossorigin src="/assets/index-XpwyqK6s.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CIsiAhFH.css">
+  <script type="module" crossorigin src="/assets/index-Bb5mCr8u.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bqt1Q6MQ.css">
 </head>
 
 <body>
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo" data-router-link>@alaska45l</a>
-      <nav class="nav" id="main-nav"></nav>
-      <button class="theme-toggle-desktop" onclick="toggleDarkMode()" title="Cambiar tema">
+      <!--
+        The logo text is a brand handle (@alaska45l) and is intentionally
+        non-translated. Only the accessible label is localised.
+      -->
+      <a
+        href="/"
+        class="logo"
+        data-router-link
+        data-i18n-attr='{"aria-label":"nav.logo_aria"}'
+        aria-label=""
+      >@alaska45l</a>
+
+      <nav class="nav" id="main-nav" aria-label="Main navigation"></nav>
+
+      <div class="header-controls">
+      <!-- Language toggle — desktop -->
+      <button
+        class="theme-toggle-desktop"
+        onclick="i18n.setLocale(i18n.getLocale() === 'es' ? 'en' : 'es')"
+        data-i18n-attr='{"title":"nav.toggle_language","aria-label":"nav.toggle_language"}'
+        title=""
+        aria-label=""
+      >
+        <i class="fas fa-globe"></i>
+      </button>
+
+      <!-- Theme toggle — desktop -->
+      <button
+        class="theme-toggle-desktop"
+        onclick="toggleDarkMode()"
+        data-i18n-attr='{"title":"nav.toggle_theme","aria-label":"nav.toggle_theme"}'
+        title=""
+        aria-label=""
+      >
         <i class="fas fa-moon" id="themeIcon"></i>
       </button>
-      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+
+      </div>
+
+      <button
+        class="mobile-menu-btn"
+        onclick="toggleMobileMenu()"
+        data-i18n-attr='{"aria-label":"nav.toggle_theme"}'
+        aria-label=""
+      >
         <i class="fas fa-bars"></i>
       </button>
+
       <div class="mobile-menu" id="mobileMenu"></div>
     </div>
   </header>
@@ -51,7 +91,7 @@
   <div id="app"></div>
 
   <footer class="footer">
-    <p>© 2025 Alaska E. González — Diseñado con ♥ y café</p>
+    <p data-i18n="footer.copyright"></p>
   </footer>
 
   <!-- Single ES-module entry point — Vite handles all bundling -->
