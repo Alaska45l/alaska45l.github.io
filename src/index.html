@@ -20,6 +20,9 @@
 
   <title id="page-title">Alaska E. González — Portafolio</title>
 
+  <!-- Module Preload: Fuerza la descarga temprana del controlador principal -->
+  <link rel="modulepreload" href="/js/controllers/homeController.js">
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -98,7 +101,14 @@
     </div>
   </header>
 
-  <div id="app"></div>
+  <div id="app">
+    <!-- App Shell / Esqueleto de carga -->
+    <!-- Se destruye instantáneamente cuando el router hace app.innerHTML = html -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; gap: 1rem; color: var(--text-muted, #888);">
+      <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary-color, #10b981);"></i>
+      <span style="font-family: 'Share Tech Mono', monospace; font-size: 0.9rem; opacity: 0.8;">Iniciando entorno...</span>
+    </div>
+  </div>
 
   <footer class="footer">
     <p data-i18n="footer.copyright"></p>

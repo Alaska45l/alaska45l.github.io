@@ -2,46 +2,82 @@
 'use strict';
 
 /**
- * Attaches all delegated event listeners exactly once.
- * Must be called from main.js after the router is instantiated.
- *
  * @param {import('./router.js').SPARouter} routerInstance
  */
 export function initDispatcher(routerInstance) {
-  if (document.body.dataset.eventDispatcherInit) return;
-  document.body.dataset.eventDispatcherInit = 'true';
+  if (document.body.dataset['eventDispatcherInit']) return;
+  document.body.dataset['eventDispatcherInit'] = 'true';
 
-  document.addEventListener('click',     e => { handleRouterLinks(e); handleMenuClose(e); });
+  document.addEventListener('click',     e => { handleRouterLinks(/** @type {MouseEvent} */ (e)); handleMenuClose(/** @type {MouseEvent} */ (e)); });
   document.addEventListener('input',     handleFormCleanup);
-  document.addEventListener('mouseover', e => handlePrefetch(e, routerInstance));
+  document.addEventListener('mouseover', e => handlePrefetch(/** @type {MouseEvent} */ (e), routerInstance));
 
-  // ── Viewport prefetch ──────────────────────────────────────────────────
-  /** @type {Set<string>} */
+  // ── IntersectionObserver con limpieza antes de cada navegación ─────────
+  //
+  // Problema del MVP: el observer nunca llamaba unobserve() sobre nodos que
+  // el router eliminaba al reemplazar innerHTML de #app. Resultado:
+  //   • El GC no podía liberar esos nodos (reference desde el observer).
+  //   • En navegaciones sucesivas, el Set `prefetched` crecía indefinidamente.
+  //
+  // Solución: rastrear los elementos observados en observedLinks. El hook
+  // beforeNavigate llama cleanup() antes de cada cambio de página, que
+  // desconecta todos los nodos del observer y limpia el tracking Set.
+  // Después de la navegación, afterNavigate re-observa los nuevos nodos.
+
+  /** @type {Set<string>} Rutas ya prefetcheadas para no repetir */
   const prefetched = new Set();
+
+  /** @type {Set<Element>} Nodos actualmente bajo observación */
+  const observedLinks = new Set();
 
   const viewportObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
-      const link = /** @type {HTMLElement} */ (entry.target);
-      const path = link.getAttribute('href');
-      if (!path || path.includes('#')) return;
-      const normalized = routerInstance.normalizeRoute(path);
-      if (!normalized || prefetched.has(normalized)) return;
+      const link = entry.target;
+      const href = link.getAttribute('href');
+      if (!href || href.includes('#')) return;
+
+      const normalized = routerInstance.normalizeRoute(href);
       viewportObserver.unobserve(link);
+      observedLinks.delete(link);
+
+      if (!normalized || prefetched.has(normalized)) return;
       prefetched.add(normalized);
       routerInstance.prefetch(normalized);
     });
   }, { threshold: 0.1 });
 
+  /**
+   * Observa todos los [data-router-link][href] del DOM actual que no hayan
+   * sido observados todavía.
+   */
   function observeRouterLinks() {
     document.querySelectorAll('[data-router-link][href]').forEach(el => {
       const htmlEl = /** @type {HTMLElement} */ (el);
-      if (!htmlEl.dataset.viewportObserved) {
-        htmlEl.dataset.viewportObserved = 'true';
-        viewportObserver.observe(htmlEl);
+      if (!htmlEl.dataset['viewportObserved']) {
+        htmlEl.dataset['viewportObserved'] = 'true';
+        viewportObserver.observe(el);
+        observedLinks.add(el);
       }
     });
   }
+
+  /**
+   * Limpia todos los nodos observados antes de que el router reemplace el DOM.
+   * Sin esto, los nodos del #app anterior permanecerían en memoria porque el
+   * IntersectionObserver mantiene referencias fuertes (no WeakRef) a ellos.
+   */
+  function cleanupObservedLinks() {
+    observedLinks.forEach(el => {
+      viewportObserver.unobserve(el);
+      delete (/** @type {HTMLElement} */ (el)).dataset['viewportObserved'];
+    });
+    observedLinks.clear();
+  }
+
+  // Limpiar antes de la navegación, re-observar después.
+  routerInstance.beforeNavigate(() => { cleanupObservedLinks(); });
+  routerInstance.afterNavigate(() => { observeRouterLinks(); });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', observeRouterLinks);
@@ -49,22 +85,52 @@ export function initDispatcher(routerInstance) {
     observeRouterLinks();
   }
 
-  routerInstance.afterNavigate(observeRouterLinks);
-
   // ── Router link delegation ─────────────────────────────────────────────
   /** @param {MouseEvent} e */
   function handleRouterLinks(e) {
     const target = /** @type {Element} */ (e.target);
-    const link   = target.matches('[data-router-link]')
-      ? target
-      : target.closest('[data-router-link]');
+    const link   = target.matches('[data-router-link]') ? target : target.closest('[data-router-link]');
     if (!link) return;
 
-    e.preventDefault();
     const href = link.getAttribute('href') ?? '/';
 
-    if (href.includes('#')) {
-      routerInstance.handleAnchorNavigation(href);
+    // Dejar pasar links externos y mailto para que el browser los maneje.
+    if (/^(https?|mailto|tel):/.test(href)) return;
+
+    e.preventDefault();
+
+    // ── Resolución de anclas ──────────────────────────────────────────────
+    // Problema del MVP: handleAnchorNavigation() era un silent no-op para
+    // rutas no-home con hash (ej. /proyectos/jobbot#top). El href se pasaba
+    // al método del router que solo manejaba el caso home+hash y retornaba
+    // sin navegar para cualquier otra ruta.
+    //
+    // Solución aquí (en el dispatcher): resolver la lógica de anclas antes
+    // de delegar al router, con tres casos explícitos:
+    //
+    //   1. Solo hash (#section): scroll in-page sin cambio de ruta.
+    //   2. Misma ruta + hash: scroll in-page sin navigation push.
+    //   3. Ruta diferente + hash: navigate() full y dejar que handleRoute
+    //      resuelva el scroll después de cargar la página.
+    const hashIdx    = href.indexOf('#');
+    const pathPart   = hashIdx === -1 ? href          : href.slice(0, hashIdx);
+    const hashPart   = hashIdx === -1 ? ''            : href.slice(hashIdx + 1);
+
+    if (hashPart) {
+      const normalizedTarget  = routerInstance.normalizeRoute(pathPart || '/');
+      const normalizedCurrent = routerInstance.normalizeRoute(window.location.pathname);
+
+      if (!pathPart || normalizedTarget === normalizedCurrent) {
+        // Caso 1 y 2: scroll in-page
+        const anchor = document.getElementById(hashPart);
+        if (anchor) {
+          anchor.scrollIntoView({ behavior: 'smooth' });
+          history.replaceState(null, '', '#' + hashPart);
+        }
+      } else {
+        // Caso 3: página diferente — navigate se encarga del scroll post-load
+        routerInstance.navigate(href);
+      }
     } else {
       routerInstance.navigate(href);
     }
@@ -84,16 +150,16 @@ export function initDispatcher(routerInstance) {
 
   // ── Hover prefetch ─────────────────────────────────────────────────────
   /**
-   * @param {MouseEvent} e
+   * @param {MouseEvent}                      e
    * @param {import('./router.js').SPARouter} router
    */
   function handlePrefetch(e, router) {
     const target = /** @type {Element} */ (e.target);
     const link   = target.closest('[data-router-link]');
     if (!link) return;
-    const path = link.getAttribute('href');
-    if (!path || path.includes('#')) return;
-    const normalized = router.normalizeRoute(path);
+    const href = link.getAttribute('href');
+    if (!href || href.includes('#')) return;
+    const normalized = router.normalizeRoute(href);
     if (!normalized || prefetched.has(normalized)) return;
     prefetched.add(normalized);
     router.prefetch(normalized);
