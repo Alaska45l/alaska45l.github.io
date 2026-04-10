@@ -60,11 +60,16 @@ export class SPARouter {
     }
   }
 
-  handleRedirect() {
-    const params   = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect');
-    if (redirect) history.replaceState(null, '', redirect + window.location.hash);
-  }
+    handleRedirect() {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      
+      if (redirect) {
+        const targetPath = decodeURIComponent(redirect);
+        window.history.replaceState(null, '', targetPath + window.location.hash);
+        this.handleRoute();
+      }
+    }
 
   /** @param {string} href */
   handleAnchorNavigation(href) {
