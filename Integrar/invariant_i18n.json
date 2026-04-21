@@ -1,0 +1,72 @@
+// ═══════════════════════════════════════════════════════════════
+// AÑADIR EN public/locales/es.json
+// ═══════════════════════════════════════════════════════════════
+{
+  "meta": {
+    "invariant": {
+      "title":          "INVARIANT — Alaska E. González",
+      "description":    "Suite forense descentralizada para auditoría de hardware a nivel Ring-0, air-gapped, con firma Ed25519 y sonda bare-metal en Arch Linux.",
+      "og_title":       "INVARIANT — Infraestructura Forense Ring-0",
+      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch. Zero-Trust, air-gapped, criptografía Ed25519."
+    }
+  },
+
+  "home": {
+    "projects": {
+      "invariant": {
+        "type_badge":   "Infraestructura",
+        "type_aria":    "Tipo de proyecto: Infraestructura",
+        "status":       "En desarrollo",
+        "status_aria":  "Estado: En desarrollo",
+        "title":        "INVARIANT",
+        "description":  "Suite forense descentralizada para auditoría de hardware a nivel Ring-0. Cuatro pilares: Control Plane Go con firma Ed25519, flasher Rust/Tauri con O_SYNC, proxy SvelteKit edge y sonda bare-metal Python en Arch Linux air-gapped.",
+        "detail_btn":   "Ver documentación",
+        "detail_aria":  "Ver documentación técnica de INVARIANT"
+      }
+    }
+  },
+
+  "invariant": {
+    "nav": {
+      "back_aria":  "Volver al portafolio",
+      "back_label": "Volver al portafolio"
+    }
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// AÑADIR EN public/locales/en.json  (traducción al inglés)
+// ═══════════════════════════════════════════════════════════════
+{
+  "meta": {
+    "invariant": {
+      "title":          "INVARIANT — Alaska E. González",
+      "description":    "Decentralised forensic infrastructure suite for Ring-0 hardware auditing, air-gapped, with Ed25519 signing and a bare-metal Arch Linux probe.",
+      "og_title":       "INVARIANT — Ring-0 Forensic Infrastructure",
+      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch. Zero-Trust, air-gapped, Ed25519 cryptography."
+    }
+  },
+
+  "home": {
+    "projects": {
+      "invariant": {
+        "type_badge":   "Infrastructure",
+        "type_aria":    "Project type: Infrastructure",
+        "status":       "In Development",
+        "status_aria":  "Status: In Development",
+        "title":        "INVARIANT",
+        "description":  "Decentralised forensic suite for Ring-0 hardware auditing. Four pillars: Go Control Plane with Ed25519 signing, Rust/Tauri flasher with O_SYNC, SvelteKit edge proxy, and Python bare-metal probe on air-gapped Arch Linux.",
+        "detail_btn":   "View documentation",
+        "detail_aria":  "View INVARIANT technical documentation"
+      }
+    }
+  },
+
+  "invariant": {
+    "nav": {
+      "back_aria":  "Back to portfolio",
+      "back_label": "Back to portfolio"
+    }
+  }
+}

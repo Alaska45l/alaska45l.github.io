@@ -1,0 +1,172 @@
+/* ============================================================
+   INVARIANT PROJECT CARD — Brutallist Theme
+   Scoped entirely to .card--invariant.
+   Tokens defined locally: zero global variable pollution.
+   Overrides: radii, shadows, colors, typography.
+   Specificity strategy: combinators instead of !important
+   where the cascade permits; !important only where base
+   rules use inline specificity or apply via :hover chains.
+   ============================================================ */
+
+.card--invariant {
+  /* ── Local design tokens ───────────────────────────────── */
+  --inv-primary:    #E5E5E5;
+  --inv-canvas:     #0A0A0A;
+  --inv-slate:      #737373;
+  --inv-red:        #FF4444;
+  --inv-light:      #141414;
+  --inv-border:     #262626;
+  --inv-notice:     #A0A0A0;
+  --inv-shadow:     4px 4px 0px 0px #262626;
+  --inv-font-mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --inv-font-disp:  "Inter Tight", ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Structural overrides ──────────────────────────────── */
+  background:    var(--inv-canvas)  !important;
+  border:        1px solid var(--inv-border) !important;
+  border-left:   3px solid var(--inv-red)    !important; /* replaces --software accent */
+  border-radius: 0                           !important;
+  box-shadow:    var(--inv-shadow)           !important;
+  font-family:   var(--inv-font-mono);
+  transition:    box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card--invariant:hover {
+  /* Red shadow on hover — brutallist kinesis */
+  box-shadow: 6px 6px 0px 0px var(--inv-red) !important;
+  transform:  translateY(-3px) !important;
+}
+
+/* ── Header row ────────────────────────────────────────────── */
+.card--invariant .project-card__header {
+  border-bottom: 1px solid var(--inv-border);
+}
+
+/* ── Type badge ────────────────────────────────────────────── */
+.card--invariant .project-card__type-badge {
+  background:     var(--inv-light)   !important;
+  color:          var(--inv-red)     !important;
+  border:         1px solid var(--inv-red) !important;
+  border-radius:  0                  !important;
+  font-family:    var(--inv-font-mono);
+  font-size:      0.65rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* ── Status badge ──────────────────────────────────────────── */
+.card--invariant .status-badge,
+.card--invariant .status-badge.in-development,
+.card--invariant .status-badge.completed {
+  background:    var(--inv-light)   !important;
+  color:         var(--inv-notice)  !important;
+  border:        1px solid var(--inv-border) !important;
+  border-radius: 0                  !important;
+  font-family:   var(--inv-font-mono);
+  font-size:     0.65rem;
+  letter-spacing: 0.06em;
+}
+
+/* ── Title ─────────────────────────────────────────────────── */
+.card--invariant .project-card__title {
+  color:          var(--inv-primary) !important;
+  font-family:    var(--inv-font-disp);
+  letter-spacing: -0.025em;
+}
+
+/* ── Description ───────────────────────────────────────────── */
+.card--invariant .project-card__description {
+  color:       var(--inv-slate) !important;
+  font-family: var(--inv-font-mono);
+  font-size:   0.77rem;
+  line-height: 1.72;
+  /* Allow more lines — the tech description is dense */
+  -webkit-line-clamp: 5;
+}
+
+/* ── Tech badges ───────────────────────────────────────────── */
+.card--invariant .badge {
+  background:     var(--inv-light)  !important;
+  color:          var(--inv-notice) !important;
+  border:         1px solid var(--inv-border) !important;
+  border-radius:  0                 !important;
+  font-family:    var(--inv-font-mono);
+  font-size:      0.65rem;
+  letter-spacing: 0.05em;
+  transition:
+    background   0.1s ease,
+    color        0.1s ease,
+    border-color 0.1s ease;
+}
+
+.card--invariant .badge:hover {
+  background:   var(--inv-red)    !important;
+  color:        var(--inv-canvas) !important;
+  border-color: var(--inv-red)    !important;
+}
+
+/* ── Footer row ────────────────────────────────────────────── */
+.card--invariant .project-card__footer {
+  border-top: 1px solid var(--inv-border);
+}
+
+/* ── Primary CTA ───────────────────────────────────────────── */
+.card--invariant .btn-primary {
+  background:     var(--inv-red)    !important;
+  color:          var(--inv-canvas) !important;
+  border-radius:  0                 !important;
+  border:         none              !important;
+  font-family:    var(--inv-font-mono) !important;
+  font-size:      0.72rem           !important;
+  font-weight:    700               !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:     none              !important;
+  transition:
+    background  0.12s ease,
+    box-shadow  0.12s ease,
+    color       0.12s ease !important;
+}
+
+.card--invariant .btn-primary:hover {
+  background: var(--inv-primary) !important;
+  color:      var(--inv-canvas)  !important;
+  box-shadow: 2px 2px 0px 0px var(--inv-red) !important;
+  transform:  none               !important;
+}
+
+/* ── Secondary CTA ─────────────────────────────────────────── */
+.card--invariant .btn-secondary {
+  background:     transparent        !important;
+  color:          var(--inv-slate)   !important;
+  border:         1px solid var(--inv-border) !important;
+  border-radius:  0                  !important;
+  font-family:    var(--inv-font-mono) !important;
+  font-size:      0.72rem            !important;
+  letter-spacing: 0.05em;
+  transition:
+    border-color 0.12s ease,
+    color        0.12s ease !important;
+}
+
+.card--invariant .btn-secondary:hover {
+  border-color: var(--inv-red)    !important;
+  color:        var(--inv-primary)!important;
+  background:   transparent       !important;
+  transform:    none              !important;
+}
+
+/* ── Dark mode guard ───────────────────────────────────────── */
+/* The card is always dark regardless of body.dark-mode.
+   No override needed — local tokens are fully self-contained. */
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card--invariant,
+  .card--invariant .btn-primary,
+  .card--invariant .btn-secondary,
+  .card--invariant .badge {
+    transition: none !important;
+  }
+  .card--invariant:hover { transform: none !important; }
+}

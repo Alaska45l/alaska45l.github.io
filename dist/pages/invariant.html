@@ -1,0 +1,311 @@
+<!-- SPA fragment — injected into #app by the router.
+     Body text is embedded directly (ES); only nav/meta UI nodes use data-i18n.
+     Pattern: latex-report (matching jobbot.html / auditoria-contratacion.html). -->
+
+<main class="latex-report" id="main-content" aria-label="INVARIANT — Documentación Técnica">
+
+  <!-- NAVEGACIÓN -->
+  <nav class="latex-report__nav" aria-label="Document navigation">
+    <a href="/" data-router-link class="latex-report__back-link"
+       aria-label="" data-i18n-attr='{"aria-label":"invariant.nav.back_aria"}'>
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      <span data-i18n="invariant.nav.back_label"></span>
+    </a>
+  </nav>
+
+  <!-- PAPEL -->
+  <article class="latex-report__paper" aria-labelledby="lr-title" lang="es">
+
+    <!-- ── HEADER ── -->
+    <header class="latex-report__header">
+      <p class="latex-report__category">
+        Infraestructura Forense · Ring-0 · Zero-Trust · Air-Gapped
+      </p>
+
+      <h1 class="latex-report__title" id="lr-title">INVARIANT</h1>
+
+      <p class="latex-report__subtitle">
+        Suite de infraestructura forense descentralizada para interceptar y evaluar
+        hardware computacional operando en anillos de ejecución privilegiados,
+        sostenida por cuatro pilares criptográficamente interconectados
+      </p>
+
+      <div class="latex-report__meta" role="list">
+        <span role="listitem">Alaska Elaina González</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <span role="listitem">Mar del Plata, Argentina</span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <time role="listitem" datetime="2025">2025</time>
+      </div>
+
+      <div class="latex-report__rule" aria-hidden="true"></div>
+    </header>
+
+    <!-- ── ABSTRACT ── -->
+    <section class="latex-report__abstract" aria-labelledby="lr-abstract">
+      <h2 class="latex-report__abstract-title" id="lr-abstract">Abstract</h2>
+      <p>
+        INVARIANT opera como una suite de infraestructura forense descentralizada,
+        diseñada para interceptar y evaluar hardware computacional operando en anillos
+        de ejecución privilegiados (Ring-0). El sistema está sostenido por cuatro
+        pilares altamente desacoplados pero criptográficamente interconectados: un
+        Control Plane construido en Go (<code>invariant-api</code>) que maneja estado
+        y emisión asimétrica de credenciales, una interfaz SvelteKit de alta
+        performance para control operativo (<code>invariant-web</code>), un motor
+        asíncrono Rust/Tauri para interacción con memoria NAND
+        (<code>invariant_flasher</code>), y una sonda forense viva y autárquica en
+        Python/Arch Linux para extracción determinista bare-metal
+        (<code>prob-tex</code>).
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ── SECCIÓN 1 — MOTIVACIÓN ── -->
+    <section aria-labelledby="lr-s1">
+      <h2 id="lr-s1">1. Motivación y Contexto</h2>
+      <p>
+        Las auditorías de hardware modernas padecen de una ceguera sistémica al
+        depender del Sistema Operativo anfitrión (Windows/macOS). Un sistema en
+        user-space inherentemente miente: el WMI devuelve métricas cacheadas, los
+        drivers colapsan bajo estrés y los sectores dañados son abstraídos por la
+        heurística del SO. La motivación detrás de INVARIANT es instituir un mecanismo
+        de validación Zero-Trust donde se rechaza toda mediación del SO comercial.
+      </p>
+      <p>
+        Mediante la toma de posesión directa de los recursos (ACPI, MSR, PCIe, NVMe),
+        se puede destilar la realidad subyacente del silicio. Este enfoque convierte
+        un pendrive en una sonda destructiva de ilusiones, proporcionando una interfaz
+        implacable para ingeniería de confiabilidad de hardware.
+      </p>
+    </section>
+
+    <!-- ── SECCIÓN 2 — ARQUITECTURA DEL PIPELINE ── -->
+    <section aria-labelledby="lr-s2">
+      <h2 id="lr-s2">2. Arquitectura del Pipeline</h2>
+      <p>
+        La orquestación de INVARIANT conforma un ciclo cerrado ininterrumpido. El
+        flujo comienza en el Control Plane, donde <code>invariant-api</code> expone
+        telemetría de activos y tokens presignados S3 de baja latencia a través del
+        proxy inverso en Edge de <code>invariant-web</code>. El frontend provee
+        visibilidad de estado, mientras el operador descarga y lanza
+        <code>invariant_flasher</code>. Este programa compila una ISO generada a
+        demanda por <code>forge.sh</code>, destruyendo particiones en medios físicos y
+        quemando la imagen de arranque local junto con una semilla de licencia firmada
+        asimétricamente. Finalmente, la sonda <code>prob-tex</code> se levanta desde
+        el entorno Air-Gapped, ejecutándose por fuera de cualquier radar o limitación
+        de los sistemas en el host.
+      </p>
+
+      <!-- ── Stack técnico de los cuatro pilares ── -->
+      <h3>2.1 Los Cuatro Pilares</h3>
+
+      <h3>prob-tex — Sonda Forense Bare-Metal</h3>
+      <p>
+        Motor Python sobre Arch Linux inmutable. Realiza introspección a nivel de
+        bloque invocando llamadas al kernel (<code>lsblk</code>) para mapear el bus
+        NVMe/SATA ignorando volúmenes lógicos, asegurando I/O crudo y secuencial sin
+        la interferencia del SO anfitrión.
+      </p>
+
+      <pre><code># prob-tex / main.py
+def _enumerate_storage_devices() -> list[str]:
+    out = subprocess.run(
+        ["lsblk", "-J", "-o", "NAME,TYPE,TRAN"],
+        capture_output=True, text=True, timeout=5,
+    ).stdout
+    # Parsea JSON del kernel y filtra por TYPE=disk
+    # ignorando volúmenes LVM / RAID para acceso raw
+    ...</code></pre>
+
+      <h3>invariant-api — Control Plane Go</h3>
+      <p>
+        Construye un payload JSON canónico y lo firma con una clave de curva elíptica
+        Ed25519 sobre los bytes crudos en UTF-8, garantizando que los datos de
+        licenciamiento sean inmutables y verificables en un entorno 100% offline
+        (air-gapped).
+      </p>
+
+      <pre><code>// invariant-api / license_handler.go
+func (h *LicenseHandler) encodeToken(payload *LicensePayload) (string, error) {
+    jsonBytes, err := json.Marshal(payload)
+    // ...
+    sig := ed25519.Sign(h.privKey, jsonBytes)
+    // ...
+    enc := base64.RawURLEncoding
+    return enc.EncodeToString(jsonBytes) + "." + enc.EncodeToString(sig), nil
+}</code></pre>
+
+      <h3>invariant-web — Interfaz SvelteKit / Edge Proxy</h3>
+      <p>
+        Secuestra la topología de red operando un proxy inverso server-side
+        (Cloudflare Workers) que muta y enmascara peticiones, eludiendo asimetrías
+        CORS mediante un puente estricto de origen único para la sesión HTTPOnly.
+      </p>
+
+      <pre><code>// invariant-web / src/hooks.server.ts
+async function proxyToUpstream(
+  event: Parameters&lt;Handle&gt;[0]['event']
+): Promise&lt;Response&gt; {
+    const forwardHeaders = new Headers();
+    // Strips hop-by-hop headers (Connection, TE, Trailer…)
+    const upstreamResponse = await fetch(upstreamUrl, {
+        method,
+        headers: forwardHeaders,
+        body: hasBody ? event.request.body : null,
+        signal: controller.signal,
+        ...(hasBody ? { duplex: 'half' } : {})
+    });
+    // ...
+}</code></pre>
+
+      <h3>invariant_flasher — Motor de Escritura Rust/Tauri</h3>
+      <p>
+        Obtiene un file descriptor crudo hacia el silicio del dispositivo inyectando
+        el flag <code>O_SYNC</code> del kernel, cortocircuitando las heurísticas de
+        caché en memoria para garantizar que el ISO sobrescriba los transistores NAND
+        de manera síncrona.
+      </p>
+
+      <pre><code>// invariant_flasher / src-tauri/src/disk/writer.rs
+#[cfg(target_os = "linux")]
+{
+    use std::os::unix::fs::OpenOptionsExt;
+    OpenOptions::new()
+        .read(true)
+        .write(true)
+        .custom_flags(libc::O_SYNC)
+        .open(device_path)
+        .map_err(|e| FlasherError::io(device_path, e))
+}</code></pre>
+    </section>
+
+    <!-- ── SECCIÓN 3 — CRIPTOGRAFÍA ── -->
+    <section aria-labelledby="lr-s3">
+      <h2 id="lr-s3">3. Criptografía y Control de Acceso</h2>
+      <p>
+        El desacople entre la nube y el dispositivo aislado demanda criptografía
+        robusta para mitigar suplantaciones. La autorización del hardware se encapsula
+        localmente sin requerir acceso a internet. La entidad central
+        (<code>invariant-api</code>) emplea <code>crypto/ed25519</code> para firmar un
+        payload <code>LicensePayload</code> con parámetros determinísticos inyectados
+        en la estructura JSON, anclando fechas de expiración absolutas
+        <em>(Time-Trap)</em> dependientes del HWID generado a partir del hash SHA-256
+        de los identificadores DMI del host.
+      </p>
+      <p>
+        Esta tokenización incluye un kill-switch síncrono: si la prueba asimétrica del
+        token es rechazada, <code>prob-tex</code> instaura de inmediato un kernel-panic
+        virtual, bloqueando permanentemente el reporte forense y impidiendo cualquier
+        exfiltración de datos ante un entorno hostil.
+      </p>
+    </section>
+
+    <!-- ── SECCIÓN 4 — FLASHEO Y EVASIÓN ── -->
+    <section aria-labelledby="lr-s4">
+      <h2 id="lr-s4">4. Evasión a Bajo Nivel y Flasheo</h2>
+      <p>
+        Desplegar un SO vivo evadiendo restricciones hostiles requiere manipular la
+        tabla de particiones local eludiendo buffers. El módulo
+        <code>invariant_flasher</code> está construido en Rust y emplea bindings
+        nativos al SO para forzar una apertura exclusiva (<code>O_SYNC</code> en POSIX
+        y <code>FILE_FLAG_WRITE_THROUGH</code> en Win32) del descriptor del bloque
+        <code>/dev/sdX</code> o <code>\\.\PhysicalDriveX</code>.
+      </p>
+      <p>
+        El subsistema destruye heurísticamente el MBR, GPT primario e incluso el
+        Backup GPT localizado a nivel binario en los últimos sectores LBA
+        (17&thinsp;408 bytes), aniquilando posibles colisiones de montaje o
+        "resurrecciones" guiadas por herramientas como <code>parted</code> o
+        <code>gdisk</code>, antes de inyectar el bloque de arranque de Arch Linux
+        secuencialmente.
+      </p>
+    </section>
+
+    <!-- ── SECCIÓN 5 — MOTOR FORENSE ── -->
+    <section aria-labelledby="lr-s5">
+      <h2 id="lr-s5">5. El Motor Forense Bare-Metal</h2>
+      <p>
+        El núcleo de la verdad reside en <code>prob-tex</code>: un subsistema que
+        ejecuta múltiples hilos bajo un estricto <code>ThreadPoolExecutor</code>,
+        capaz de sortear retardos de buses xHCI para USB y latencias SATA/NVMe
+        iterando nodos de bloque directamente (<code>lsblk -J</code>). Se extraen
+        metadatos raw invocando llamadas <code>fio</code>, <code>smartctl</code> y
+        picos <code>stress-ng</code> paralelos sobre RAM/Mobo y secuenciales sobre
+        CPU/GPU.
+      </p>
+      <p>
+        El índice de entropía calculado no puede ser inyectado ni modificado por la
+        interfaz ACPI hostil; se protege sanitizando cadenas LaTeX de los bloques DMI
+        de la BIOS (previniendo ataques de <em>LaTeX injection</em>), y finalmente
+        volcando un documento PDF inmutable invocando al binario de renderizado
+        off-grid <code>tectonic</code> mediante cachés pre-cargados a nivel de ISO.
+      </p>
+    </section>
+
+    <!-- ── SECCIÓN 6 — AUDITORÍA INTERNA ── -->
+    <section aria-labelledby="lr-s6">
+      <h2 id="lr-s6">6. Auditoría Interna del Ecosistema</h2>
+
+      <h3>6.1 Punto de Fricción — I/O Síncrono</h3>
+      <p>
+        La principal zona de estrés recae en el embudo de I/O síncrono durante la
+        escritura del medio (flasheo) y la enumeración del hardware. Abstracciones
+        como <code>udevadm settle</code> en Linux, o los flujos
+        <code>FILE_FLAG_WRITE_THROUGH</code> de Windows en el flasher, imponen
+        timeouts severos. Si el bus xHCI o el dispositivo físico no logran
+        sincronizarse asíncronamente con los descriptores en el kernel, surgen fallos
+        silentes o condiciones de carrera que colapsan el pipe entero y obligan al
+        flasher a aplicar esperas estáticas como táctica defensiva.
+      </p>
+
+      <h3>6.2 Modelo Zero-Trust</h3>
+      <p>
+        El diseño del ecosistema asume un vector de amenaza donde ningún endpoint es
+        confiable. El SO anfitrión está profundamente comprometido, por lo cual se
+        ignora e inyecta un entorno propio bare-metal basado en Linux inmutable
+        (<code>prob-tex</code>) para evaluar la telemetría térmica y de desgaste. Las
+        aserciones del cliente web nunca se confían, revalidando caducidades de
+        suscripción o períodos de gracia mediante interceptación de sesiones en el
+        backend (<code>user_assets</code> / <code>hardware_trials</code>). La BIOS o
+        hardware reportado se tratan como entradas potencialmente maliciosas,
+        aplicando sanitización rigurosa de inyecciones LaTeX en
+        <code>main.py</code> de <code>prob-tex</code> al leer campos DMI.
+      </p>
+    </section>
+
+    <!-- ── SECCIÓN 7 — CONSIDERACIONES OPERATIVAS ── -->
+    <section aria-labelledby="lr-s7">
+      <h2 id="lr-s7">7. Consideraciones Operativas</h2>
+      <p>
+        INVARIANT requiere tolerancia y diseño de mitigación a fallos estocásticos de
+        hardware local, como discos inestables o controladoras USB en decaimiento. Por
+        ello se implementan mecanismos de fallback estricto (caer a subsistemas
+        <code>/dev/nvme0n1</code> si la detección PCIe colapsa) y bloqueos silenciosos
+        de firstboot mediante un enmascaramiento agresivo (<code>systemd-firstboot</code>
+        suppression a nivel de initramfs).
+      </p>
+      <p>
+        Este ecosistema convierte un pendrive en una sonda destructiva de ilusiones,
+        proporcionando una interfaz implacable para ingeniería de confiabilidad de
+        hardware, asegurando integridad determinista frente a asimetrías subyacentes
+        del silicio.
+      </p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="latex-report__footer">
+      <p class="latex-report__footer-label">Stack Tecnológico</p>
+      <nav class="latex-report__links" aria-label="Stack y referencias del proyecto INVARIANT">
+        <span class="latex-report__link">Go 1.22 · crypto/ed25519</span>
+        <span class="latex-report__link">Rust · Tauri 2 · libc</span>
+        <span class="latex-report__link">Python 3.12 · ThreadPoolExecutor</span>
+        <span class="latex-report__link">SvelteKit · Cloudflare Workers</span>
+        <span class="latex-report__link">Arch Linux · tectonic · fio · smartctl</span>
+      </nav>
+    </footer>
+
+  </article>
+</main>

@@ -37,6 +37,10 @@ async function bootstrap() {
       path:     '/proyectos/auditoria-contratacion',
       htmlFile: '/pages/auditoria-contratacion.html',
     },
+    {
+      path:     '/proyectos/invariant',
+      htmlFile: '/pages/invariant.html',
+    },
   ]);
 
   // 3. ¡EL TRUCO MAGISTRAL! 

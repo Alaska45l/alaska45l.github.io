@@ -345,6 +345,7 @@ export class SPARouter {
       '/':                                  'home',
       '/proyectos/jobbot':                  'jobbot',
       '/proyectos/auditoria-contratacion':  'auditoria',
+      '/proyectos/invariant':               'invariant',
     };
     const prefix  = prefixMap[route] ?? 'home';
     const title   = i18n.t(`meta.${prefix}.title`);
