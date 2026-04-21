@@ -31,10 +31,10 @@
       "og_description": "Broken Authentication, IDOR, BOLA, Unrestricted File Upload and potential Stored XSS."
     },
     "invariant": {
-      "title": "INVARIANT — Alaska E. González",
+      "title": "I N V A R I A N T — Alaska E. González",
       "description": "Decentralised forensic infrastructure suite for Ring-0 hardware auditing. Air-gapped, Ed25519-signed, bare-metal Arch Linux probe.",
       "og_title": "INVARIANT — Ring-0 Forensic Infrastructure",
-      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch. Zero-Trust, air-gapped, Ed25519 cryptography."
+      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch, air-gapped, Ed25519 cryptography."
     }
   },
   "home": {

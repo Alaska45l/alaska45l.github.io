@@ -7,6 +7,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -55,6 +56,7 @@
     font-weight: 600;
     background: var(--accent-color);
     color: var(--text-primary);
+    margin-bottom: 1rem;
 }
 
 .status-badge.completed {
