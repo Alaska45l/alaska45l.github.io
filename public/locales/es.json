@@ -6,7 +6,8 @@
   "nav": {
     "logo_aria": "Ir al inicio del portafolio",
     "toggle_theme": "Cambiar tema",
-    "toggle_language": "Switch to English"
+    "toggle_language": "Switch to English",
+    "toggle_menu": "Abrir menú de navegación"
   },
   "footer": {
     "copyright": "© 2025 Alaska E. González — Diseñado con ♥ y café"

@@ -49,6 +49,12 @@ export function unmountTerminal() {
     delete win.dataset['termInit'];
   }
 
+  _boundListeners.forEach(({ el, event, fn }) => el.removeEventListener(event, /** @type {EventListenerOrEventListenerObject} */ (fn)));
+  _boundListeners = [];
+
+  _termObserver?.disconnect();
+  _termObserver = null;
+
   currentPromptLine = null;
 }
 
@@ -201,6 +207,20 @@ let currentPromptLine = null;
 let pos = { x: 0, y: 0 };
 let zIndexCounter = 100;
 
+/** @type {Array<{ el: EventTarget, event: string, fn: Function }>} */
+let _boundListeners = [];
+
+/**
+ * @param {EventTarget} el
+ * @param {string} event
+ * @param {Function} fn
+ * @param {AddEventListenerOptions=} opts
+ */
+function trackListener(el, event, fn, opts) {
+  _boundListeners.push({ el, event, fn });
+  el.addEventListener(event, /** @type {EventListenerOrEventListenerObject} */ (fn), opts);
+}
+
 /* ─────────────────────────────────────────────────────────────
  * Z-INDEX STACK MANAGER
  * ───────────────────────────────────────────────────────────── */
@@ -272,10 +292,21 @@ function createPromptLine() {
 
   const el = document.createElement('div');
   el.className = 'tl tl--cmd active-prompt';
-  el.innerHTML =
-    '<span class="t-prompt-echo">' + CONFIG.promptHtml + '</span>' +
-    ' <span class="cmd-text"></span>' +
-    '<span class="terminal-cursor" aria-hidden="true"></span>';
+
+  const echo = document.createElement('span');
+  echo.className = 't-prompt-echo';
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(CONFIG.promptHtml, 'text/html');
+  echo.append(...Array.from(parsed.body.childNodes));
+
+  const cmdText = document.createElement('span');
+  cmdText.className = 'cmd-text';
+
+  const cursor = document.createElement('span');
+  cursor.className = 'terminal-cursor';
+  cursor.setAttribute('aria-hidden', 'true');
+
+  el.append(echo, ' ', cmdText, cursor);
 
   out.appendChild(el);
   currentPromptLine = el;
@@ -921,7 +952,7 @@ function execute(raw) {
 
   if (cmd === 'clear') {
     const out = getOutput();
-    if (out) out.innerHTML = '';
+    if (out) out.replaceChildren();
     createPromptLine();
     return;
   }
@@ -1010,7 +1041,7 @@ function onKeyDown(e) {
       inp.value = '';
       currentPromptLine = null;
       const out = getOutput();
-      if (out) out.innerHTML = '';
+      if (out) out.replaceChildren();
       createPromptLine();
       if (savedInput) { inp.value = savedInput; updatePromptLine(savedInput); }
       return;
@@ -1171,11 +1202,11 @@ function init() {
     printLines(bootLines, () => {
       setTimeout(() => {
         currentPromptLine = null;
-        outputEl.innerHTML = '';
+        outputEl.replaceChildren();
         printLines(loginLines, () => {
           setTimeout(() => {
             currentPromptLine = null; // mismo guard antes del segundo clear
-            outputEl.innerHTML = '';
+            outputEl.replaceChildren();
             printLines(motdLines, createPromptLine);
           }, 600);
         });
@@ -1185,14 +1216,16 @@ function init() {
 
   bootSequence();
 
-  safeInp.addEventListener('input',   () => updatePromptLine(safeInp.value));
-  safeInp.addEventListener('keydown', onKeyDown);
-  safeWin.addEventListener('mousedown', () => bringToFront(safeWin));
-  safeWin.addEventListener('click', e => {
+  const onInput    = () => updatePromptLine(safeInp.value);
+  const onWinClick = (/** @type {MouseEvent} */ e) => {
     const t = /** @type {Element} */ (e.target);
     if (t.closest('.kwm-btn')) return;
     if (!state.animating) safeInp.focus();
-  });
+  };
+  trackListener(safeInp, 'input',     onInput);
+  trackListener(safeInp, 'keydown',   onKeyDown);
+  trackListener(safeWin, 'mousedown', () => bringToFront(safeWin));
+  trackListener(safeWin, 'click',     onWinClick);
 
   // ── Restore button ─────────────────────────────────────────
   let rawRestore = document.getElementById('terminal-restore');
@@ -1281,29 +1314,29 @@ function init() {
   const btnMaximize   = document.getElementById('kwm-maximize');
   const btnFullscreen = /** @type {HTMLElement|null} */ (safeWin.querySelector('#kwm-fullscreen'));
 
-  btnClose?.addEventListener('click',    () => closeTerminal(safeWin, rb));
-  btnMinimize?.addEventListener('click', () => closeTerminal(safeWin, rb));
+  trackListener(/** @type {EventTarget} */ (btnClose),    'click', () => closeTerminal(safeWin, rb));
+  trackListener(/** @type {EventTarget} */ (btnMinimize), 'click', () => closeTerminal(safeWin, rb));
 
-  btnMaximize?.addEventListener('click', () => {
+  trackListener(/** @type {EventTarget} */ (btnMaximize), 'click', () => {
     if (safeWin.classList.contains('is-fullscreen')) {
       setState(safeWin, null);
-      btnMaximize.setAttribute('aria-pressed', 'false');
+      btnMaximize?.setAttribute('aria-pressed', 'false');
       bringToFront(safeWin);
     } else {
       setState(safeWin, 'is-fullscreen');
-      btnMaximize.setAttribute('aria-pressed', 'true');
+      btnMaximize?.setAttribute('aria-pressed', 'true');
       scrollBottom();
     }
   });
 
-  btnFullscreen?.addEventListener('click', () => {
+  trackListener(/** @type {EventTarget} */ (btnFullscreen), 'click', () => {
     if (safeWin.classList.contains('is-fullscreen')) {
       setState(safeWin, null);
-      btnFullscreen.setAttribute('aria-pressed', 'false');
+      btnFullscreen?.setAttribute('aria-pressed', 'false');
       bringToFront(safeWin);
     } else {
       setState(safeWin, 'is-fullscreen');
-      btnFullscreen.setAttribute('aria-pressed', 'true');
+      btnFullscreen?.setAttribute('aria-pressed', 'true');
       scrollBottom();
     }
   });
@@ -1349,8 +1382,12 @@ function tryMount() {
   }
 }
 
+/** @type {MutationObserver | null} */
+let _termObserver = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   tryMount();
   const app = document.getElementById('app') ?? document.body;
-  new MutationObserver(tryMount).observe(app, { childList: true, subtree: true });
+  _termObserver = new MutationObserver(tryMount);
+  _termObserver.observe(app, { childList: true, subtree: true });
 });

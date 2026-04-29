@@ -6,7 +6,8 @@
   "nav": {
     "logo_aria": "Ir al inicio del portafolio",
     "toggle_theme": "Cambiar tema",
-    "toggle_language": "Switch to English"
+    "toggle_language": "Switch to English",
+    "toggle_menu": "Abrir menú de navegación"
   },
   "footer": {
     "copyright": "© 2025 Alaska E. González — Diseñado con ♥ y café"
@@ -132,7 +133,7 @@
         "type_aria": "Tipo de proyecto: Infraestructura",
         "status": "En desarrollo",
         "status_aria": "Estado: En desarrollo",
-        "title": "INVARIANT",
+        "title": "I N V A R I A N T",
         "description": "Suite forense descentralizada para auditoría de hardware a nivel Ring-0. Cuatro pilares: Control Plane Go con firma Ed25519, flasher Rust/Tauri con O_SYNC, proxy SvelteKit edge y sonda bare-metal Python en Arch Linux air-gapped.",
         "detail_btn": "Ver documentación",
         "detail_aria": "Ver documentación técnica de INVARIANT"

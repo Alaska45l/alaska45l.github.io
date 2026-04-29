@@ -38,8 +38,8 @@ const INTERPOLATION_RE = /\{\{(\w+)\}\}/g;
  * El .replace asegura que no haya doble slash si BASE_URL termina en '/'.
  */
 const LOCALE_BASE_URL = (
-  typeof import.meta !== 'undefined' && /** @type {any} */ (import.meta).env?.BASE_URL
-    ? /** @type {any} */ (import.meta).env.BASE_URL
+  typeof import.meta !== 'undefined' && /** @type {{ env?: { BASE_URL: string } }} */ (import.meta).env?.BASE_URL
+    ? /** @type {{ env?: { BASE_URL: string } }} */ (import.meta).env.BASE_URL
     : '/'
 ).replace(/\/$/, '');
 
@@ -268,11 +268,6 @@ export class I18nManager {
     root.querySelectorAll('[data-i18n]').forEach(el => {
       const key = /** @type {HTMLElement} */ (el).dataset['i18n'];
       if (key) el.textContent = this.t(key);
-    });
-
-    root.querySelectorAll('[data-i18n-html]').forEach(el => {
-      const key = /** @type {HTMLElement} */ (el).dataset['i18nHtml'];
-      if (key) el.innerHTML = this.t(key);
     });
 
     root.querySelectorAll('[data-i18n-attr]').forEach(el => {

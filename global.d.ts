@@ -14,4 +14,5 @@ interface Window {
   _quantumCatGame:    { destroy(): void } | null | undefined;
   carouselInstance:   { destroy(): void } | undefined;
   GAME_CONFIG:        Readonly<Record<string, unknown>>;
+  i18n:               import('./src/js/i18n.js').I18nManager;
 }

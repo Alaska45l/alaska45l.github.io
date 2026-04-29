@@ -32,27 +32,27 @@ export function handleFormSubmit(event, formId) {
 
   const formData       = new FormData(form);
   submitBtn.disabled   = true;
-  submitBtn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Enviando…';
+  submitBtn.textContent = 'Enviando…';
 
   fetch(form.action, { method: 'POST', body: formData, headers: { Accept: 'application/json' } })
     .then(response => {
       if (!response.ok) return response.json().then(d => { throw new Error(d?.error ?? 'Server error'); });
       form.reset();
-      submitBtn.innerHTML        = '<i class="fas fa-check"></i> ¡Mensaje enviado!';
+      submitBtn.textContent        = '¡Mensaje enviado!';
       submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
       setTimeout(() => {
         submitBtn.disabled         = false;
-        submitBtn.innerHTML        = '<i class="fas fa-paper-plane"></i> Enviar mensaje';
+        submitBtn.textContent        = 'Enviar mensaje';
         submitBtn.style.background = '';
       }, 4000);
     })
     .catch(err => {
       console.error('Form error:', err);
       submitBtn.disabled         = false;
-      submitBtn.innerHTML        = '<i class="fas fa-exclamation-circle"></i> Error al enviar';
+      submitBtn.textContent        = 'Error al enviar';
       submitBtn.style.background = 'linear-gradient(135deg, #e53e3e, #c53030)';
       setTimeout(() => {
-        submitBtn.innerHTML        = '<i class="fas fa-paper-plane"></i> Enviar mensaje';
+        submitBtn.textContent        = 'Enviar mensaje';
         submitBtn.style.background = '';
       }, 4000);
     });

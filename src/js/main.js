@@ -52,7 +52,7 @@ async function bootstrap() {
   // Para cuando JS llegue aquí, el JSON y el HTML probablemente 
   // ya estén casi terminando de descargar.
   await i18nPromise;
-  /** @type {any} */ (window).i18n = i18n;
+  window.i18n = i18n;
 
   // ── Lifecycle hooks ───────────────────────────────────────────────────
   let navStart = 0;

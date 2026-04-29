@@ -248,10 +248,12 @@ export class SPARouter {
 
       const app = document.getElementById('app');
       if (!app) { console.error('#app not found'); return; }
-      app.innerHTML = html;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      app.replaceChildren(...Array.from(doc.body.childNodes));
 
       i18n.translateDOM(app);
-      this.updateNavigation(route);
+      this.updateNavigation();
       this.updateMetaTags(route);
 
       const previousRoute   = this.currentRoute;
@@ -295,32 +297,51 @@ export class SPARouter {
     if (!app) return;
     // data-router-link es obligatorio para que el eventDispatcher intercepte
     // el clic y use la navegación SPA en lugar de un full page reload.
-    app.innerHTML = `
-      <div style="text-align:center;padding:4rem 2rem;color:var(--text-secondary);">
-        <h2 data-i18n="errors.not_found_title"></h2>
-        <a href="/" data-router-link style="color:var(--primary-color);text-decoration:none;"
-           data-i18n="errors.not_found_back"></a>
-      </div>`;
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'text-align:center;padding:4rem 2rem;color:var(--text-secondary);';
+
+    const h2 = document.createElement('h2');
+    h2.dataset['i18n'] = 'errors.not_found_title';
+
+    const link = document.createElement('a');
+    link.href = '/';
+    link.dataset['routerLink'] = '';
+    link.style.cssText = 'color:var(--primary-color);text-decoration:none;';
+    link.dataset['i18n'] = 'errors.not_found_back';
+
+    wrapper.append(h2, link);
+    app.replaceChildren(wrapper);
     i18n.translateDOM(app);
   }
 
-  /** @param {string} _route */
-  updateNavigation(_route) {
+  updateNavigation() {
     const mobileMenu = document.getElementById('mobileMenu');
     if (!mobileMenu) return;
-    mobileMenu.innerHTML = `
-      <button class="theme-toggle mobile-theme-btn"
-        onclick="toggleDarkMode(); closeMobileMenu();"
-        aria-label="${i18n.t('nav.toggle_theme')}">
-        <i class="fas fa-moon" id="themeIconMobile"></i>
-        <span data-i18n="nav.toggle_theme">${i18n.t('nav.toggle_theme')}</span>
-      </button>
-      <button class="theme-toggle mobile-lang-btn"
-        onclick="i18n.setLocale(i18n.getLocale() === 'es' ? 'en' : 'es')"
-        aria-label="${i18n.t('nav.toggle_language')}">
-        <i class="fas fa-globe"></i>
-        <span data-i18n="nav.toggle_language">${i18n.t('nav.toggle_language')}</span>
-      </button>`;
+
+    const themeBtn = document.createElement('button');
+    themeBtn.className = 'theme-toggle mobile-theme-btn';
+    themeBtn.setAttribute('onclick', 'toggleDarkMode(); closeMobileMenu();');
+    themeBtn.setAttribute('aria-label', i18n.t('nav.toggle_theme'));
+    const themeIcon = document.createElement('i');
+    themeIcon.className = 'fas fa-moon';
+    themeIcon.id = 'themeIconMobile';
+    const themeSpan = document.createElement('span');
+    themeSpan.dataset['i18n'] = 'nav.toggle_theme';
+    themeSpan.textContent = i18n.t('nav.toggle_theme');
+    themeBtn.append(themeIcon, ' ', themeSpan);
+
+    const langBtn = document.createElement('button');
+    langBtn.className = 'theme-toggle mobile-lang-btn';
+    langBtn.setAttribute('onclick', "i18n.setLocale(i18n.getLocale() === 'es' ? 'en' : 'es')");
+    langBtn.setAttribute('aria-label', i18n.t('nav.toggle_language'));
+    const langIcon = document.createElement('i');
+    langIcon.className = 'fas fa-globe';
+    const langSpan = document.createElement('span');
+    langSpan.dataset['i18n'] = 'nav.toggle_language';
+    langSpan.textContent = i18n.t('nav.toggle_language');
+    langBtn.append(langIcon, ' ', langSpan);
+
+    mobileMenu.replaceChildren(themeBtn, langBtn);
   }
 
   /**

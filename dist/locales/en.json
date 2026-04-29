@@ -6,7 +6,8 @@
   "nav": {
     "logo_aria": "Go to portfolio home",
     "toggle_theme": "Toggle theme",
-    "toggle_language": "Cambiar a Español"
+    "toggle_language": "Cambiar a Español",
+    "toggle_menu": "Open navigation menu"
   },
   "footer": {
     "copyright": "© 2025 Alaska E. González — Built with ♥ and coffee"
@@ -31,10 +32,10 @@
       "og_description": "Broken Authentication, IDOR, BOLA, Unrestricted File Upload and potential Stored XSS."
     },
     "invariant": {
-      "title": "INVARIANT — Alaska E. González",
+      "title": "I N V A R I A N T — Alaska E. González",
       "description": "Decentralised forensic infrastructure suite for Ring-0 hardware auditing. Air-gapped, Ed25519-signed, bare-metal Arch Linux probe.",
       "og_title": "INVARIANT — Ring-0 Forensic Infrastructure",
-      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch. Zero-Trust, air-gapped, Ed25519 cryptography."
+      "og_description": "Go · Rust/Tauri · SvelteKit · Python/Arch, air-gapped, Ed25519 cryptography."
     }
   },
   "home": {
@@ -132,7 +133,7 @@
         "type_aria": "Project type: Infrastructure",
         "status": "In Development",
         "status_aria": "Status: In Development",
-        "title": "INVARIANT",
+        "title": "I N V A R I A N T",
         "description": "Decentralised forensic suite for Ring-0 hardware auditing. Four cryptographically coupled pillars: Go Control Plane with Ed25519 signing, Rust/Tauri flasher using O_SYNC, SvelteKit edge reverse-proxy, and a Python bare-metal probe running on air-gapped Arch Linux.",
         "detail_btn": "View documentation",
         "detail_aria": "View INVARIANT technical documentation"
