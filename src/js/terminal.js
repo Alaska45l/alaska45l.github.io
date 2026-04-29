@@ -774,7 +774,10 @@ function cmdUname(args) {
       { text: 'Distro   Arch Linux',     cls: 'muted' },
       { text: 'Desktop  KDE Plasma 6.8', cls: 'muted' },
       { text: 'Shell    bash 5.2.37',    cls: 'muted' },
-      { text: 'Uptime   23 years',       cls: 'success' },
+      (function() {
+        const u = getBirthUptime();
+        return { text: 'Uptime   ' + u.years + ' years, ' + u.days + ' days', cls: 'success' };
+      })(),
       { text: 'Status   Live',           cls: 'success' },
       { text: '' },
     ];
@@ -809,6 +812,26 @@ function cmdDate() {
   return [{ text: str, cls: 'output' }, { text: '' }];
 }
 
+/**
+ * Calcula el tiempo transcurrido desde el nacimiento de Alaska.
+ * @returns {{ years: number, days: number, hours: number, minutes: number }}
+ */
+function getBirthUptime() {
+  const birth = new Date(2002, 8, 2, 21, 3, 0); // mes 8 = septiembre (0-indexed)
+  const now   = new Date();
+  const diffMs = now.getTime() - birth.getTime();
+
+  const totalMinutes = Math.floor(diffMs / 60000);
+  const totalHours   = Math.floor(totalMinutes / 60);
+  const totalDays    = Math.floor(totalHours / 24);
+  const years        = Math.floor(totalDays / 365.25);
+  const days         = Math.floor(totalDays - years * 365.25);
+  const hours        = totalHours % 24;
+  const minutes      = totalMinutes % 60;
+
+  return { years, days, hours, minutes };
+}
+
 /** @param {string[]} args @returns {TermLine[]} */
 function cmdEcho(args) {
   if (!args.length) return [{ text: '', cls: 'output' }, { text: '' }];
@@ -839,7 +862,10 @@ function cmdNeofetch() {
     { text: '                 `ooo/                   OS: Arch Linux x86_64', cls: 'output' },
     { text: '                `+oooo:                  Host: ASUSTeK COMPUTER INC. E1504FA', cls: 'output' },
     { text: '               `+oooooo:                 Kernel: 6.19.10-1-cachyos', cls: 'output' },
-    { text: '               -+oooooo+:                Uptime: 23 years,1 day, 5 hours, 43 mins', cls: 'output' },
+    (function() {
+      const u = getBirthUptime();
+      return { text: '               -+oooooo+:                Uptime: ' + u.years + ' years, ' + u.days + ' days, ' + u.hours + ' hours, ' + u.minutes + ' mins', cls: 'output' };
+    })(),
     { text: '             `/:-:++oooo+:               Packages: 1151 (pacman), 14 (flatpak)', cls: 'output' },
     { text: '            `/++++/+++++++:              Shell: zsh 5.9', cls: 'output' },
     { text: '           `/++++++++++++++:             Resolution: 1920x1080', cls: 'output' },
@@ -1455,7 +1481,10 @@ function init() {
       { text: '' },
       { text: '  OS:       Arch Linux x86_64', cls: 'output' },
       { text: '  Kernel:   6.8.0-alaska', cls: 'output' },
-      { text: '  Uptime:   23 years, 0 days', cls: 'output' },
+      (function() {
+        const u = getBirthUptime();
+        return { text: '  Uptime:   ' + u.years + ' years, ' + u.days + ' days, ' + u.hours + ' hours', cls: 'output' };
+      })(),
       { text: '' },
       { text: 'Last login: ' + lastLogin + ' from 192.168.1.1', cls: 'muted' },
       { text: '' },
