@@ -96,10 +96,13 @@ export function initDispatcher(routerInstance) {
     if (!action) return;
 
     switch (action) {
-      case 'toggle-language':
+      case 'toggle-language': {
         e.preventDefault();
-        window.i18n.setLocale(window.i18n.getLocale() === 'es' ? 'en' : 'es');
+        const locales = window.i18n.getSupportedLocales();
+        const nextIdx = (locales.indexOf(window.i18n.getLocale()) + 1) % locales.length;
+        window.i18n.setLocale(locales[nextIdx]);
         break;
+      }
       case 'toggle-theme':
         e.preventDefault();
         window.toggleDarkMode();
