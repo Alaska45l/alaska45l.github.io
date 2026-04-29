@@ -514,7 +514,13 @@ function createPromptLine() {
 
   const rprompt = document.createElement('span');
   rprompt.className = 'terminal-rprompt';
-  rprompt.innerHTML = '<span class="trp-icon">●</span> <span class="trp-text">' + getRpromptText() + '</span>';
+  const trpIcon = document.createElement('span');
+  trpIcon.className = 'trp-icon';
+  trpIcon.textContent = '●';
+  const trpText = document.createElement('span');
+  trpText.className = 'trp-text';
+  trpText.textContent = getRpromptText();
+  rprompt.append(trpIcon, ' ', trpText);
 
   el.append(echo, wrapper, cursor, rprompt);
 
@@ -564,7 +570,11 @@ function updatePromptLine(val) {
   hideTabMenu();
   if (!currentPromptLine) return;
   const display = currentPromptLine.querySelector('#terminal-input-display');
-  if (display) display.innerHTML = renderInputDisplay(val);
+  if (display) {
+    const _p = new DOMParser();
+    const _doc = _p.parseFromString(renderInputDisplay(val), 'text/html');
+    display.replaceChildren(...Array.from(_doc.body.childNodes));
+  }
   updateRpromptVisibility();
   scrollBottom();
 }
@@ -1126,7 +1136,7 @@ function autocomplete(inp) {
     const routes       = window.router ? Object.keys(window.router.routes) : [];
     const unique       = [...new Set(routes)];
     const rMatches     = unique.filter(r => {
-      const rClean = r.replace(/^\//, '');
+      const rClean = r.replace(/^[/]/, '');
       return partialClean === '' ? true : r.startsWith('/' + partialClean) || rClean.startsWith(partialClean);
     });
     if (!rMatches.length) return;
@@ -1436,7 +1446,7 @@ function init() {
 
     const motdLines = [
       { text: '    ___    ____  __    __    ____ ', cls: 'muted' },
-      { text: '   /   |  / __ \/ /   / /   / __ \\', cls: 'muted' },
+      { text: '   /   |  / __ / /   / /   / __ \\', cls: 'muted' },
       { text: '  / /| | / /_/ / /   / /   / / / /', cls: 'muted' },
       { text: ' / ___ |/ ____/ /___/ /___/ /_/ / ', cls: 'muted' },
       { text: '/_/  |_/_/   /_____/_____/_____/  ', cls: 'muted' },
