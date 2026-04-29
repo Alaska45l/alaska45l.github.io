@@ -8,7 +8,7 @@ export function initDispatcher(routerInstance) {
   if (document.body.dataset['eventDispatcherInit']) return;
   document.body.dataset['eventDispatcherInit'] = 'true';
 
-  document.addEventListener('click',     e => { handleRouterLinks(/** @type {MouseEvent} */ (e)); handleMenuClose(/** @type {MouseEvent} */ (e)); });
+  document.addEventListener('click',     e => { handleRouterLinks(/** @type {MouseEvent} */ (e)); handleMenuClose(/** @type {MouseEvent} */ (e)); handleActions(/** @type {MouseEvent} */ (e)); });
   document.addEventListener('input',     handleFormCleanup);
   document.addEventListener('mouseover', e => handlePrefetch(/** @type {MouseEvent} */ (e), routerInstance));
 
@@ -83,6 +83,41 @@ export function initDispatcher(routerInstance) {
     document.addEventListener('DOMContentLoaded', observeRouterLinks);
   } else {
     observeRouterLinks();
+  }
+
+  // ── Action delegation (replaces inline onclick handlers) ───────────────
+  /** @param {MouseEvent} e */
+  function handleActions(e) {
+    const target = /** @type {Element} */ (e.target);
+    const btn    = target.matches('[data-action]') ? target : target.closest('[data-action]');
+    if (!btn) return;
+
+    const action = /** @type {HTMLElement} */ (btn).dataset['action'];
+    if (!action) return;
+
+    switch (action) {
+      case 'toggle-language':
+        e.preventDefault();
+        window.i18n.setLocale(window.i18n.getLocale() === 'es' ? 'en' : 'es');
+        break;
+      case 'toggle-theme':
+        e.preventDefault();
+        window.toggleDarkMode();
+        if (btn.classList.contains('mobile-theme-btn')) window.closeMobileMenu();
+        break;
+      case 'toggle-menu':
+        e.preventDefault();
+        window.toggleMobileMenu();
+        break;
+      case 'copy': {
+        e.preventDefault();
+        const text = /** @type {HTMLElement} */ (btn).dataset['clipboardText'];
+        if (text && typeof window.copyToClipboard === 'function') {
+          window.copyToClipboard(/** @type {HTMLButtonElement} */ (btn), text);
+        }
+        break;
+      }
+    }
   }
 
   // ── Router link delegation ─────────────────────────────────────────────

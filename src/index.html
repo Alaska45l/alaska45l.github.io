@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Alaska González">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://alaska45l.github.io data:; connect-src 'self' https://formspree.io;">
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://alaska45l.github.io data:; connect-src 'self' https://formspree.io;">
   <meta id="meta-description" name="description" content="">
 
   <meta property="og:type"  content="website">
@@ -75,7 +75,7 @@
       <!-- Language toggle — desktop -->
       <button
         class="theme-toggle-desktop"
-        onclick="i18n.setLocale(i18n.getLocale() === 'es' ? 'en' : 'es')"
+        data-action="toggle-language"
         data-i18n-attr='{"title":"nav.toggle_language","aria-label":"nav.toggle_language"}'
         title=""
         aria-label=""
@@ -86,7 +86,7 @@
       <!-- Theme toggle — desktop -->
       <button
         class="theme-toggle-desktop"
-        onclick="toggleDarkMode()"
+        data-action="toggle-theme"
         data-i18n-attr='{"title":"nav.toggle_theme","aria-label":"nav.toggle_theme"}'
         title=""
         aria-label=""
@@ -98,7 +98,7 @@
 
       <button
         class="mobile-menu-btn"
-        onclick="toggleMobileMenu()"
+        data-action="toggle-menu"
         data-i18n-attr='{"aria-label":"nav.toggle_menu"}'
         aria-label=""
       >

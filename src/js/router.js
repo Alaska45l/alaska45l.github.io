@@ -320,7 +320,7 @@ export class SPARouter {
 
     const themeBtn = document.createElement('button');
     themeBtn.className = 'theme-toggle mobile-theme-btn';
-    themeBtn.setAttribute('onclick', 'toggleDarkMode(); closeMobileMenu();');
+    themeBtn.dataset['action'] = 'toggle-theme';
     themeBtn.setAttribute('aria-label', i18n.t('nav.toggle_theme'));
     const themeIcon = document.createElement('i');
     themeIcon.className = 'fas fa-moon';
@@ -332,7 +332,7 @@ export class SPARouter {
 
     const langBtn = document.createElement('button');
     langBtn.className = 'theme-toggle mobile-lang-btn';
-    langBtn.setAttribute('onclick', "i18n.setLocale(i18n.getLocale() === 'es' ? 'en' : 'es')");
+    langBtn.dataset['action'] = 'toggle-language';
     langBtn.setAttribute('aria-label', i18n.t('nav.toggle_language'));
     const langIcon = document.createElement('i');
     langIcon.className = 'fas fa-globe';
