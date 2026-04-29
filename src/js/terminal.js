@@ -42,6 +42,7 @@ export function unmountTerminal() {
   state.animating = false;
   const inp = getInput();
   if (inp) inp.disabled = false;
+  returnInputToRow();
 
   const win = getWindow();
   if (win) {
@@ -63,12 +64,13 @@ export function unmountTerminal() {
  * ───────────────────────────────────────────────────────────── */
 const CONFIG = {
   promptHtml:
-    '<span class="tp-user">guest</span>'  +
+    '<span class="tp-user">alaska</span>'  +
     '<span class="tp-at">@</span>'         +
-    '<span class="tp-host">alaska</span>'  +
-    '<span class="tp-sep">:</span>'        +
+    '<span class="tp-host">plasma</span>'  +
+    '<span class="tp-space"> </span>'      +
     '<span class="tp-path">~</span>'       +
-    '<span class="tp-dollar">$</span>',
+    '<span class="tp-space"> </span>'      +
+    '<span class="tp-prompt">❯</span>',
 
   cvUrl: 'assets/alaskaGonzalez_cv.pdf',
 
@@ -240,6 +242,27 @@ const getInput  = () => /** @type {HTMLInputElement|null} */ (document.getElemen
 /** @returns {HTMLElement|null} */
 const getWindow = () => document.getElementById('about-terminal');
 
+/** @returns {HTMLElement|null} */
+const getInputRow = () => document.querySelector('.terminal-input-row');
+
+/** Moves the #terminal-input back to its original row so it survives output clears. */
+function returnInputToRow() {
+  const inp = getInput();
+  const row = getInputRow();
+  if (inp && row && inp.parentElement !== row) row.appendChild(inp);
+}
+
+/**
+ * Clears the terminal output, first rescuing the input if it lives inside
+ * the output area so it is not destroyed.
+ */
+function safeClearOutput() {
+  const out = getOutput();
+  const inp = getInput();
+  if (inp && out && out.contains(inp)) returnInputToRow();
+  if (out) out.replaceChildren();
+}
+
 /**
  * @param {string}  text
  * @param {string=} cls
@@ -283,6 +306,181 @@ function parseCommandArgs(input) {
 }
 
 /* ─────────────────────────────────────────────────────────────
+ * SYNTAX HIGHLIGHTING & AUTOSUGGESTION
+ * ───────────────────────────────────────────────────────────── */
+
+/** @param {string} str @returns {string} */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/** @param {string} input @returns {Array<{type:string,text:string}>} */
+function lexInput(input) {
+  /** @type {Array<{type:string,text:string}>} */
+  const tokens = [];
+  let current = '';
+  let inSingle = false;
+  let inDouble = false;
+  let i = 0;
+
+  while (i < input.length) {
+    const c = input[i];
+    if (!inSingle && !inDouble) {
+      if (c === ' ') {
+        if (current) { tokens.push({ type: 'word', text: current }); current = ''; }
+        tokens.push({ type: 'space', text: ' ' });
+        i++;
+        continue;
+      }
+      if (c === '"') { inDouble = true; if (current) { tokens.push({ type: 'word', text: current }); current = ''; } current = '"'; i++; continue; }
+      if (c === "'") { inSingle = true; if (current) { tokens.push({ type: 'word', text: current }); current = ''; } current = "'"; i++; continue; }
+    } else {
+      if (inDouble && c === '"') { current += '"'; tokens.push({ type: 'string', text: current }); current = ''; inDouble = false; i++; continue; }
+      if (inSingle && c === "'") { current += "'"; tokens.push({ type: 'string', text: current }); current = ''; inSingle = false; i++; continue; }
+    }
+    current += c;
+    i++;
+  }
+  if (current) tokens.push({ type: inSingle || inDouble ? 'string' : 'word', text: current });
+  return tokens;
+}
+
+/** @param {Array<{type:string,text:string}>} tokens @returns {string} */
+function renderTokens(tokens) {
+  let isFirstWord = true;
+  return tokens.map(tok => {
+    if (tok.type === 'space') return '<span class="tok-spc"> </span>';
+    const safe = escapeHtml(tok.text);
+    if (tok.type === 'string') return '<span class="tok-str">' + safe + '</span>';
+    if (isFirstWord) {
+      isFirstWord = false;
+      const cmd = tok.text.toLowerCase();
+      const isValid = ALL_CMDS.includes(cmd);
+      return '<span class="' + (isValid ? 'tok-cmd' : 'tok-unk') + '">' + safe + '</span>';
+    }
+    if (tok.text.startsWith('-')) return '<span class="tok-flag">' + safe + '</span>';
+    return '<span class="tok-arg">' + safe + '</span>';
+  }).join('');
+}
+
+/** @param {string} input @returns {string|null} */
+function getSuggestion(input) {
+  if (!input) return null;
+  const lower = input.toLowerCase().trim();
+  if (!lower) return null;
+
+  // History first (most recent match)
+  for (const h of state.history) {
+    if (h.toLowerCase().startsWith(lower) && h.length > lower.length) return h;
+  }
+
+  // Known commands
+  for (const cmd of ALL_CMDS) {
+    if (cmd.startsWith(lower) && cmd.length > lower.length) return cmd;
+  }
+
+  return null;
+}
+
+/** @param {string} val @returns {string} */
+function renderInputDisplay(val) {
+  const tokens = lexInput(val);
+  let html = renderTokens(tokens);
+  const suggestion = getSuggestion(val);
+  if (suggestion && suggestion.length > val.length) {
+    html += '<span class="tok-ghost">' + escapeHtml(suggestion.slice(val.length)) + '</span>';
+  }
+  return html;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * TAB COMPLETION MENU
+ * ───────────────────────────────────────────────────────────── */
+
+/** @type {string[]} */
+let tabMenuMatches = [];
+let tabMenuSelectedIndex = -1;
+/** @type {{el:EventTarget,event:string,fn:Function}|null} */
+let _tabMenuClickListener = null;
+
+function hideTabMenu() {
+  const menu = document.getElementById('terminal-tab-menu');
+  if (menu) {
+    const tml = _tabMenuClickListener;
+    if (tml) {
+      menu.removeEventListener('click', /** @type {EventListenerOrEventListenerObject} */ (tml.fn));
+      _boundListeners = _boundListeners.filter(
+        l => !(l.el === tml.el && l.event === tml.event && l.fn === tml.fn)
+      );
+      _tabMenuClickListener = null;
+    }
+    menu.remove();
+  }
+  tabMenuMatches = [];
+  tabMenuSelectedIndex = -1;
+}
+
+function updateTabMenuSelection() {
+  const menu = document.getElementById('terminal-tab-menu');
+  if (!menu) return;
+  const items = menu.querySelectorAll('.terminal-tab-menu__item');
+  items.forEach((item, idx) => {
+    item.classList.toggle('selected', idx === tabMenuSelectedIndex);
+  });
+}
+
+/** @param {string} completion */
+function commitTabMenu(completion) {
+  const inp = getInput();
+  if (inp) {
+    inp.value = completion;
+    updatePromptLine(completion);
+  }
+  hideTabMenu();
+}
+
+/** @param {string[]} completions */
+function showTabMenu(completions) {
+  hideTabMenu();
+  if (!completions.length) return;
+
+  tabMenuMatches = completions;
+  tabMenuSelectedIndex = 0;
+
+  const menu = document.createElement('div');
+  menu.id = 'terminal-tab-menu';
+  menu.className = 'terminal-tab-menu';
+
+  completions.forEach((c, i) => {
+    const item = document.createElement('div');
+    item.className = 'terminal-tab-menu__item' + (i === 0 ? ' selected' : '');
+    item.textContent = c;
+    menu.appendChild(item);
+  });
+
+  const onMenuClick = (/** @type {MouseEvent} */ e) => {
+    const t = /** @type {Element} */ (e.target);
+    const item = t.closest('.terminal-tab-menu__item');
+    if (!item) return;
+    const idx = Array.from(menu.children).indexOf(item);
+    if (idx >= 0) commitTabMenu(tabMenuMatches[idx]);
+  };
+
+  trackListener(menu, 'click', onMenuClick);
+  _tabMenuClickListener = { el: menu, event: 'click', fn: onMenuClick };
+
+  if (currentPromptLine) currentPromptLine.appendChild(menu);
+}
+
+/** @returns {string} */
+function getRpromptText() {
+  return 'plasma';
+}
+
+/* ─────────────────────────────────────────────────────────────
  * LIVE PROMPT LINE
  * ───────────────────────────────────────────────────────────── */
 function createPromptLine() {
@@ -292,6 +490,7 @@ function createPromptLine() {
 
   const el = document.createElement('div');
   el.className = 'tl tl--cmd active-prompt';
+  el.style.position = 'relative';
 
   const echo = document.createElement('span');
   echo.className = 't-prompt-echo';
@@ -299,14 +498,25 @@ function createPromptLine() {
   const parsed = parser.parseFromString(CONFIG.promptHtml, 'text/html');
   echo.append(...Array.from(parsed.body.childNodes));
 
-  const cmdText = document.createElement('span');
-  cmdText.className = 'cmd-text';
+  const wrapper = document.createElement('div');
+  wrapper.className = 'terminal-input-wrapper';
+
+  // Move the real input into the wrapper so it overlaps the display area.
+  if (inp && inp.parentElement !== wrapper) wrapper.appendChild(inp);
+
+  const display = document.createElement('div');
+  display.id = 'terminal-input-display';
+  wrapper.appendChild(display);
 
   const cursor = document.createElement('span');
   cursor.className = 'terminal-cursor';
   cursor.setAttribute('aria-hidden', 'true');
 
-  el.append(echo, ' ', cmdText, cursor);
+  const rprompt = document.createElement('span');
+  rprompt.className = 'terminal-rprompt';
+  rprompt.innerHTML = '<span class="trp-icon">●</span> <span class="trp-text">' + getRpromptText() + '</span>';
+
+  el.append(echo, wrapper, cursor, rprompt);
 
   out.appendChild(el);
   currentPromptLine = el;
@@ -315,11 +525,47 @@ function createPromptLine() {
   if (inp && !inp.disabled) inp.focus();
 }
 
+/**
+ * Measures text width using an off-screen canvas for fast overlap checks.
+ * @param {string} text
+ * @param {string} font
+ * @returns {number}
+ */
+function measureTextWidth(text, font) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  ctx.font = font;
+  return ctx.measureText(text).width;
+}
+
+/** Hides the RPROMPT when the typed command would visually overlap it. */
+function updateRpromptVisibility() {
+  if (!currentPromptLine) return;
+  const rprompt = currentPromptLine.querySelector('.terminal-rprompt');
+  const display = currentPromptLine.querySelector('#terminal-input-display');
+  if (!rprompt || !display) return;
+
+  const lineRect = currentPromptLine.getBoundingClientRect();
+  const echo = currentPromptLine.querySelector('.t-prompt-echo');
+  const echoWidth = echo ? echo.getBoundingClientRect().width : 0;
+  const rpromptWidth = rprompt.getBoundingClientRect().width;
+  const available = lineRect.width - echoWidth - rpromptWidth - 12; // 12px safety gap
+
+  const font = getComputedStyle(display).font;
+  const val = display.textContent || '';
+  const textWidth = measureTextWidth(val, font);
+
+  (/** @type {HTMLElement} */ (rprompt)).style.visibility = (textWidth > available && available > 0) ? 'hidden' : 'visible';
+}
+
 /** @param {string} val */
 function updatePromptLine(val) {
+  hideTabMenu();
   if (!currentPromptLine) return;
-  const cmdText = currentPromptLine.querySelector('.cmd-text');
-  if (cmdText) cmdText.textContent = val;
+  const display = currentPromptLine.querySelector('#terminal-input-display');
+  if (display) display.innerHTML = renderInputDisplay(val);
+  updateRpromptVisibility();
   scrollBottom();
 }
 
@@ -327,6 +573,7 @@ function finalizePromptLine() {
   if (!currentPromptLine) return;
   currentPromptLine.querySelector('.terminal-cursor')?.remove();
   currentPromptLine.classList.remove('active-prompt');
+  returnInputToRow();
   currentPromptLine = null;
 }
 
@@ -872,9 +1119,9 @@ function autocomplete(inp) {
   if (!lower.trim()) return;
 
   if (/^(cd|go|open)\s+\S*$/.test(lower)) {
-    const spaceIdx    = raw.indexOf(' ');
-    const cmdPart     = raw.slice(0, spaceIdx);
-    const partial     = raw.slice(spaceIdx + 1);
+    const spaceIdx     = raw.indexOf(' ');
+    const cmdPart      = raw.slice(0, spaceIdx);
+    const partial      = raw.slice(spaceIdx + 1);
     const partialClean = partial.replace(/^\/+/, '').toLowerCase();
     const routes       = window.router ? Object.keys(window.router.routes) : [];
     const unique       = [...new Set(routes)];
@@ -884,14 +1131,7 @@ function autocomplete(inp) {
     });
     if (!rMatches.length) return;
     if (rMatches.length === 1) { inp.value = cmdPart + ' ' + rMatches[0]; updatePromptLine(inp.value); return; }
-    const savedRaw = raw;
-    finalizePromptLine();
-    inp.value = '';
-    printLines([{ text: rMatches.join('    '), cls: 'muted' }, { text: '' }], () => {
-      createPromptLine();
-      inp.value = savedRaw;
-      updatePromptLine(savedRaw);
-    });
+    showTabMenu(rMatches.map(r => cmdPart + ' ' + r));
     return;
   }
 
@@ -899,31 +1139,13 @@ function autocomplete(inp) {
     const partial2 = raw.slice(raw.indexOf(' ') + 1).toLowerCase();
     const fMatches = Object.keys(CONFIG.files).filter(f => f.startsWith(partial2));
     if (fMatches.length === 1) { inp.value = 'cat ' + fMatches[0]; updatePromptLine(inp.value); }
-    else if (fMatches.length > 1) {
-      const saved = inp.value;
-      finalizePromptLine();
-      inp.value = '';
-      printLines([{ text: fMatches.join('    '), cls: 'muted' }, { text: '' }], () => {
-        createPromptLine();
-        inp.value = saved;
-        updatePromptLine(saved);
-      });
-    }
+    else if (fMatches.length > 1) { showTabMenu(fMatches.map(f => 'cat ' + f)); }
     return;
   }
 
   const cMatches = ALL_CMDS.filter(c => c.startsWith(lower.trim()));
   if (cMatches.length === 1) { inp.value = cMatches[0]; updatePromptLine(inp.value); }
-  else if (cMatches.length > 1) {
-    const savedRaw2 = inp.value;
-    finalizePromptLine();
-    inp.value = '';
-    printLines([{ text: cMatches.join('    '), cls: 'muted' }, { text: '' }], () => {
-      createPromptLine();
-      inp.value = savedRaw2;
-      updatePromptLine(savedRaw2);
-    });
-  }
+  else if (cMatches.length > 1) { showTabMenu(cMatches); }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -951,8 +1173,7 @@ function execute(raw) {
   } catch { /* quota / incognito */ }
 
   if (cmd === 'clear') {
-    const out = getOutput();
-    if (out) out.replaceChildren();
+    safeClearOutput();
     createPromptLine();
     return;
   }
@@ -1040,8 +1261,7 @@ function onKeyDown(e) {
       const savedInput = inp.value;
       inp.value = '';
       currentPromptLine = null;
-      const out = getOutput();
-      if (out) out.replaceChildren();
+      safeClearOutput();
       createPromptLine();
       if (savedInput) { inp.value = savedInput; updatePromptLine(savedInput); }
       return;
@@ -1061,6 +1281,33 @@ function onKeyDown(e) {
     }
   }
 
+  /* ── Tab menu navigation overrides ── */
+  if (tabMenuMatches.length) {
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        e.preventDefault();
+        tabMenuSelectedIndex = (tabMenuSelectedIndex - 1 + tabMenuMatches.length) % tabMenuMatches.length;
+        updateTabMenuSelection();
+        return;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        e.preventDefault();
+        tabMenuSelectedIndex = (tabMenuSelectedIndex + 1) % tabMenuMatches.length;
+        updateTabMenuSelection();
+        return;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        if (tabMenuSelectedIndex >= 0) commitTabMenu(tabMenuMatches[tabMenuSelectedIndex]);
+        return;
+      case 'Escape':
+        e.preventDefault();
+        hideTabMenu();
+        return;
+    }
+  }
+
   switch (e.key) {
     case 'Enter':
       e.preventDefault();
@@ -1072,6 +1319,17 @@ function onKeyDown(e) {
       e.preventDefault();
       if (state.animating) return;
       autocomplete(inp);
+      break;
+
+    case 'ArrowRight':
+      if (!state.animating) {
+        const suggestion = getSuggestion(inp.value);
+        if (suggestion && suggestion.length > inp.value.length) {
+          e.preventDefault();
+          inp.value = suggestion;
+          updatePromptLine(suggestion);
+        }
+      }
       break;
 
     case 'ArrowUp':
@@ -1143,52 +1401,46 @@ function init() {
   pos.x = 0; pos.y = 0;
   bringToFront(safeWin);
 
-  /* ── Boot sequence ──────────────────────────────────────────
-   * Las tres etapas (boot, login, motd) están encadenadas con
-   * printLines → setTimeout → innerHTML = ''. Antes de cada
-   * limpieza del DOM se anula currentPromptLine explícitamente
-   * para evitar que finalizePromptLine opere sobre nodos detached.
+  /* ── SSH boot sequence ─────────────────────────────────────
+   * Simulates an SSH handshake into plasma.local, prints a
+   * stylised MOTD, and lands on the first ZSH prompt.
    * ─────────────────────────────────────────────────────────── */
   function bootSequence() {
     const out = getOutput();
     if (!out) { createPromptLine(); return; }
-    const outputEl = /** @type {HTMLElement} */ (out);
 
-    const bootLines = [
-      { text: '[    0.000000] Linux version 6.8.0-alaska (gcc 13.2.0) #1 SMP PREEMPT_DYNAMIC', cls: 'muted' },
-      { text: '[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-linux root=/dev/sda1 quiet', cls: 'muted' },
-      { text: '[    0.183441] PCI: Using configuration type 1 for base access', cls: 'muted' },
+    const sshLines = [
+      { text: '$ ssh alaska@plasma.local', cls: 'output' },
       { text: '' },
-      { text: '\u001b[0;32m[  OK  ]\u001b[0m Started systemd-journald.service.', cls: 'success' },
-      { text: '\u001b[0;32m[  OK  ]\u001b[0m Started NetworkManager.service.', cls: 'success' },
-      { text: '\u001b[0;32m[  OK  ]\u001b[0m Reached target multi-user.target.', cls: 'success' },
+      { text: 'The authenticity of host \'plasma.local (192.168.1.42)\' can\'t be established.', cls: 'muted' },
+      { text: 'ED25519 key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.', cls: 'muted' },
+      { text: 'Are you sure you want to continue connecting (yes/no/[fingerprint])? yes', cls: 'output' },
+      { text: 'Warning: Permanently added \'plasma.local\' (ED25519) to the list of known hosts.', cls: 'muted' },
       { text: '' },
-      { text: 'Arch Linux 6.8.0-alaska (tty1)', cls: 'output' },
-      { text: '' },
-    ];
-
-    const loginLines = [
-      { text: 'Connecting to plasma.local (192.168.1.42)...', cls: 'output' },
-      { text: 'Connection established.', cls: 'success' },
-      { text: '' },
-      { text: 'plasma.local login: alaska', cls: 'output' },
-      { text: 'Password: \u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022', cls: 'muted' },
+      { text: 'alaska@plasma.local\'s password:', cls: 'output' },
+      { text: '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022', cls: 'muted' },
       { text: '' },
       { text: 'Authentication successful.', cls: 'success' },
       { text: '' },
     ];
 
-    const now      = new Date();
-    const days     = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const months   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const now    = new Date();
+    const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     /** @param {number} n @returns {string} */
-    const pad      = n => n < 10 ? '0' + n : '' + n;
+    const pad    = n => n < 10 ? '0' + n : '' + n;
     const lastLogin =
       days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' +
       pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' +
       pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + ' ' + now.getFullYear();
 
     const motdLines = [
+      { text: '    ___    ____  __    __    ____ ', cls: 'muted' },
+      { text: '   /   |  / __ \/ /   / /   / __ \\', cls: 'muted' },
+      { text: '  / /| | / /_/ / /   / /   / / / /', cls: 'muted' },
+      { text: ' / ___ |/ ____/ /___/ /___/ /_/ / ', cls: 'muted' },
+      { text: '/_/  |_/_/   /_____/_____/_____/  ', cls: 'muted' },
+      { text: '' },
       { text: 'Welcome to Arch Linux on plasma!', cls: 'header' },
       { text: '' },
       { text: '  OS:       Arch Linux x86_64', cls: 'output' },
@@ -1199,17 +1451,11 @@ function init() {
       { text: '' },
     ];
 
-    printLines(bootLines, () => {
+    printLines(sshLines, () => {
       setTimeout(() => {
         currentPromptLine = null;
-        outputEl.replaceChildren();
-        printLines(loginLines, () => {
-          setTimeout(() => {
-            currentPromptLine = null; // mismo guard antes del segundo clear
-            outputEl.replaceChildren();
-            printLines(motdLines, createPromptLine);
-          }, 600);
-        });
+        safeClearOutput();
+        printLines(motdLines, createPromptLine);
       }, 400);
     });
   }
@@ -1226,6 +1472,7 @@ function init() {
   trackListener(safeInp, 'keydown',   onKeyDown);
   trackListener(safeWin, 'mousedown', () => bringToFront(safeWin));
   trackListener(safeWin, 'click',     onWinClick);
+  trackListener(window,   'resize',    updateRpromptVisibility);
 
   // ── Restore button ─────────────────────────────────────────
   let rawRestore = document.getElementById('terminal-restore');

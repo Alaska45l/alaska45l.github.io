@@ -38,6 +38,7 @@
   --term-text-header:        #c87a5f;
   --term-text-error:         #9d0006; /* Rojo ladrillo oscuro */
   --term-text-lauti:         #a8889c;
+  --term-text-string:        #b57614; /* Ámbar para strings */
 
   /* Prompt spans */
   --term-prompt-user:        #c87a5f; /* Terracota */
@@ -100,6 +101,7 @@ body.dark-mode {
   --term-text-success:       #8da173; /* Verde oliva */
   --term-text-header:        #bc825f; /* Naranja óxido */
   --term-text-error:         #a85848; /* Rojo apagado */
+  --term-text-string:        #d79921; /* Amarillo ámbar */
 
   /* Prompt spans (Estilo Zsh) */
   --term-prompt-user:        #bc825f;
@@ -147,7 +149,7 @@ body.dark-mode {
   border-top-color:          var(--term-win-border-top);
   box-shadow:                var(--term-win-shadow);
 
-  font-family:  'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-family:  'Fira Code', 'Share Tech Mono', 'Courier New', Courier, monospace;
   font-size:    0.88rem;
   line-height:  1.65;
   cursor:       text;
@@ -326,7 +328,7 @@ body.dark-mode .terminal-output {
   display:     block;
   white-space: pre-wrap;
   word-break:  break-word;
-  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-family: 'Fira Code', 'Share Tech Mono', 'Courier New', Courier, monospace;
   font-size:   0.87rem;
   line-height: 1.62;
   color:       var(--term-text);
@@ -347,12 +349,37 @@ body.dark-mode .terminal-output {
    ══════════════════════════════════════════════════════════════════════ */
 
 .t-prompt-echo            { display: inline; }
-.t-prompt-echo .tp-user   { color: var(--term-prompt-user);   }
+.t-prompt-echo .tp-user   { color: var(--term-prompt-user);   font-weight: 600; }
 .t-prompt-echo .tp-at     { color: var(--term-prompt-at);     }
-.t-prompt-echo .tp-host   { color: var(--term-prompt-host);   }
+.t-prompt-echo .tp-host   { color: var(--term-prompt-host);   font-weight: 600; }
 .t-prompt-echo .tp-sep    { color: var(--term-prompt-sep);    }
-.t-prompt-echo .tp-path   { color: var(--term-prompt-path);   }
+.t-prompt-echo .tp-path   { color: var(--term-prompt-path);   font-weight: 600; }
 .t-prompt-echo .tp-dollar { color: var(--term-prompt-dollar); }
+.t-prompt-echo .tp-prompt { color: var(--term-prompt-dollar); font-weight: 600; }
+.t-prompt-echo .tp-space  { display: inline; }
+
+/* ── RPROMPT ── */
+.terminal-rprompt {
+  position:    absolute;
+  right:       0;
+  top:         0;
+  display:     inline-flex;
+  align-items: center;
+  gap:         0.35rem;
+  font-size:   0.80rem;
+  color:       var(--term-text-muted);
+  user-select: none;
+  pointer-events: none;
+}
+
+.terminal-rprompt .trp-icon {
+  color: var(--term-text-success);
+}
+
+/* Hide RPROMPT when the prompt line is not active */
+.tl--cmd:not(.active-prompt) .terminal-rprompt {
+  display: none;
+}
 
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -377,6 +404,43 @@ body.dark-mode .terminal-output {
   padding:  0;
   border:   none;
   outline:  none;
+}
+
+/* ── Input overlay wrapper ──
+   The real <input> is moved into this wrapper on every active prompt so
+   it overlaps the display div pixel-perfectly. This gives us multi-colour
+   rendering (syntax highlighting, ghost text) while keeping native keyboard
+   behaviour on mobile.
+   ── */
+
+.terminal-input-wrapper {
+  position:      relative;
+  display:       inline-block;
+  min-width:     1ch;
+  vertical-align: bottom;
+}
+
+.terminal-input-wrapper .terminal-input {
+  position: absolute;
+  top:      0;
+  left:     0;
+  width:    100%;
+  height:   100%;
+  opacity:  0;
+  z-index:  2;
+  cursor:   text;
+}
+
+#terminal-input-display {
+  position:       relative;
+  display:        inline;
+  pointer-events: none;
+  white-space:    pre-wrap;
+  word-break:     break-word;
+  z-index:        1;
+  font-family:    'Fira Code', 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-size:      0.87rem;
+  line-height:    1.62;
 }
 
 
@@ -495,6 +559,60 @@ body.dark-mode .kwm-btn--fullscreen {
   box-shadow: 0 1px 3px rgba(96, 96, 160, 0.40);
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════
+   SYNTAX HIGHLIGHTING TOKENS
+   ══════════════════════════════════════════════════════════════════════ */
+
+.tok-cmd  { color: var(--term-text-success); }
+.tok-unk  { color: var(--term-text-error);   }
+.tok-flag { color: var(--term-text-muted);   }
+.tok-str  { color: var(--term-text-string);  }
+.tok-ghost {
+  color:   var(--term-text-muted);
+  opacity: 0.55;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TAB COMPLETION MENU
+   ══════════════════════════════════════════════════════════════════════ */
+
+.terminal-tab-menu {
+  position:         absolute;
+  top:              calc(100% + 4px);
+  left:             0;
+  z-index:          10;
+  display:          grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap:              0.25rem;
+  background:       var(--term-win-bg);
+  border:           1px solid var(--term-win-border);
+  border-top-color: var(--term-win-border-top);
+  border-radius:    8px;
+  padding:          0.5rem;
+  box-shadow:       var(--term-win-shadow);
+  max-width:        100%;
+  min-width:        200px;
+  backdrop-filter:  blur(6px);
+}
+
+.terminal-tab-menu__item {
+  padding:       0.3rem 0.6rem;
+  border-radius: 4px;
+  cursor:        pointer;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  font-size:     0.82rem;
+  color:         var(--term-text);
+  transition:    background 0.12s ease;
+}
+
+.terminal-tab-menu__item:hover,
+.terminal-tab-menu__item.selected {
+  background: var(--term-scrollbar);
+  color:      var(--term-text-cmd);
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    RESPONSIVE — MOBILE
