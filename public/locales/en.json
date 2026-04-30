@@ -135,6 +135,8 @@
         "status_aria": "Status: In Development",
         "title": "I N V A R I A N T",
         "description": "Decentralised forensic suite for Ring-0 hardware auditing. Four cryptographically coupled pillars: Go Control Plane with Ed25519 signing, Rust/Tauri flasher using O_SYNC, SvelteKit edge reverse-proxy, and a Python bare-metal probe running on air-gapped Arch Linux.",
+        "site_btn": "Visit Website",
+        "site_aria": "Visit INVARIANT website (opens in new tab)",
         "detail_btn": "View documentation",
         "detail_aria": "View INVARIANT technical documentation"
       }

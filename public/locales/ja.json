@@ -135,6 +135,8 @@
         "status_aria": "ステータス: 開発中",
         "title": "I N V A R I A N T",
         "description": "Ring-0ハードウェア監査のための分散型フォレンジックスイート。4つの暗号化結合された柱：Ed25519署名を持つGoコントロールプレーン、O_SYNCを使用するRust/Tauriフラッシャー、SvelteKitエッジリバースプロキシ、およびエアギャップArch Linux上で実行されるPythonベアメタルプローブ。",
+        "site_btn": "ウェブサイトを見る",
+        "site_aria": "INVARIANTのウェブサイトを見る（新しいタブで開きます）",
         "detail_btn": "ドキュメントを見る",
         "detail_aria": "INVARIANT技術ドキュメントを見る"
       }
