@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Alaska Elaina Gonzalez — Portafolio Profesional</h1>
+  <h1>Alaska Elaina Gonzalez — Professional Portfolio</h1>
   <p><strong>Custom Single Page Application (SPA), Modular Architecture & Vite Pipeline</strong></p>
 
   <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite">
@@ -11,21 +11,21 @@
 
 ---
 
-Este repositorio contiene el código fuente de mi portafolio profesional. Lejos de utilizar un framework pesado (como React o Vue) para una web de contenido estático, el proyecto está construido desde cero como una Single Page Application (SPA) utilizando Vanilla JavaScript, Módulos ES (ESM) estandarizados y Vite como empaquetador y servidor de desarrollo.
+This repository contains the source code for my professional portfolio. Instead of using a heavy framework (like React or Vue) for a static content website, the project is built from scratch as a Single Page Application (SPA) using Vanilla JavaScript, standardized ES Modules (ESM), and Vite as a bundler and development server.
 
-## <img src="https://api.iconify.design/material-symbols/lightbulb.svg?color=%23007acc" width="24" height="24" align="center"> Arquitectura y Filosofía
+## <img src="https://api.iconify.design/material-symbols/lightbulb.svg?color=%23007acc" width="24" height="24" align="center"> Architecture and Philosophy
 
-Construir este portafolio fue un ejercicio deliberado de ingeniería frontend enfocado en rendimiento, modularidad y control total sobre el DOM. Las decisiones técnicas clave incluyen:
+Building this portfolio was a deliberate frontend engineering exercise focused on performance, modularity, and total control over the DOM. Key technical decisions include:
 
-* **Enrutamiento Custom (Vanilla SPA):** Un motor de enrutamiento propio (`router.js`) que intercepta el historial del navegador (`popstate`), inyecta vistas dinámicamente y expone *hooks* de ciclo de vida (`beforeNavigate`, `afterNavigate`).
-* **Code-Splitting y Lazy Loading:** Los controladores de las vistas (Inicio, Experiencia, Juego) no se empaquetan en un solo bloque. Vite los divide y el router los invoca asíncronamente mediante `import()` dinámico solo cuando el usuario accede a la ruta.
-* **Gestión Estricta de Memoria (Teardown):** Para evitar fugas de memoria (*memory leaks*) típicas en SPAs nativas, cada controlador implementa un método `unmount()` que limpia temporizadores (terminal interactiva) y destruye instancias (motor del minijuego) al cambiar de página.
-* **Delegación de Eventos Centralizada:** Un `eventDispatcher.js` captura eventos delegados a nivel global. Esto desvincula la lógica del DOM y hace al sistema resistente a la destrucción y recreación constante de nodos HTML durante la navegación.
+* **Custom Routing (Vanilla SPA):** A custom routing engine (`router.js`) that intercepts browser history (`popstate`), injects views dynamically, and exposes lifecycle *hooks* (`beforeNavigate`, `afterNavigate`).
+* **Code-Splitting and Lazy Loading:** View controllers (Home, Experience, Game) are not bundled into a single block. Vite splits them, and the router invokes them asynchronously via dynamic `import()` only when the user accesses the route.
+* **Strict Memory Management (Teardown):** To avoid memory leaks typical in native SPAs, each controller implements an `unmount()` method that clears timers (interactive terminal) and destroys instances (minigame engine) upon page change.
+* **Centralized Event Delegation:** An `eventDispatcher.js` captures global delegated events. This decouples DOM logic and makes the system resilient to the constant destruction and recreation of HTML nodes during navigation.
 
 ---
 
-## <img src="https://api.iconify.design/material-symbols/layers-outline.svg?color=%23007acc" width="24" height="24" align="center"> Componentes Core
+## <img src="https://api.iconify.design/material-symbols/layers-outline.svg?color=%23007acc" width="24" height="24" align="center"> Core Components
 
-* **Terminal Interactiva:** Un emulador de terminal web (construido sin librerías de terceros) que incluye un sistema de archivos simulado, parseo de comandos personalizados, ping asíncrono y sistema de maximización/arrastre de ventana.
-* **Motor de Prefetching Predictivo:** Utiliza la API `IntersectionObserver` y eventos `mouseover` para pre-cargar en una caché nativa (`Map`) el código HTML de las rutas antes de que el usuario haga clic, garantizando transiciones de vista en 0ms.
-* **Quantum Cat Invaders:** Un *easter egg* que despliega un minijuego completo renderizado en `<canvas>`. Utiliza un bucle de animación iterativo (`requestAnimationFrame`), gestión de colisiones por bounding box y entidades orientadas a objetos.
+* **Interactive Terminal:** A web terminal emulator (built without third-party libraries) that includes a simulated file system, custom command parsing, asynchronous ping, and a window maximization/drag system.
+* **Predictive Prefetching Engine:** Uses the `IntersectionObserver` API and `mouseover` events to pre-load the HTML code of routes into a native cache (`Map`) before the user clicks, guaranteeing 0ms view transitions.
+* **Quantum Cat Invaders:** An *easter egg* that deploys a complete minigame rendered in `<canvas>`. It uses an iterative animation loop (`requestAnimationFrame`), bounding box collision management, and object-oriented entities.
