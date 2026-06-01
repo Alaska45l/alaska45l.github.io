@@ -137,8 +137,8 @@
         "description": "Suite forense descentralizada para auditoría de hardware a nivel Ring-0. Cuatro pilares: Control Plane Go con firma Ed25519, flasher Rust/Tauri con O_SYNC, proxy SvelteKit edge y sonda bare-metal Python en Arch Linux air-gapped.",
         "site_btn": "Visitar Sitio",
         "site_aria": "Visitar sitio web de INVARIANT (abre en nueva pestaña)",
-        "detail_btn": "Ver documentación",
-        "detail_aria": "Ver documentación técnica de INVARIANT"
+        "detail_btn": "Documentación en curso",
+        "detail_aria": "La documentación técnica de INVARIANT aún está en curso"
       }
     },
     "social": {
