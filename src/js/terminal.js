@@ -528,7 +528,7 @@ function createPromptLine() {
   currentPromptLine = el;
   scrollBottom();
 
-  if (inp && !inp.disabled) inp.focus();
+  if (inp && !inp.disabled) inp.focus({ preventScroll: true });
 }
 
 /**
