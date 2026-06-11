@@ -1,6 +1,6 @@
 <div align="center">
 
-  <h1>Alaska Portfolio</h1>
+  <h1>My Portfolio</h1>
 
   <p>
     Vanilla JavaScript portfolio SPA with route-level HTML fragments, JSDoc type checking,
