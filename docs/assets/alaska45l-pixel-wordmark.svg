@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="260" viewBox="0 0 960 260" role="img" aria-labelledby="title desc">
+  <title id="title">Alaska45l pixel wordmark</title>
+  <desc id="desc">A pixel art style wordmark that reads Alaska45l.</desc>
+  <defs>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#102136"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="0.52" stop-color="#a7f3d0"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="260" fill="url(#panel)"/>
+  <g opacity="0.24" shape-rendering="crispEdges">
+    <path d="M0 32H960M0 64H960M0 96H960M0 128H960M0 160H960M0 192H960M0 224H960" stroke="#38bdf8" stroke-width="1"/>
+    <path d="M32 0V260M64 0V260M96 0V260M128 0V260M160 0V260M192 0V260M224 0V260M256 0V260M288 0V260M320 0V260M352 0V260M384 0V260M416 0V260M448 0V260M480 0V260M512 0V260M544 0V260M576 0V260M608 0V260M640 0V260M672 0V260M704 0V260M736 0V260M768 0V260M800 0V260M832 0V260M864 0V260M896 0V260M928 0V260" stroke="#38bdf8" stroke-width="1"/>
+  </g>
+  <g transform="translate(48 50)" shape-rendering="crispEdges">
+    <rect x="16" y="0" width="16" height="16" fill="#e0f2fe"/>
+    <rect x="32" y="0" width="16" height="16" fill="#e0f2fe"/>
+    <rect x="8" y="16" width="16" height="16" fill="#67e8f9"/>
+    <rect x="40" y="16" width="16" height="16" fill="#67e8f9"/>
+    <rect x="0" y="32" width="16" height="16" fill="#22d3ee"/>
+    <rect x="48" y="32" width="16" height="16" fill="#22d3ee"/>
+    <rect x="0" y="48" width="16" height="16" fill="#22d3ee"/>
+    <rect x="16" y="48" width="16" height="16" fill="#a7f3d0"/>
+    <rect x="32" y="48" width="16" height="16" fill="#a7f3d0"/>
+    <rect x="48" y="48" width="16" height="16" fill="#22d3ee"/>
+    <rect x="0" y="64" width="16" height="16" fill="#22d3ee"/>
+    <rect x="48" y="64" width="16" height="16" fill="#22d3ee"/>
+    <rect x="0" y="80" width="16" height="16" fill="#22d3ee"/>
+    <rect x="48" y="80" width="16" height="16" fill="#22d3ee"/>
+    <rect x="0" y="96" width="16" height="16" fill="#22d3ee"/>
+    <rect x="48" y="96" width="16" height="16" fill="#22d3ee"/>
+  </g>
+  <g font-family="Courier New, Courier, monospace" font-size="84" font-weight="900" letter-spacing="4">
+    <text x="141" y="157" fill="#020617">Alaska45l</text>
+    <text x="133" y="149" fill="#155e75">Alaska45l</text>
+    <text x="128" y="144" fill="url(#glow)">Alaska45l</text>
+  </g>
+  <g shape-rendering="crispEdges">
+    <rect x="128" y="176" width="48" height="10" fill="#22d3ee"/>
+    <rect x="184" y="176" width="80" height="10" fill="#a7f3d0"/>
+    <rect x="272" y="176" width="136" height="10" fill="#f8fafc"/>
+    <rect x="416" y="176" width="96" height="10" fill="#22d3ee"/>
+    <rect x="520" y="176" width="48" height="10" fill="#a7f3d0"/>
+    <rect x="844" y="120" width="24" height="24" fill="#22d3ee"/>
+    <rect x="876" y="120" width="24" height="24" fill="#a7f3d0"/>
+    <rect x="844" y="152" width="24" height="24" fill="#f8fafc"/>
+    <rect x="876" y="152" width="24" height="24" fill="#22d3ee"/>
+  </g>
+  <text x="130" y="214" font-family="IBM Plex Mono, Courier New, monospace" font-size="20" font-weight="700" letter-spacing="3" fill="#bae6fd">VANILLA SPA / ROUTED FRAGMENTS / I18N</text>
+</svg>

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img" aria-labelledby="title desc">
+  <title id="title">Alaska portfolio runtime architecture</title>
+  <desc id="desc">Diagram showing how the Vite shell, router, i18n manager, page fragments, controllers, assets, and external services interact.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L10 6L2 10Z" fill="#0f766e"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; }
+      .accent { fill: #ecfeff; stroke: #0891b2; stroke-width: 2; }
+      .store { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; }
+      .edge { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; }
+      .title { font: 700 24px Arial, sans-serif; fill: #0f172a; }
+      .label { font: 700 18px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 14px Arial, sans-serif; fill: #334155; }
+      .mono { font: 13px "Courier New", monospace; fill: #475569; }
+      .flow { fill: none; stroke: #0f766e; stroke-width: 2.4; marker-end: url(#arrow); }
+      .muted { fill: none; stroke: #94a3b8; stroke-width: 2; marker-end: url(#arrow); stroke-dasharray: 7 6; }
+      .icon { fill: #0f766e; }
+    </style>
+  </defs>
+  <rect class="bg" width="1120" height="650"/>
+  <text x="48" y="52" class="title">Runtime architecture</text>
+  <text x="48" y="80" class="small">Single Vite app shell, route-level HTML fragments, lazy controllers, local assets, and a browser-side i18n pipeline.</text>
+
+  <rect x="48" y="118" width="250" height="136" rx="8" class="panel"/>
+  <rect x="66" y="138" width="28" height="28" class="icon"/>
+  <text x="106" y="160" class="label">Vite app shell</text>
+  <text x="66" y="190" class="mono">src/index.html</text>
+  <text x="66" y="212" class="small">CSP, CSS links, favicon manifest</text>
+  <text x="66" y="234" class="small">Mount target: #app</text>
+
+  <rect x="382" y="118" width="276" height="136" rx="8" class="accent"/>
+  <rect x="400" y="138" width="28" height="28" class="icon"/>
+  <text x="440" y="160" class="label">Bootstrap</text>
+  <text x="400" y="190" class="mono">src/js/main.js</text>
+  <text x="400" y="212" class="small">Registers route table</text>
+  <text x="400" y="234" class="small">Starts i18n and prefetch in parallel</text>
+
+  <rect x="742" y="118" width="300" height="136" rx="8" class="accent"/>
+  <rect x="760" y="138" width="28" height="28" class="icon"/>
+  <text x="800" y="160" class="label">SPARouter</text>
+  <text x="760" y="190" class="mono">src/js/router.js</text>
+  <text x="760" y="212" class="small">Promise cache, DOMParser, metadata</text>
+  <text x="760" y="234" class="small">Controller mount and unmount lifecycle</text>
+
+  <rect x="48" y="330" width="250" height="140" rx="8" class="store"/>
+  <rect x="66" y="350" width="28" height="28" class="icon"/>
+  <text x="106" y="372" class="label">Page fragments</text>
+  <text x="66" y="402" class="mono">public/pages/*.html</text>
+  <text x="66" y="424" class="small">Home and project report documents</text>
+  <text x="66" y="446" class="small">No html/head/body in fragments</text>
+
+  <rect x="382" y="330" width="276" height="140" rx="8" class="store"/>
+  <rect x="400" y="350" width="28" height="28" class="icon"/>
+  <text x="440" y="372" class="label">I18n dictionaries</text>
+  <text x="400" y="402" class="mono">public/locales/*.json</text>
+  <text x="400" y="424" class="small">data-i18n, attributes, lang markers</text>
+  <text x="400" y="446" class="small">Fallback locale: es</text>
+
+  <rect x="742" y="330" width="300" height="140" rx="8" class="panel"/>
+  <rect x="760" y="350" width="28" height="28" class="icon"/>
+  <text x="800" y="372" class="label">Delegated browser events</text>
+  <text x="760" y="402" class="mono">src/js/eventDispatcher.js</text>
+  <text x="760" y="424" class="small">data-router-link and data-action</text>
+  <text x="760" y="446" class="small">Hover and viewport prefetch cleanup</text>
+
+  <rect x="48" y="532" width="250" height="76" rx="8" class="edge"/>
+  <text x="66" y="562" class="label">Home controller</text>
+  <text x="66" y="588" class="small">Terminal, Formspree form, unmount cleanup</text>
+
+  <rect x="382" y="532" width="276" height="76" rx="8" class="edge"/>
+  <text x="400" y="562" class="label">Static assets</text>
+  <text x="400" y="588" class="small">Profile, project images, PDFs, favicons</text>
+
+  <rect x="742" y="532" width="300" height="76" rx="8" class="edge"/>
+  <text x="760" y="562" class="label">External boundaries</text>
+  <text x="760" y="588" class="small">GitHub Pages, Formspree, Google Fonts, cdnjs</text>
+
+  <path class="flow" d="M298 186H382"/>
+  <path class="flow" d="M658 186H742"/>
+  <path class="flow" d="M892 254V330"/>
+  <path class="flow" d="M742 400H658"/>
+  <path class="flow" d="M382 400H298"/>
+  <path class="flow" d="M520 254V330"/>
+  <path class="flow" d="M173 470V532"/>
+  <path class="muted" d="M520 470V532"/>
+  <path class="muted" d="M892 470V532"/>
+</svg>
