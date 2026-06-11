@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="docs/assets/alaska45l-pixel-wordmark.svg" alt="Alaska45l pixel art wordmark" width="760">
 
   <h1>Alaska Portfolio</h1>
 
