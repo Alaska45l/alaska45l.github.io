@@ -60,7 +60,7 @@
       "btn_minimize_label": "Minimize terminal",
       "btn_maximize_title": "Expand / collapse",
       "btn_maximize_label": "Expand terminal",
-      "terminal_title": "guest : bash — Konsole",
+      "terminal_title": "alaska@plasma: ~ — zsh — Konsole",
       "output_label": "Terminal output",
       "input_aria": "Interactive terminal. Type a command and press Enter. Tab to autocomplete, arrow keys to navigate history.",
       "input_placeholder": "type a command..."

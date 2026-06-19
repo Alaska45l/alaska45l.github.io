@@ -60,7 +60,7 @@
       "btn_minimize_label": "ターミナルを最小化",
       "btn_maximize_title": "展開 / 折りたたみ",
       "btn_maximize_label": "ターミナルを展開",
-      "terminal_title": "guest : bash — Konsole",
+      "terminal_title": "alaska@plasma: ~ — zsh — Konsole",
       "output_label": "ターミナル出力",
       "input_aria": "インタラクティブターミナル。コマンドを入力してEnterを押してください。Tabで自動補完、矢印キーで履歴を移動。",
       "input_placeholder": "コマンドを入力..."

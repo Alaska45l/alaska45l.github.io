@@ -1,8 +1,11 @@
 // @ts-check
 'use strict';
 
+import { i18n } from './i18n.js';
+
 /**
  * @typedef {{ text: string, cls?: string }} TermLine
+ * @typedef {{ name: string, type: 'file' | 'dir', size: number, mtime: string, hidden?: boolean, section?: string, binary?: boolean, lines?: string[], route?: string }} FsEntry
  *
  * @typedef {{
  *   cancelled:         boolean,
@@ -20,6 +23,7 @@ let _mountCtx = null;
  * @returns {void}
  */
 export function mountTerminal() {
+  if (_mountCtx && getWindow()?.dataset['windowInit']) return;
   _mountCtx = { cancelled: false, activeDragCleanup: null };
   tryMount();
 }
@@ -38,6 +42,7 @@ export function unmountTerminal() {
 
   pingTimers.forEach(id => clearTimeout(id));
   pingTimers = [];
+  hideTabMenu();
 
   state.animating = false;
   const inp = getInput();
@@ -56,6 +61,10 @@ export function unmountTerminal() {
   _termObserver?.disconnect();
   _termObserver = null;
 
+  document.getElementById('terminal-restore')?.remove();
+  delete document.body.dataset['terminalRestoreBound'];
+  delete document.body.dataset['terminalCtrlBound'];
+
   currentPromptLine = null;
 }
 
@@ -63,15 +72,6 @@ export function unmountTerminal() {
  * CONFIGURATION
  * ───────────────────────────────────────────────────────────── */
 const CONFIG = {
-  promptHtml:
-    '<span class="tp-user">alaska</span>'  +
-    '<span class="tp-at">@</span>'         +
-    '<span class="tp-host">plasma</span>'  +
-    '<span class="tp-space"> </span>'      +
-    '<span class="tp-path">~</span>'       +
-    '<span class="tp-space"> </span>'      +
-    '<span class="tp-prompt">❯</span>',
-
   cvUrl: 'assets/alaskaGonzalez_cv.pdf',
 
   files: {
@@ -185,6 +185,329 @@ const CONFIG = {
   },
 };
 
+const HOME_DIR = '/home/alaska';
+
+/** @type {Record<string, Record<string, TermLine[]>>} */
+const SECTION_TRANSLATIONS = {
+  es: CONFIG.sections,
+  en: {
+    about: [
+      { text: 'about.txt', cls: 'header' },
+      { text: '' },
+      { text: 'I am Alaska Elaina González, born in 2002 in Mar del Plata.', cls: 'output' },
+      { text: 'Agnostic leaning atheist, raised in a strict Jehovah’s Witness', cls: 'output' },
+      { text: 'family. Yes... exactly that.', cls: 'output' },
+      { text: '' },
+      { text: 'I am trans (not especially proud, just factual), naturally', cls: 'output' },
+      { text: 'curious, and fairly obsessed with understanding how the world', cls: 'output' },
+      { text: 'works.', cls: 'output' },
+      { text: '' },
+      { text: 'I currently study Physics at UNMDP.', cls: 'output' },
+      { text: 'I spent time in medicine, but got tired of the atmosphere:', cls: 'output' },
+      { text: 'ideology dressed as academia, uncritical worship of French', cls: 'output' },
+      { text: '“intellectuals”, and a strong allergy to real critical thinking', cls: 'output' },
+      { text: '(yes, Freud included).', cls: 'output' },
+      { text: '' },
+      { text: 'I have self-driven IT training, experience as a barista, and', cls: 'output' },
+      { text: 'administrative management experience.', cls: 'output' },
+      { text: '' },
+      { text: 'Ideologically, I sit close to minarchist libertarianism with a', cls: 'output' },
+      { text: 'technocratic bias: pro-science, pro-nuclear, anti-hippie.', cls: 'output' },
+      { text: '' },
+    ],
+    studies: [
+      { text: 'studies.txt', cls: 'header' },
+      { text: '' },
+      { text: '[2025 - present]  Physics degree — UNMDP', cls: 'success' },
+      { text: '  Rigor, precision, and a place where being wrong', cls: 'output' },
+      { text: '  exactly still counts as progress.', cls: 'output' },
+      { text: '  I am not a fan of mathematics, but I do like that it demands things.', cls: 'output' },
+      { text: '' },
+      { text: '[2024 - 2025]  Medicine — Basic cycle — UNMDP', cls: 'muted' },
+      { text: '  I started because of biology; I left because of the dogma.', cls: 'output' },
+      { text: '  A lot of narrative, little tolerance for questioning.', cls: 'output' },
+      { text: '  Still, I learned what was worth learning.', cls: 'output' },
+      { text: '' },
+      { text: '[2022 - 2024]  Software Development technician track — UNICEN', cls: 'muted' },
+      { text: '  JS · TS · PHP · Python · data structures.', cls: 'output' },
+      { text: '  Solid foundations in programming and systems,', cls: 'output' },
+      { text: '  even with pedagogy that could have been better.', cls: 'output' },
+      { text: '' },
+      { text: '[2015 - 2021]  Natural sciences high school — E.S. N°2', cls: 'muted' },
+      { text: '  Where everything started, even if the system did not always help.', cls: 'output' },
+      { text: '' },
+    ],
+    coffee: [
+      { text: 'coffee.txt', cls: 'header' },
+      { text: '' },
+      { text: 'I never quite knew why I like coffee so much, or where I learned', cls: 'output' },
+      { text: 'what I know, but for some reason it came naturally.', cls: 'output' },
+      { text: '' },
+      { text: 'Latte art does not count... That is still not my strong suit.', cls: 'muted' },
+      { text: '' },
+      { text: 'I do not have formal barista training (even if my CV says I do).', cls: 'output' },
+      { text: 'Sometimes bending the truth a little is part of surviving.', cls: 'output' },
+      { text: '' },
+    ],
+    public: [
+      { text: 'public.txt', cls: 'header' },
+      { text: '' },
+      { text: 'I work in customer-facing jobs because, realistically,', cls: 'output' },
+      { text: 'that is where 90% of non-technical jobs tend to land.', cls: 'output' },
+      { text: 'It is not something that comes naturally to me, or something I enjoy.', cls: 'output' },
+      { text: 'But I learned to do it well anyway.', cls: 'output' },
+      { text: '' },
+      { text: 'I started as commis, moved to waitress, then to barista.', cls: 'output' },
+      { text: 'I learned fast because there was not much room not to.', cls: 'output' },
+      { text: '' },
+      { text: 'Now I am trying to move toward administrative work.', cls: 'output' },
+      { text: 'Less wear, more free weekends.', cls: 'output' },
+      { text: '' },
+      { text: 'I still deal with people, even if I would rather not.', cls: 'success' },
+      { text: '' },
+    ],
+    life: [
+      { text: 'life.txt', cls: 'header' },
+      { text: '' },
+      { text: 'I like anime (my current top picks are Mushoku Tensei,', cls: 'output' },
+      { text: 'Made in Abyss, Frieren, Violet Evergarden, JoJo’s, and', cls: 'output' },
+      { text: 'probably something else I am forgetting).', cls: 'output' },
+      { text: '' },
+      { text: 'I am in a relationship with a guy named Lauti, whom for some', cls: 'output' },
+      { text: 'reason I keep loving more.', cls: 'success' },
+      { text: '' },
+      { text: 'As of this push, I am still not in contact with my parents.', cls: 'output' },
+      { text: 'My in-laws have effectively taken that place for now.', cls: 'output' },
+      { text: '' },
+      { text: 'I do not have many friends. Because of how I am, I tend to', cls: 'output' },
+      { text: 'disconnect and lose bonds fairly quickly.', cls: 'output' },
+      { text: 'Pretty solitary, though not necessarily by choice.', cls: 'output' },
+      { text: '' },
+      { text: 'I do not have ASD or ADHD, although free Ritalin would not hurt.', cls: 'muted' },
+      { text: 'Maybe some depression and dysphoria, which luckily keep getting smaller.', cls: 'muted' },
+      { text: '' },
+      { text: 'I do not use social media much, even if I have accounts.', cls: 'output' },
+      { text: 'Aside from Twitter, I do not spend time on them.', cls: 'output' },
+      { text: '' },
+    ],
+  },
+};
+
+/** @type {Record<string, { help: TermLine[], messages: Record<string, string> }>} */
+const TERMINAL_COPY = {
+  es: {
+    help: [
+      { text: 'Comandos disponibles:', cls: 'header' },
+      { text: '' },
+      { text: '  whoami                    —  Usuario actual', cls: 'output' },
+      { text: '  whoami --full             —  Nombre completo', cls: 'output' },
+      { text: '  id / hostname             —  Identidad de sesión', cls: 'output' },
+      { text: '  pwd                       —  Directorio actual', cls: 'output' },
+      { text: '  cd <dir>                  —  Cambia de directorio', cls: 'output' },
+      { text: '  ls [-laAh] [ruta]         —  Lista archivos', cls: 'output' },
+      { text: '  cat <archivo>             —  Muestra contenido de un archivo', cls: 'output' },
+      { text: '  grep <término> <archivo>  —  Busca texto en un archivo', cls: 'output' },
+      { text: '  head/tail <archivo>       —  Primeras/últimas 5 líneas', cls: 'output' },
+      { text: '  date / uname -a           —  Fecha e info del sistema', cls: 'output' },
+      { text: '  echo <texto|$VAR>         —  Imprime texto o variables de entorno', cls: 'output' },
+      { text: '  env                       —  Variables de entorno simuladas', cls: 'output' },
+      { text: '  neofetch                  —  Info del sistema al estilo neofetch', cls: 'output' },
+      { text: '  ping <host>               —  Simula ICMP hacia un host', cls: 'output' },
+      { text: '  top / htop                —  Procesos en ejecución (estático)', cls: 'output' },
+      { text: '  history                   —  Historial de comandos', cls: 'output' },
+      { text: '  man <comando>             —  Ayuda breve del comando', cls: 'output' },
+      { text: '  sudo <cmd>                —  Intentá ser root', cls: 'output' },
+      { text: '  xdg-open cv.pdf           —  Abre el CV en nueva pestaña', cls: 'output' },
+      { text: '  clear                     —  Limpia el terminal  (o Ctrl+L)', cls: 'output' },
+      { text: '' },
+      { text: 'Navegación del sitio:', cls: 'header' },
+      { text: '' },
+      { text: '  go <ruta>                 —  Navega a una ruta del portfolio', cls: 'output' },
+      { text: '  open <ruta|cv.pdf>        —  Navega o abre el CV', cls: 'output' },
+      { text: '  home / back               —  Inicio o página anterior', cls: 'output' },
+      { text: '' },
+      { text: 'Atajos de teclado:', cls: 'header' },
+      { text: '' },
+      { text: '  Ctrl+L              —  Limpia la pantalla y conserva la línea actual', cls: 'output' },
+      { text: '  Ctrl+C              —  Cancela el comando / línea actual', cls: 'output' },
+      { text: '  Ctrl+U              —  Borra la línea actual', cls: 'output' },
+      { text: '  Tab                 —  Autocompleta comandos, rutas y archivos', cls: 'output' },
+      { text: '  →                  —  Acepta la autosugerencia', cls: 'output' },
+      { text: '  ↑ / ↓              —  Navega el historial', cls: 'output' },
+      { text: '' },
+      { text: 'Tip: probá `ls projects`, `cd projects`, `cat about.txt` o `go /proyectos/jobbot`.', cls: 'muted' },
+      { text: '' },
+    ],
+    messages: {
+      catMissing: 'cat: falta un nombre de archivo',
+      catUsage: 'Uso: cat <archivo>    (ej: cat about.txt)',
+      commandNotFoundHelp: "Escribí 'help' para ver los comandos disponibles.",
+      cvHint: 'Sugerencia: usá xdg-open cv.pdf',
+      grepExample: 'Ejemplo: grep física about.txt',
+      grepUsage: 'grep: uso: grep <término> <archivo>',
+      historyEmpty: '(no hay historial)',
+      invalidFlag: '{{cmd}}: opción inválida -- {{flag}}',
+      manMissing: 'Qué página de manual querés?',
+      manMissingEntry: 'No hay entrada de manual para {{cmd}}',
+      noSuchFile: '{{cmd}}: {{path}}: No such file or directory',
+      noSuchDir: 'cd: {{path}}: No such file or directory',
+      notDir: 'cd: {{path}}: Not a directory',
+      openCv: 'Abriendo cv.pdf...',
+      openMissing: 'open: falta una ruta o archivo',
+      pingUsage: 'ping: uso: ping <host>',
+      readOnly: '{{cmd}}: Permission denied. Read-only file system.',
+      routerMissing: 'router: no disponible',
+      routesAvailable: 'Rutas disponibles: {{routes}}',
+      routeMissing: '{{cmd}}: falta una ruta',
+      routeNoSuch: '{{cmd}}: no existe la ruta {{route}}',
+      routeUsage: 'Uso: {{cmd}} <ruta>    (ej: {{cmd}} /proyectos/jobbot)',
+      sudoUsage: 'uso: sudo <comando>',
+      tailHeadUsage: '{{cmd}}: uso: {{cmd}} <archivo>',
+      tryLs: "Escribí 'ls' para ver los archivos disponibles.",
+      tryXdg: 'Probá con: xdg-open cv.pdf',
+      xdgNotFound: 'xdg-open: archivo no encontrado',
+      xdgUsage: 'Uso: xdg-open cv.pdf',
+    },
+  },
+  en: {
+    help: [
+      { text: 'Available commands:', cls: 'header' },
+      { text: '' },
+      { text: '  whoami                    —  Current user', cls: 'output' },
+      { text: '  whoami --full             —  Full name', cls: 'output' },
+      { text: '  id / hostname             —  Session identity', cls: 'output' },
+      { text: '  pwd                       —  Current directory', cls: 'output' },
+      { text: '  cd <dir>                  —  Change directory', cls: 'output' },
+      { text: '  ls [-laAh] [path]         —  List files', cls: 'output' },
+      { text: '  cat <file>                —  Print a file', cls: 'output' },
+      { text: '  grep <term> <file>        —  Search inside a file', cls: 'output' },
+      { text: '  head/tail <file>          —  First/last 5 lines', cls: 'output' },
+      { text: '  date / uname -a           —  Date and system info', cls: 'output' },
+      { text: '  echo <text|$VAR>          —  Print text or environment variables', cls: 'output' },
+      { text: '  env                       —  Simulated environment', cls: 'output' },
+      { text: '  neofetch                  —  Neofetch-style system info', cls: 'output' },
+      { text: '  ping <host>               —  Simulated ICMP packets', cls: 'output' },
+      { text: '  top / htop                —  Running processes (static)', cls: 'output' },
+      { text: '  history                   —  Command history', cls: 'output' },
+      { text: '  man <command>             —  Short command help', cls: 'output' },
+      { text: '  sudo <cmd>                —  Try to become root', cls: 'output' },
+      { text: '  xdg-open cv.pdf           —  Open the CV in a new tab', cls: 'output' },
+      { text: '  clear                     —  Clear the terminal  (or Ctrl+L)', cls: 'output' },
+      { text: '' },
+      { text: 'Site navigation:', cls: 'header' },
+      { text: '' },
+      { text: '  go <route>                —  Navigate to a portfolio route', cls: 'output' },
+      { text: '  open <route|cv.pdf>       —  Navigate or open the CV', cls: 'output' },
+      { text: '  home / back               —  Home or previous page', cls: 'output' },
+      { text: '' },
+      { text: 'Keyboard shortcuts:', cls: 'header' },
+      { text: '' },
+      { text: '  Ctrl+L              —  Clear the screen and keep the current line', cls: 'output' },
+      { text: '  Ctrl+C              —  Cancel the command / current line', cls: 'output' },
+      { text: '  Ctrl+U              —  Clear the current line', cls: 'output' },
+      { text: '  Tab                 —  Complete commands, routes, and files', cls: 'output' },
+      { text: '  →                  —  Accept the autosuggestion', cls: 'output' },
+      { text: '  ↑ / ↓              —  Navigate history', cls: 'output' },
+      { text: '' },
+      { text: 'Tip: try `ls projects`, `cd projects`, `cat about.txt`, or `go /proyectos/jobbot`.', cls: 'muted' },
+      { text: '' },
+    ],
+    messages: {
+      catMissing: 'cat: missing file operand',
+      catUsage: 'Usage: cat <file>    (example: cat about.txt)',
+      commandNotFoundHelp: "Type 'help' to see the available commands.",
+      cvHint: 'Hint: use xdg-open cv.pdf',
+      grepExample: 'Example: grep physics about.txt',
+      grepUsage: 'grep: usage: grep <term> <file>',
+      historyEmpty: '(no history)',
+      invalidFlag: '{{cmd}}: invalid option -- {{flag}}',
+      manMissing: 'What manual page do you want?',
+      manMissingEntry: 'No manual entry for {{cmd}}',
+      noSuchFile: '{{cmd}}: {{path}}: No such file or directory',
+      noSuchDir: 'cd: {{path}}: No such file or directory',
+      notDir: 'cd: {{path}}: Not a directory',
+      openCv: 'Opening cv.pdf...',
+      openMissing: 'open: missing route or file operand',
+      pingUsage: 'ping: usage: ping <host>',
+      readOnly: '{{cmd}}: Permission denied. Read-only file system.',
+      routerMissing: 'router: not available',
+      routesAvailable: 'Available routes: {{routes}}',
+      routeMissing: '{{cmd}}: missing route argument',
+      routeNoSuch: '{{cmd}}: no such route: {{route}}',
+      routeUsage: 'Usage: {{cmd}} <route>    (example: {{cmd}} /proyectos/jobbot)',
+      sudoUsage: 'usage: sudo <command>',
+      tailHeadUsage: '{{cmd}}: usage: {{cmd}} <file>',
+      tryLs: "Type 'ls' to see available files.",
+      tryXdg: 'Try: xdg-open cv.pdf',
+      xdgNotFound: 'xdg-open: file not found',
+      xdgUsage: 'Usage: xdg-open cv.pdf',
+    },
+  },
+};
+
+/** @type {Record<string, FsEntry[]>} */
+const VFS = {
+  [HOME_DIR]: [
+    { name: '.zshrc', type: 'file', size: 312, mtime: 'Jun 18 18:42', hidden: true, lines: [
+      '# ~/.zshrc',
+      'export EDITOR=nvim',
+      'export PAGER=less',
+      'alias ll="ls -lah"',
+      'PROMPT="%F{208}%n%f@%F{108}%m%f %F{139}%~%f ❯ "',
+    ] },
+    { name: '.profile', type: 'file', size: 126, mtime: 'Jun 18 18:42', hidden: true, lines: [
+      '# ~/.profile',
+      'export LANG=' + getLangEnv(),
+      'export PATH="$HOME/.local/bin:$PATH"',
+    ] },
+    { name: 'about.txt', type: 'file', size: 512, mtime: 'Mar 19 2025', section: 'about' },
+    { name: 'coffee.txt', type: 'file', size: 843, mtime: 'Jan 12 2025', section: 'coffee' },
+    { name: 'life.txt', type: 'file', size: 621, mtime: 'Nov  3 2024', section: 'life' },
+    { name: 'public.txt', type: 'file', size: 730, mtime: 'Oct 15 2024', section: 'public' },
+    { name: 'studies.txt', type: 'file', size: 1024, mtime: 'Mar 19 2025', section: 'studies' },
+    { name: 'cv.pdf', type: 'file', size: 98304, mtime: 'Jan 26 2026', binary: true },
+    { name: 'projects', type: 'dir', size: 4096, mtime: 'Jun 18 2026' },
+  ],
+  [HOME_DIR + '/projects']: [
+    { name: 'auditoria-contratacion', type: 'dir', size: 4096, mtime: 'Jun 15 2026', route: '/proyectos/auditoria-contratacion' },
+    { name: 'invariant', type: 'dir', size: 4096, mtime: 'Jun 14 2026', route: '/proyectos/invariant' },
+    { name: 'jobbot', type: 'dir', size: 4096, mtime: 'Jun 10 2026', route: '/proyectos/jobbot' },
+    { name: 'README.md', type: 'file', size: 284, mtime: 'Jun 18 2026', lines: [
+      '# projects',
+      '',
+      'jobbot/                  -> /proyectos/jobbot',
+      'invariant/               -> /proyectos/invariant',
+      'auditoria-contratacion/  -> /proyectos/auditoria-contratacion',
+      '',
+      'Use: go /proyectos/jobbot',
+    ] },
+  ],
+  [HOME_DIR + '/projects/jobbot']: [
+    { name: 'README.md', type: 'file', size: 214, mtime: 'Jun 10 2026', route: '/proyectos/jobbot', lines: [
+      '# jobbot',
+      '',
+      'Terminal-oriented job automation project.',
+      'Portfolio route: /proyectos/jobbot',
+    ] },
+  ],
+  [HOME_DIR + '/projects/invariant']: [
+    { name: 'README.md', type: 'file', size: 208, mtime: 'Jun 14 2026', route: '/proyectos/invariant', lines: [
+      '# invariant',
+      '',
+      'Project page for formal reasoning / invariant work.',
+      'Portfolio route: /proyectos/invariant',
+    ] },
+  ],
+  [HOME_DIR + '/projects/auditoria-contratacion']: [
+    { name: 'README.md', type: 'file', size: 244, mtime: 'Jun 15 2026', route: '/proyectos/auditoria-contratacion', lines: [
+      '# auditoria-contratacion',
+      '',
+      'Security audit write-up for a hiring flow.',
+      'Portfolio route: /proyectos/auditoria-contratacion',
+    ] },
+  ],
+};
+
 /* ─────────────────────────────────────────────────────────────
  * MODULE-LEVEL STATE
  * ───────────────────────────────────────────────────────────── */
@@ -198,6 +521,8 @@ const state = {
   historyIdx: -1,
   draft:      '',
   animating:  false,
+  cwd:        HOME_DIR,
+  previousCwd: HOME_DIR,
 };
 
 /** @type {number[]} */
@@ -221,6 +546,184 @@ let _boundListeners = [];
 function trackListener(el, event, fn, opts) {
   _boundListeners.push({ el, event, fn });
   el.addEventListener(event, /** @type {EventListenerOrEventListenerObject} */ (fn), opts);
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * TERMINAL SESSION HELPERS
+ * ───────────────────────────────────────────────────────────── */
+
+/** @returns {'es' | 'en'} */
+function terminalLocale() {
+  return i18n.getLocale() === 'en' ? 'en' : 'es';
+}
+
+/**
+ * @param {string} key
+ * @param {Record<string, string|number>=} params
+ * @returns {string}
+ */
+function msg(key, params) {
+  const copy = TERMINAL_COPY[terminalLocale()] ?? TERMINAL_COPY.es;
+  const fallback = TERMINAL_COPY.es.messages[key] ?? key;
+  let text = copy.messages[key] ?? fallback;
+  if (!params) return text;
+  Object.entries(params).forEach(([k, v]) => {
+    text = text.replace(new RegExp('\\{\\{' + k + '\\}\\}', 'g'), String(v));
+  });
+  return text;
+}
+
+/** @returns {string} */
+function getLangEnv() {
+  return terminalLocale() === 'en' ? 'en_US.UTF-8' : 'es_AR.UTF-8';
+}
+
+/** @returns {Record<string, string>} */
+function getEnv() {
+  return {
+    USER:            'alaska',
+    LOGNAME:         'alaska',
+    HOME:            HOME_DIR,
+    SHELL:           '/usr/bin/zsh',
+    LANG:            getLangEnv(),
+    TERM:            'xterm-256color',
+    COLORTERM:       'truecolor',
+    EDITOR:          'nvim',
+    PAGER:           'less',
+    PATH:            HOME_DIR + '/.local/bin:/usr/local/bin:/usr/bin:/bin',
+    PWD:             state.cwd,
+    OLDPWD:          state.previousCwd,
+    KONSOLE_VERSION: '240502',
+  };
+}
+
+/** @param {string} value @returns {string} */
+function formatCwd(value) {
+  if (value === HOME_DIR) return '~';
+  if (value.startsWith(HOME_DIR + '/')) return '~' + value.slice(HOME_DIR.length);
+  return value;
+}
+
+/** @returns {string} */
+function getPromptHtml() {
+  return '<span class="tp-user">alaska</span>'  +
+    '<span class="tp-at">@</span>'              +
+    '<span class="tp-host">plasma</span>'       +
+    '<span class="tp-space"> </span>'           +
+    '<span class="tp-path">' + escapeHtml(formatCwd(state.cwd)) + '</span>' +
+    '<span class="tp-space"> </span>'           +
+    '<span class="tp-prompt">❯</span>';
+}
+
+function syncTerminalTitle() {
+  const title = document.querySelector('.konsole-title');
+  if (title) title.textContent = 'alaska@plasma: ' + formatCwd(state.cwd) + ' — zsh — Konsole';
+}
+
+/** @param {string} path @returns {string} */
+function cleanPath(path) {
+  if (!path) return '/';
+  const parts = path.split('/');
+  /** @type {string[]} */
+  const out = [];
+  for (const rawPart of parts) {
+    const part = rawPart.trim();
+    if (!part || part === '.') continue;
+    if (part === '..') out.pop();
+    else out.push(part);
+  }
+  return '/' + out.join('/');
+}
+
+/**
+ * @param {string=} input
+ * @param {string=} base
+ * @returns {string}
+ */
+function resolvePath(input = '.', base = state.cwd) {
+  const raw = input.trim();
+  if (!raw || raw === '~') return HOME_DIR;
+  const expanded = raw.startsWith('~/') ? HOME_DIR + raw.slice(1) : raw;
+  if (expanded.startsWith('/')) return cleanPath(expanded);
+  return cleanPath(base + '/' + expanded);
+}
+
+/** @param {string} path @returns {FsEntry[]|null} */
+function getDirEntries(path) {
+  return VFS[cleanPath(path)] ?? null;
+}
+
+/**
+ * @param {string} path
+ * @returns {{ parent: string, entry: FsEntry } | null}
+ */
+function getEntry(path) {
+  const normalized = cleanPath(path);
+  if (normalized === HOME_DIR) {
+    return { parent: cleanPath(HOME_DIR + '/..'), entry: { name: 'alaska', type: 'dir', size: 4096, mtime: 'Jun 18 2026' } };
+  }
+  const idx = normalized.lastIndexOf('/');
+  const parent = idx <= 0 ? '/' : normalized.slice(0, idx);
+  const name = normalized.slice(idx + 1);
+  const entries = getDirEntries(parent);
+  const entry = entries?.find(e => e.name === name) ?? null;
+  return entry ? { parent, entry } : null;
+}
+
+/** @param {string} path @returns {boolean} */
+function isDirectory(path) {
+  return Boolean(getDirEntries(path));
+}
+
+/** @param {FsEntry} entry @returns {string} */
+function entryMode(entry) {
+  return entry.type === 'dir' ? 'drwxr-xr-x' : '-rw-r--r--';
+}
+
+/** @param {number} bytes @returns {string} */
+function humanSize(bytes) {
+  if (bytes < 1024) return String(bytes);
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(bytes % 1024 === 0 ? 0 : 1) + 'K';
+  return (bytes / 1024 / 1024).toFixed(1) + 'M';
+}
+
+/**
+ * @param {FsEntry} entry
+ * @param {{ human: boolean }} opts
+ * @returns {string}
+ */
+function formatLongEntry(entry, opts) {
+  const size = opts.human ? humanSize(entry.size).padStart(5, ' ') : String(entry.size).padStart(6, ' ');
+  return entryMode(entry) + ' 1 alaska alaska ' + size + ' ' + entry.mtime + ' ' + entry.name + (entry.type === 'dir' ? '/' : '');
+}
+
+/** @param {string} key @returns {TermLine[]} */
+function getSectionLines(key) {
+  const sections = SECTION_TRANSLATIONS[terminalLocale()] ?? CONFIG.sections;
+  const fallbackSections = /** @type {Record<string, TermLine[]>} */ (CONFIG.sections);
+  return (sections[key] ?? fallbackSections[key] ?? []).map(line => ({ ...line }));
+}
+
+/**
+ * @param {FsEntry} entry
+ * @returns {TermLine[]}
+ */
+function getFileLines(entry) {
+  if (entry.section) return getSectionLines(entry.section);
+  if (entry.name === '.profile') {
+    return [
+      { text: '# ~/.profile', cls: 'output' },
+      { text: 'export LANG=' + getLangEnv(), cls: 'output' },
+      { text: 'export PATH="$HOME/.local/bin:$PATH"', cls: 'output' },
+      { text: '' },
+    ];
+  }
+  return [...(entry.lines ?? []).map(text => ({ text, cls: /** @type {string} */ ('output') })), { text: '' }];
+}
+
+/** @returns {string[]} */
+function getRouteList() {
+  return window.router ? Object.keys(window.router.routes) : ['/', '/proyectos/jobbot', '/proyectos/invariant', '/proyectos/auditoria-contratacion'];
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -286,21 +789,38 @@ function scrollBottom() {
 /** @param {string} input @returns {string[]} */
 function parseCommandArgs(input) {
   /** @type {string[]} */
-  const args   = [];
-  let current  = '';
-  let inSingle = false;
-  let inDouble = false;
+  const args = [];
+  let current = '';
+  /** @type {"'" | '"' | null} */
+  let quote = null;
+  let escaped = false;
 
   for (let i = 0; i < input.length; i++) {
     const c = input[i];
-    if (c === '"' && !inSingle) { inDouble = !inDouble; continue; }
-    if (c === "'" && !inDouble) { inSingle = !inSingle; continue; }
-    if (c === ' ' && !inSingle && !inDouble) {
+
+    if (escaped) {
+      current += c;
+      escaped = false;
+      continue;
+    }
+
+    if (c === '\\' && quote !== "'") {
+      escaped = true;
+      continue;
+    }
+
+    if ((c === '"' || c === "'") && (!quote || quote === c)) {
+      quote = quote ? null : /** @type {"'" | '"'} */ (c);
+      continue;
+    }
+
+    if (/\s/.test(c) && !quote) {
       if (current.length) { args.push(current); current = ''; }
       continue;
     }
     current += c;
   }
+  if (escaped) current += '\\';
   if (current.length) args.push(current);
   return args.length ? args : [input];
 }
@@ -348,22 +868,67 @@ function lexInput(input) {
   return tokens;
 }
 
-/** @param {Array<{type:string,text:string}>} tokens @returns {string} */
-function renderTokens(tokens) {
-  let isFirstWord = true;
-  return tokens.map(tok => {
-    if (tok.type === 'space') return '<span class="tok-spc"> </span>';
-    const safe = escapeHtml(tok.text);
-    if (tok.type === 'string') return '<span class="tok-str">' + safe + '</span>';
-    if (isFirstWord) {
-      isFirstWord = false;
-      const cmd = tok.text.toLowerCase();
-      const isValid = ALL_CMDS.includes(cmd);
-      return '<span class="' + (isValid ? 'tok-cmd' : 'tok-unk') + '">' + safe + '</span>';
+/**
+ * @param {{type:string,text:string}} tok
+ * @param {boolean} isCommandPosition
+ * @returns {string}
+ */
+function tokenClass(tok, isCommandPosition) {
+  if (tok.type === 'space') return 'tok-spc';
+  if (tok.type === 'string') return 'tok-str';
+  if (isCommandPosition) return ALL_CMDS.includes(tok.text.toLowerCase()) ? 'tok-cmd' : 'tok-unk';
+  if (tok.text.startsWith('-')) return 'tok-flag';
+  return 'tok-arg';
+}
+
+/**
+ * @param {string} cls
+ * @param {string} text
+ * @returns {string}
+ */
+function renderTokenSpan(cls, text) {
+  return '<span class="' + cls + '">' + escapeHtml(text) + '</span>';
+}
+
+/**
+ * @param {Array<{type:string,text:string}>} tokens
+ * @param {number} caret
+ * @returns {string}
+ */
+function renderTokens(tokens, caret) {
+  let isCommandPosition = true;
+  let cursorInserted = false;
+  let offset = 0;
+  let html = '';
+
+  const cursor = '<span class="terminal-cursor" aria-hidden="true"></span>';
+
+  for (const tok of tokens) {
+    const cls = tokenClass(tok, isCommandPosition);
+    const start = offset;
+    const end = offset + tok.text.length;
+
+    if (tok.type !== 'space') isCommandPosition = false;
+
+    if (!cursorInserted && caret <= start) {
+      html += cursor;
+      cursorInserted = true;
     }
-    if (tok.text.startsWith('-')) return '<span class="tok-flag">' + safe + '</span>';
-    return '<span class="tok-arg">' + safe + '</span>';
-  }).join('');
+
+    if (!cursorInserted && caret > start && caret < end) {
+      html += renderTokenSpan(cls, tok.text.slice(0, caret - start));
+      html += cursor;
+      html += renderTokenSpan(cls, tok.text.slice(caret - start));
+      cursorInserted = true;
+    } else {
+      html += renderTokenSpan(cls, tok.text);
+    }
+
+    offset = end;
+  }
+
+  if (!cursorInserted) html += cursor;
+  return html;
 }
 
 /** @param {string} input @returns {string|null} */
@@ -385,12 +950,16 @@ function getSuggestion(input) {
   return null;
 }
 
-/** @param {string} val @returns {string} */
-function renderInputDisplay(val) {
+/**
+ * @param {string} val
+ * @param {number=} caret
+ * @returns {string}
+ */
+function renderInputDisplay(val, caret = val.length) {
   const tokens = lexInput(val);
-  let html = renderTokens(tokens);
+  let html = renderTokens(tokens, caret);
   const suggestion = getSuggestion(val);
-  if (suggestion && suggestion.length > val.length) {
+  if (caret === val.length && suggestion && suggestion.length > val.length) {
     html += '<span class="tok-ghost">' + escapeHtml(suggestion.slice(val.length)) + '</span>';
   }
   return html;
@@ -438,6 +1007,8 @@ function commitTabMenu(completion) {
   if (inp) {
     inp.value = completion;
     updatePromptLine(completion);
+    inp.focus({ preventScroll: true });
+    inp.setSelectionRange(completion.length, completion.length);
   }
   hideTabMenu();
 }
@@ -487,6 +1058,7 @@ function createPromptLine() {
   const out = getOutput();
   const inp = getInput();
   if (!out) return;
+  syncTerminalTitle();
 
   const el = document.createElement('div');
   el.className = 'tl tl--cmd active-prompt';
@@ -495,7 +1067,7 @@ function createPromptLine() {
   const echo = document.createElement('span');
   echo.className = 't-prompt-echo';
   const parser = new DOMParser();
-  const parsed = parser.parseFromString(CONFIG.promptHtml, 'text/html');
+  const parsed = parser.parseFromString(getPromptHtml(), 'text/html');
   echo.append(...Array.from(parsed.body.childNodes));
 
   const wrapper = document.createElement('div');
@@ -508,10 +1080,6 @@ function createPromptLine() {
   display.id = 'terminal-input-display';
   wrapper.appendChild(display);
 
-  const cursor = document.createElement('span');
-  cursor.className = 'terminal-cursor';
-  cursor.setAttribute('aria-hidden', 'true');
-
   const rprompt = document.createElement('span');
   rprompt.className = 'terminal-rprompt';
   const trpIcon = document.createElement('span');
@@ -522,10 +1090,11 @@ function createPromptLine() {
   trpText.textContent = getRpromptText();
   rprompt.append(trpIcon, ' ', trpText);
 
-  el.append(echo, wrapper, cursor, rprompt);
+  el.append(echo, wrapper, rprompt);
 
   out.appendChild(el);
   currentPromptLine = el;
+  updatePromptLine(inp?.value ?? '');
   scrollBottom();
 
   if (inp && !inp.disabled) inp.focus({ preventScroll: true });
@@ -559,7 +1128,7 @@ function updateRpromptVisibility() {
   const available = lineRect.width - echoWidth - rpromptWidth - 12; // 12px safety gap
 
   const font = getComputedStyle(display).font;
-  const val = display.textContent || '';
+  const val = getInput()?.value ?? '';
   const textWidth = measureTextWidth(val, font);
 
   (/** @type {HTMLElement} */ (rprompt)).style.visibility = (textWidth > available && available > 0) ? 'hidden' : 'visible';
@@ -570,9 +1139,11 @@ function updatePromptLine(val) {
   hideTabMenu();
   if (!currentPromptLine) return;
   const display = currentPromptLine.querySelector('#terminal-input-display');
+  const input = getInput();
+  const caret = input && document.activeElement === input ? (input.selectionStart ?? val.length) : val.length;
   if (display) {
     const _p = new DOMParser();
-    const _doc = _p.parseFromString(renderInputDisplay(val), 'text/html');
+    const _doc = _p.parseFromString(renderInputDisplay(val, caret), 'text/html');
     display.replaceChildren(...Array.from(_doc.body.childNodes));
   }
   updateRpromptVisibility();
@@ -638,55 +1209,13 @@ function printLines(lines, onDone) {
 }
 
 /* ─────────────────────────────────────────────────────────────
- * COMMAND HANDLERS (sin cambios funcionales)
+ * COMMAND HANDLERS
  * ───────────────────────────────────────────────────────────── */
 
 /** @returns {TermLine[]} */
 function cmdHelp() {
-  return [
-    { text: 'Comandos disponibles:', cls: 'header' },
-    { text: '' },
-    { text: '  whoami                    \u2014  Usuario actual',                         cls: 'output' },
-    { text: '  whoami --full             \u2014  Nombre completo',                        cls: 'output' },
-    { text: '  ls                        \u2014  Lista archivos',                         cls: 'output' },
-    { text: '  ls -l                     \u2014  Listado detallado',                      cls: 'output' },
-    { text: '  ls -la                    \u2014  Incluye archivos ocultos',               cls: 'output' },
-    { text: '  cat <archivo>             \u2014  Muestra contenido de un archivo',        cls: 'output' },
-    { text: '  grep <t\u00e9rmino> <archivo>  \u2014  Busca texto en un archivo',         cls: 'output' },
-    { text: '  head <archivo>            \u2014  Primeras 5 l\u00edneas',                 cls: 'output' },
-    { text: '  tail <archivo>            \u2014  \u00DAltimas 5 l\u00edneas',             cls: 'output' },
-    { text: '  uname -a                  \u2014  Info del sistema',                       cls: 'output' },
-    { text: '  pwd                       \u2014  Directorio actual',                      cls: 'output' },
-    { text: '  date                      \u2014  Fecha y hora',                           cls: 'output' },
-    { text: '  echo <texto|$VAR>         \u2014  Imprime texto o variables de entorno',   cls: 'output' },
-    { text: '  neofetch                  \u2014  Info del sistema al estilo neofetch',    cls: 'output' },
-    { text: '  ping <host>               \u2014  Simula ICMP hacia un host',              cls: 'output' },
-    { text: '  top / htop                \u2014  Procesos en ejecuci\u00f3n (est\u00e1tico)',  cls: 'output' },
-    { text: '  history                   \u2014  Historial de comandos',                  cls: 'output' },
-    { text: '  sudo <cmd>                \u2014  Intent\u00e1 ser root',                  cls: 'output' },
-    { text: '  xdg-open cv.pdf           \u2014  Abre el CV en nueva pesta\u00f1a',       cls: 'output' },
-    { text: '  clear                     \u2014  Limpia el terminal  (o Ctrl+L)',          cls: 'output' },
-    { text: '  help                      \u2014  Muestra este mensaje',                   cls: 'output' },
-    { text: '' },
-    { text: 'Navegaci\u00f3n:', cls: 'header' },
-    { text: '' },
-    { text: '  cd <ruta>           \u2014  Navega a una ruta  (ej: cd experience)', cls: 'output' },
-    { text: '  go <ruta>           \u2014  Alias de cd',                            cls: 'output' },
-    { text: '  open <ruta>         \u2014  Alias de cd',                            cls: 'output' },
-    { text: '  home                \u2014  Navega al inicio  (/)',                  cls: 'output' },
-    { text: '  back                \u2014  Vuelve a la p\u00e1gina anterior',        cls: 'output' },
-    { text: '' },
-    { text: 'Atajos de teclado:', cls: 'header' },
-    { text: '' },
-    { text: '  Ctrl+L              \u2014  Limpia la pantalla',                     cls: 'output' },
-    { text: '  Ctrl+C              \u2014  Cancela el comando / l\u00ednea actual',  cls: 'output' },
-    { text: '  Ctrl+U              \u2014  Borra la l\u00ednea actual',              cls: 'output' },
-    { text: '  Tab                 \u2014  Autocompletar  (rutas con cd/go/open)',   cls: 'output' },
-    { text: '  \u2191 / \u2193            \u2014  Navegar historial',                cls: 'output' },
-    { text: '' },
-    { text: 'Tip: los archivos visibles con ls son legibles con cat, grep, head y tail.', cls: 'muted' },
-    { text: '' },
-  ];
+  const copy = TERMINAL_COPY[terminalLocale()] ?? TERMINAL_COPY.es;
+  return copy.help.map(line => ({ ...line }));
 }
 
 /** @param {string[]} args @returns {TermLine[]} */
@@ -694,73 +1223,142 @@ function cmdWhoami(args) {
   if (args.indexOf('--full') !== -1 || args.indexOf('-f') !== -1) {
     return [
       { text: 'Alaska Elaina Gonz\u00e1lez', cls: 'success' },
-      { text: '23 a\u00f1os \u00b7 Mar del Plata, Argentina', cls: 'output' },
+      { text: getBirthUptime().years + (terminalLocale() === 'en' ? ' years old · Mar del Plata, Argentina' : ' años · Mar del Plata, Argentina'), cls: 'output' },
       { text: '' },
     ];
   }
   return [{ text: 'alaska', cls: 'success' }, { text: '' }];
 }
 
-/** @param {string[]} args @returns {TermLine[]} */
-function cmdLs(args) {
-  const hasL = args.some(a => /^-[la]{1,2}$/.test(a));
-  const hasA = args.some(a => /^-[la]*a[la]*$/.test(a) || a === '-A' || a === '-lA');
+/**
+ * @param {string[]} args
+ * @returns {{ opts: { long: boolean, all: boolean, almostAll: boolean, human: boolean }, paths: string[], error?: string }}
+ */
+function parseLsArgs(args) {
+  const opts = { long: false, all: false, almostAll: false, human: false };
+  /** @type {string[]} */
+  const paths = [];
+  let endOfFlags = false;
 
-  if (hasL) {
-    /** @type {TermLine[]} */
-    let lines = [{ text: 'total 48', cls: 'muted' }];
-    if (hasA) {
-      lines.push({ text: 'drwxr-x--- 2 alaska alaska 4096 Jan 26 2026 ./',       cls: 'muted' });
-      lines.push({ text: 'drwxr-xr-x 4 root   root   4096 Jan 26 2026 ../',      cls: 'muted' });
-      lines.push({ text: '-rw-r--r-- 1 alaska alaska   42 Jan 26 2026 .bashrc',  cls: 'muted' });
-      lines.push({ text: '-rw-r--r-- 1 alaska alaska   24 Jan 26 2026 .profile', cls: 'muted' });
+  for (const arg of args) {
+    if (!endOfFlags && arg === '--') { endOfFlags = true; continue; }
+
+    if (!endOfFlags && arg.startsWith('--')) {
+      if (arg === '--all') opts.all = true;
+      else if (arg === '--almost-all') opts.almostAll = true;
+      else if (arg === '--human-readable') opts.human = true;
+      else if (arg === '--long') opts.long = true;
+      else return { opts, paths, error: arg };
+      continue;
     }
-    lines = lines.concat([
-      { text: '-rw-r--r-- 1 alaska alaska   512 Mar 19 2025 about.txt',   cls: 'output' },
-      { text: '-rw-r--r-- 1 alaska alaska   843 Jan 12 2025 coffee.txt',  cls: 'output' },
-      { text: '-rw-r--r-- 1 alaska alaska   621 Nov  3 2024 life.txt',    cls: 'output' },
-      { text: '-rw-r--r-- 1 alaska alaska   730 Oct 15 2024 public.txt',  cls: 'output' },
-      { text: '-rw-r--r-- 1 alaska alaska  1024 Mar 19 2025 studies.txt', cls: 'output' },
-      { text: '-rw-r--r-- 1 alaska alaska 98304 Jan 26 2026 cv.pdf',      cls: 'success' },
-    ]);
-    lines.push({ text: '' });
-    return lines;
+
+    if (!endOfFlags && /^-[A-Za-z]+$/.test(arg)) {
+      for (const flag of arg.slice(1)) {
+        if (flag === 'l') opts.long = true;
+        else if (flag === 'a') opts.all = true;
+        else if (flag === 'A') opts.almostAll = true;
+        else if (flag === 'h') opts.human = true;
+        else return { opts, paths, error: '-' + flag };
+      }
+      continue;
+    }
+
+    paths.push(arg);
   }
 
-  let files = ['about.txt', 'coffee.txt', 'life.txt', 'public.txt', 'studies.txt', 'cv.pdf'];
-  if (hasA) files = ['.bashrc', '.profile', ...files];
-  return [{ text: files.join('    '), cls: 'output' }, { text: '' }];
+  return { opts, paths: paths.length ? paths : ['.'] };
+}
+
+/**
+ * @param {string} rawPath
+ * @param {{ long: boolean, all: boolean, almostAll: boolean, human: boolean }} opts
+ * @param {boolean} showHeader
+ * @returns {TermLine[]}
+ */
+function listPath(rawPath, opts, showHeader) {
+  const path = resolvePath(rawPath);
+  const dirEntries = getDirEntries(path);
+
+  if (!dirEntries) {
+    const found = getEntry(path);
+    if (!found) return [{ text: msg('noSuchFile', { cmd: 'ls', path: rawPath }), cls: 'error' }];
+    const name = found.entry.name + (found.entry.type === 'dir' ? '/' : '');
+    return [{ text: opts.long ? formatLongEntry(found.entry, opts) : name, cls: found.entry.type === 'dir' ? 'success' : 'output' }];
+  }
+
+  /** @type {FsEntry[]} */
+  let entries = dirEntries.filter(entry => opts.all || opts.almostAll || !entry.hidden);
+
+  if (opts.all) {
+    entries = [
+      { name: '.', type: 'dir', size: 4096, mtime: 'Jun 18 2026' },
+      { name: '..', type: 'dir', size: 4096, mtime: 'Jun 18 2026' },
+      ...entries,
+    ];
+  }
+
+  /** @type {TermLine[]} */
+  const lines = [];
+  if (showHeader) lines.push({ text: formatCwd(path) + ':', cls: 'header' });
+
+  if (opts.long) {
+    const total = Math.max(4, Math.ceil(entries.reduce((sum, entry) => sum + entry.size, 0) / 1024));
+    lines.push({ text: 'total ' + total, cls: 'muted' });
+    entries.forEach(entry => lines.push({
+      text: formatLongEntry(entry, opts),
+      cls: entry.type === 'dir' ? 'success' : entry.hidden ? 'muted' : 'output',
+    }));
+  } else {
+    lines.push({ text: entries.map(entry => entry.name + (entry.type === 'dir' ? '/' : '')).join('    '), cls: 'output' });
+  }
+  return lines;
+}
+
+/** @param {string[]} args @returns {TermLine[]} */
+function cmdLs(args) {
+  const parsed = parseLsArgs(args);
+  if (parsed.error) return [{ text: msg('invalidFlag', { cmd: 'ls', flag: parsed.error.replace(/^-+/, '') }), cls: 'error' }, { text: '' }];
+
+  /** @type {TermLine[]} */
+  const lines = [];
+  parsed.paths.forEach((path, idx) => {
+    if (idx > 0) lines.push({ text: '' });
+    lines.push(...listPath(path, parsed.opts, parsed.paths.length > 1));
+  });
+  lines.push({ text: '' });
+  return lines;
 }
 
 /** @param {string[]} args @returns {TermLine[]} */
 function cmdCat(args) {
   if (!args.length || args[0] === '') {
     return [
-      { text: 'cat: falta un nombre de archivo', cls: 'error' },
-      { text: 'Uso: cat <archivo>    (ej: cat about.txt)', cls: 'muted' },
+      { text: msg('catMissing'), cls: 'error' },
+      { text: msg('catUsage'), cls: 'muted' },
       { text: '' },
     ];
   }
-  const filename   = args[0].toLowerCase();
-  const files      = /** @type {Record<string,string>} */ (CONFIG.files);
-  const sectionKey = files[filename];
+  const rawPath = args[0];
+  const found = getEntry(resolvePath(rawPath));
 
-  if (!sectionKey) {
+  if (!found) {
     return [
-      { text: 'cat: ' + filename + ': No such file or directory', cls: 'error' },
-      { text: "Escrib\u00ed 'ls' para ver los archivos disponibles.", cls: 'muted' },
+      { text: msg('noSuchFile', { cmd: 'cat', path: rawPath }), cls: 'error' },
+      { text: msg('tryLs'), cls: 'muted' },
       { text: '' },
     ];
   }
-  if (sectionKey === '__cv__') {
+  if (found.entry.type === 'dir') {
+    return [{ text: 'cat: ' + rawPath + ': Is a directory', cls: 'error' }, { text: '' }];
+  }
+  if (found.entry.binary) {
     return [
-      { text: 'cat: cv.pdf: es un archivo binario, no texto.', cls: 'error' },
-      { text: 'Prob\u00e1 con:  xdg-open cv.pdf', cls: 'muted' },
+      { text: 'cat: ' + rawPath + ': ' + (terminalLocale() === 'en' ? 'binary file, not text.' : 'es un archivo binario, no texto.'), cls: 'error' },
+      { text: msg('tryXdg'), cls: 'muted' },
       { text: '' },
     ];
   }
-  const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
-  return sections[sectionKey];
+  return getFileLines(found.entry);
 }
 
 /** @param {string[]} args @returns {TermLine[]} */
@@ -768,12 +1366,12 @@ function cmdUname(args) {
   if (!args.length) return [{ text: 'Linux', cls: 'output' }, { text: '' }];
   if (args.indexOf('-a') !== -1) {
     return [
-      { text: 'Linux plasma 6.8.0-alaska #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux', cls: 'output' },
+      { text: 'Linux plasma 6.8.0-alaska #1 SMP PREEMPT_DYNAMIC Thu Jun 18 12:00:00 ART 2026 x86_64 GNU/Linux', cls: 'output' },
       { text: '' },
-      { text: 'Kernel   6.8.0-human',   cls: 'muted' },
+      { text: 'Kernel   6.8.0-alaska',  cls: 'muted' },
       { text: 'Distro   Arch Linux',     cls: 'muted' },
       { text: 'Desktop  KDE Plasma 6.8', cls: 'muted' },
-      { text: 'Shell    bash 5.2.37',    cls: 'muted' },
+      { text: 'Shell    zsh 5.9',        cls: 'muted' },
       (function() {
         const u = getBirthUptime();
         return { text: 'Uptime   ' + u.years + ' years, ' + u.days + ' days', cls: 'success' };
@@ -786,15 +1384,12 @@ function cmdUname(args) {
   if (args.indexOf('-m') !== -1) return [{ text: 'x86_64',       cls: 'output' }, { text: '' }];
   if (args.indexOf('-n') !== -1) return [{ text: 'plasma',       cls: 'output' }, { text: '' }];
   if (args.indexOf('-s') !== -1) return [{ text: 'Linux',        cls: 'output' }, { text: '' }];
-  return [
-    { text: 'uname: opci\u00f3n no reconocida \u2014 prob\u00e1 con uname -a', cls: 'error' },
-    { text: '' },
-  ];
+  return [{ text: terminalLocale() === 'en' ? 'uname: invalid option — try uname -a' : 'uname: opción no reconocida — probá con uname -a', cls: 'error' }, { text: '' }];
 }
 
 /** @returns {TermLine[]} */
 function cmdPwd() {
-  return [{ text: '/home/alaska', cls: 'output' }, { text: '' }];
+  return [{ text: state.cwd, cls: 'output' }, { text: '' }];
 }
 
 /** @returns {TermLine[]} */
@@ -835,33 +1430,89 @@ function getBirthUptime() {
 /** @param {string[]} args @returns {TermLine[]} */
 function cmdEcho(args) {
   if (!args.length) return [{ text: '', cls: 'output' }, { text: '' }];
-  /** @type {Record<string,string>} */
-  const env = {
-    '$USER':   'alaska',
-    '$HOME':   '/home/alaska',
-    '$SHELL':  '/bin/bash',
-    '$LANG':   'es_AR.UTF-8',
-    '$TERM':   'konsole',
-    '$EDITOR': 'nvim',
-    '$PAGER':  'less',
-    '$PATH':   '/usr/local/bin:/usr/bin:/bin:/home/alaska/.local/bin',
-  };
+  const env = getEnv();
   let expanded = args.join(' ');
   Object.keys(env).forEach(v => {
-    const re = new RegExp('\\$\\{?' + v.slice(1) + '\\}?', 'gi');
+    const re = new RegExp('\\$\\{?' + v + '\\}?', 'g');
     expanded = expanded.replace(re, env[v]);
   });
   return [{ text: expanded, cls: 'output' }, { text: '' }];
 }
 
+/** @param {string[]} args @returns {TermLine[]} */
+function cmdCd(args) {
+  const target = args[0] ?? '~';
+  let path = target === '-' ? state.previousCwd : resolvePath(target);
+
+  if (!isDirectory(path)) {
+    const found = getEntry(path);
+    if (!found) return [{ text: msg('noSuchDir', { path: target }), cls: 'error' }, { text: '' }];
+    return [{ text: msg('notDir', { path: target }), cls: 'error' }, { text: '' }];
+  }
+
+  const old = state.cwd;
+  state.cwd = path;
+  state.previousCwd = old;
+
+  if (target === '-') return [{ text: state.cwd, cls: 'output' }, { text: '' }];
+  return [{ text: '' }];
+}
+
+/** @returns {TermLine[]} */
+function cmdId() {
+  return [{ text: 'uid=1000(alaska) gid=1000(alaska) groups=1000(alaska),998(wheel),991(lp),985(video)', cls: 'output' }, { text: '' }];
+}
+
+/** @returns {TermLine[]} */
+function cmdHostname() {
+  return [{ text: 'plasma', cls: 'output' }, { text: '' }];
+}
+
+/** @returns {TermLine[]} */
+function cmdEnv() {
+  return [
+    ...Object.entries(getEnv())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => ({ text: key + '=' + value, cls: /** @type {string} */ ('output') })),
+    { text: '' },
+  ];
+}
+
+/** @param {string[]} args @returns {TermLine[]} */
+function cmdMan(args) {
+  const name = (args[0] ?? '').toLowerCase();
+  if (!name) return [{ text: msg('manMissing'), cls: 'error' }, { text: 'usage: man <command>', cls: 'muted' }, { text: '' }];
+
+  /** @type {Record<string, string[]>} */
+  const pages = terminalLocale() === 'en' ? {
+    ls: ['LS(1)', 'NAME', '       ls - list directory contents', 'SYNOPSIS', '       ls [-laAh] [FILE]...', 'NOTES', '       This portfolio shell supports a small virtual filesystem.'],
+    cd: ['CD(1)', 'NAME', '       cd - change the current directory', 'SYNOPSIS', '       cd [DIR]', '       cd -'],
+    grep: ['GREP(1)', 'NAME', '       grep - print lines that match a pattern', 'SYNOPSIS', '       grep <term> <file>'],
+    open: ['OPEN(1)', 'NAME', '       open - navigate portfolio routes or open cv.pdf', 'SYNOPSIS', '       open <route|cv.pdf>'],
+    go: ['GO(1)', 'NAME', '       go - navigate to a portfolio route', 'SYNOPSIS', '       go /proyectos/jobbot'],
+    help: ['HELP(1)', 'NAME', '       help - show available commands'],
+  } : {
+    ls: ['LS(1)', 'NOMBRE', '       ls - lista contenido de directorios', 'SINOPSIS', '       ls [-laAh] [ARCHIVO]...', 'NOTAS', '       Este shell del portfolio usa un sistema de archivos virtual pequeño.'],
+    cd: ['CD(1)', 'NOMBRE', '       cd - cambia el directorio actual', 'SINOPSIS', '       cd [DIR]', '       cd -'],
+    grep: ['GREP(1)', 'NOMBRE', '       grep - imprime líneas que coinciden con un patrón', 'SINOPSIS', '       grep <término> <archivo>'],
+    open: ['OPEN(1)', 'NOMBRE', '       open - navega rutas del portfolio o abre cv.pdf', 'SINOPSIS', '       open <ruta|cv.pdf>'],
+    go: ['GO(1)', 'NOMBRE', '       go - navega a una ruta del portfolio', 'SINOPSIS', '       go /proyectos/jobbot'],
+    help: ['HELP(1)', 'NOMBRE', '       help - muestra comandos disponibles'],
+  };
+
+  const page = pages[name];
+  if (!page) return [{ text: msg('manMissingEntry', { cmd: name }), cls: 'error' }, { text: '' }];
+  return [...page.map((text, i) => ({ text, cls: i === 0 ? 'header' : 'output' })), { text: '' }];
+}
+
 /** @returns {TermLine[]} */
 function cmdNeofetch() {
   return [
-    { text: '                   -`                    guest@Alaska', cls: 'success' },
+    { text: '                   -`                    alaska@plasma', cls: 'success' },
     { text: '                  .o+`                   -------------', cls: 'success' },
     { text: '                 `ooo/                   OS: Arch Linux x86_64', cls: 'output' },
     { text: '                `+oooo:                  Host: ASUSTeK COMPUTER INC. E1504FA', cls: 'output' },
-    { text: '               `+oooooo:                 Kernel: 6.19.10-1-cachyos', cls: 'output' },
+    { text: '               `+oooooo:                 Kernel: 6.8.0-alaska', cls: 'output' },
     (function() {
       const u = getBirthUptime();
       return { text: '               -+oooooo+:                Uptime: ' + u.years + ' years, ' + u.days + ' days, ' + u.hours + ' hours, ' + u.minutes + ' mins', cls: 'output' };
@@ -869,11 +1520,11 @@ function cmdNeofetch() {
     { text: '             `/:-:++oooo+:               Packages: 1151 (pacman), 14 (flatpak)', cls: 'output' },
     { text: '            `/++++/+++++++:              Shell: zsh 5.9', cls: 'output' },
     { text: '           `/++++++++++++++:             Resolution: 1920x1080', cls: 'output' },
-    { text: '          `/+++ooooooooooooo/`           DE: Plasma 6.6.4 (Wayland)', cls: 'output' },
+    { text: '          `/+++ooooooooooooo/`           DE: Plasma 6.8 (Wayland)', cls: 'output' },
     { text: '         ./ooosssso++osssssso+`          WM: kwin_wayland_wr', cls: 'output' },
     { text: '        .oossssso-````/ossssss+`         Theme: Breeze-Dark [GTK2], Breeze [GTK3]', cls: 'output' },
     { text: '       -osssssso.      :ssssssso.        Icons: Tela-nord-dark [GTK2/3]', cls: 'output' },
-    { text: '      :osssssss/        osssso+++.       Terminal: kitty', cls: 'output' },
+    { text: '      :osssssss/        osssso+++.       Terminal: Konsole', cls: 'output' },
     { text: '     /ossssssss/        +ssssooo/-       Terminal Font: FiraCode Nerd Font 12.0', cls: 'output' },
     { text: '   `/ossssso+/:-        -:/+osssso+-     CPU: AMD Ryzen 3 7320U with Radeon Graphics (8) @ 4.151GHz', cls: 'output' },
     { text: '  `+sso+:-`              `.-/+oso:       GPU: AMD ATI Radeon 610M', cls: 'output' },
@@ -919,7 +1570,7 @@ function cmdNeofetch() {
 
 /** @param {string[]} args @returns {TermLine[]} */
 function cmdSudo(args) {
-  if (!args.length) return [{ text: 'uso: sudo <comando>', cls: 'error' }, { text: '' }];
+  if (!args.length) return [{ text: msg('sudoUsage'), cls: 'error' }, { text: '' }];
   return [
     { text: 'alaska is not in the sudoers file. This incident will be reported.', cls: 'error' },
     { text: '' },
@@ -928,11 +1579,12 @@ function cmdSudo(args) {
 
 /** @returns {TermLine[]} */
 function cmdHistory() {
-  if (!state.history.length) return [{ text: '(no hay historial)', cls: 'muted' }, { text: '' }];
+  if (!state.history.length) return [{ text: msg('historyEmpty'), cls: 'muted' }, { text: '' }];
+  const chronological = state.history.slice().reverse();
   return [
-    ...state.history.slice().reverse().map(
+    ...chronological.map(
       /** @param {string} entry @param {number} i @returns {TermLine} */
-      (entry, i) => ({ text: '  ' + String(i + 1).padStart(4, ' ') + '  ' + entry, cls: 'output' })
+      (entry, i) => ({ text: String(i + 1).padStart(5, ' ') + '  ' + entry, cls: 'output' })
     ),
     { text: '' },
   ];
@@ -941,7 +1593,7 @@ function cmdHistory() {
 /** @param {string} cmd @returns {TermLine[]} */
 function cmdFileOps(cmd) {
   return [
-    { text: cmd + ': Permission denied. Read-only file system.', cls: 'error' },
+    { text: msg('readOnly', { cmd }), cls: 'error' },
     { text: '' },
   ];
 }
@@ -950,22 +1602,20 @@ function cmdFileOps(cmd) {
 function cmdGrep(args) {
   if (args.length < 2) {
     return [
-      { text: 'grep: uso: grep <t\u00e9rmino> <archivo>', cls: 'error' },
-      { text: 'Ejemplo: grep f\u00edsica about.txt', cls: 'muted' },
+      { text: msg('grepUsage'), cls: 'error' },
+      { text: msg('grepExample'), cls: 'muted' },
       { text: '' },
     ];
   }
   const term       = args[0].toLowerCase();
-  const filename   = args[1].toLowerCase();
-  const files      = /** @type {Record<string,string>} */ (CONFIG.files);
-  const sectionKey = files[filename];
+  const rawPath    = args[1];
+  const found      = getEntry(resolvePath(rawPath));
 
-  if (!sectionKey || sectionKey === '__cv__') {
-    return [{ text: 'grep: ' + filename + ': No such file or directory', cls: 'error' }, { text: '' }];
+  if (!found || found.entry.type === 'dir' || found.entry.binary) {
+    return [{ text: msg('noSuchFile', { cmd: 'grep', path: rawPath }), cls: 'error' }, { text: '' }];
   }
 
-  const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
-  const matches  = sections[sectionKey].filter(l => l.text?.toLowerCase().includes(term));
+  const matches = getFileLines(found.entry).filter(l => l.text?.toLowerCase().includes(term));
   if (!matches.length) return [{ text: '', cls: 'muted' }];
   return [...matches.map(l => ({ text: l.text, cls: /** @type {string} */ ('success') })), { text: '' }];
 }
@@ -977,18 +1627,16 @@ function cmdGrep(args) {
  */
 function cmdTailHead(cmd, args) {
   if (!args.length) {
-    return [{ text: cmd + ': uso: ' + cmd + ' <archivo>', cls: 'error' }, { text: '' }];
+    return [{ text: msg('tailHeadUsage', { cmd }), cls: 'error' }, { text: '' }];
   }
-  const filename   = args[0].toLowerCase();
-  const files      = /** @type {Record<string,string>} */ (CONFIG.files);
-  const sectionKey = files[filename];
+  const rawPath    = args[0];
+  const found      = getEntry(resolvePath(rawPath));
 
-  if (!sectionKey || sectionKey === '__cv__') {
-    return [{ text: cmd + ': ' + filename + ': No such file or directory', cls: 'error' }, { text: '' }];
+  if (!found || found.entry.type === 'dir' || found.entry.binary) {
+    return [{ text: msg('noSuchFile', { cmd, path: rawPath }), cls: 'error' }, { text: '' }];
   }
 
-  const sections = /** @type {Record<string,TermLine[]>} */ (CONFIG.sections);
-  const all      = sections[sectionKey].filter(l => l.text !== undefined);
+  const all      = getFileLines(found.entry).filter(l => l.text !== undefined);
   const slice    = cmd === 'tail' ? all.slice(-5) : all.slice(0, 5);
   return [...slice, { text: '' }];
 }
@@ -996,8 +1644,9 @@ function cmdTailHead(cmd, args) {
 /** @returns {TermLine[]} */
 function cmdTop() {
   const timeStr = new Date().toTimeString().slice(0, 8);
+  const u = getBirthUptime();
   return [
-    { text: 'top - ' + timeStr + '  up 23 years,  1 user,  load average: 0.01, 0.05, 0.00', cls: 'muted' },
+    { text: 'top - ' + timeStr + '  up ' + u.years + ' years, ' + u.days + ' days,  1 user,  load average: 0.01, 0.05, 0.00', cls: 'muted' },
     { text: 'Tasks:  42 total,   1 running,  41 sleeping,   0 stopped,   0 zombie',           cls: 'muted' },
     { text: '%Cpu(s):  2.1 us,  0.8 sy,  0.0 ni, 96.9 id,  0.2 wa,  0.0 hi,  0.0 si',       cls: 'muted' },
     { text: 'MiB Mem:  15934.4 total,  8241.2 free,  4821.6 used,  2871.6 buff/cache',       cls: 'muted' },
@@ -1007,9 +1656,9 @@ function cmdTop() {
     { text: ' 1337 alaska    20   0  512004  42316  18224 R   2.1   0.3   0:01.33 nvim',       cls: 'output' },
     { text: ' 1984 alaska    20   0  261240  31808  12440 S   0.7   0.2   0:00.87 python3',    cls: 'output' },
     { text: ' 2048 alaska    20   0  128860  21604   9112 S   0.3   0.1   0:00.44 node',       cls: 'output' },
-    { text: ' 3141 alaska    20   0   67328  15112   7332 S   0.1   0.1   0:00.21 bash',       cls: 'output' },
+    { text: ' 3141 alaska    20   0   67328  15112   7332 S   0.1   0.1   0:00.21 zsh',        cls: 'output' },
     { text: '' },
-    { text: "Presion\u00e1 'q' para salir. (es output est\u00e1tico, igual no funcionar\u00eda)", cls: 'muted' },
+    { text: terminalLocale() === 'en' ? "Press 'q' to quit. (Static output; q is decorative here.)" : "Presioná 'q' para salir. (Salida estática; q es decorativo acá.)", cls: 'muted' },
     { text: '' },
   ];
 }
@@ -1018,7 +1667,7 @@ function cmdTop() {
 function cmdEditor(cmd) {
   const name = cmd === 'vim' ? 'Vim' : 'Nano';
   return [
-    { text: "Did you really think I'd build " + name + " in JS? Use 'cat'.", cls: 'muted' },
+    { text: terminalLocale() === 'en' ? "Did you really think I'd build " + name + " in JS? Use 'cat'." : '¿De verdad esperabas ' + name + ' completo en JS? Usá cat.', cls: 'muted' },
     { text: '' },
   ];
 }
@@ -1051,11 +1700,11 @@ function startPing(host) {
     scrollBottom();
   }
 
-  addLine('PING ' + host + ' (' + ip + '): 56 data bytes', 'muted');
+  addLine('PING ' + host + ' (' + ip + ') 56(84) bytes of data.', 'muted');
 
   times.forEach((ms, i) => {
     const t = setTimeout(() => {
-      addLine('64 bytes from ' + ip + ': icmp_seq=' + i + ' ttl=54 time=' + ms + '.0 ms');
+      addLine('64 bytes from ' + ip + ': icmp_seq=' + (i + 1) + ' ttl=54 time=' + ms + '.0 ms');
     }, (i + 1) * 900);
     pingTimers.push(t);
   });
@@ -1066,8 +1715,8 @@ function startPing(host) {
     const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
     addLine('');
     addLine('--- ' + host + ' ping statistics ---', 'muted');
-    addLine(times.length + ' packets transmitted, ' + times.length + ' received, 0.0% packet loss', 'success');
-    addLine('round-trip min/avg/max = ' + min + '.0/' + avg + '.0/' + max + '.0 ms', 'muted');
+    addLine(times.length + ' packets transmitted, ' + times.length + ' received, 0% packet loss, time ' + (times.length * 900) + 'ms', 'success');
+    addLine('rtt min/avg/max/mdev = ' + min + '.000/' + avg + '.000/' + max + '.000/1.500 ms', 'muted');
     addLine('');
     pingTimers = [];
     state.animating = false;
@@ -1089,31 +1738,42 @@ function startPing(host) {
 function handleRouterCommand(cmd, args) {
   if (cmd === 'back') {
     history.back();
-    printLines([{ text: 'Going back\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+    printLines([{ text: terminalLocale() === 'en' ? 'Going back...' : 'Volviendo...', cls: 'success' }, { text: '' }], createPromptLine);
     return true;
   }
 
   if (cmd === 'home') {
     if (!window.router) {
-      printLines([{ text: 'router: not available', cls: 'error' }, { text: '' }], createPromptLine);
+      printLines([{ text: msg('routerMissing'), cls: 'error' }, { text: '' }], createPromptLine);
       return true;
     }
     window.router.navigate('/');
-    printLines([{ text: 'Navigating to /\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+    printLines([{ text: terminalLocale() === 'en' ? 'Navigating to /...' : 'Navegando a /...', cls: 'success' }, { text: '' }], createPromptLine);
     return true;
   }
 
-  if (cmd !== 'cd' && cmd !== 'go' && cmd !== 'open') return false;
+  if (cmd !== 'go' && cmd !== 'open') return false;
+
+  if (cmd === 'open' && args[0]) {
+    const maybeFile = getEntry(resolvePath(args[0]));
+    if (maybeFile?.entry.name === 'cv.pdf') {
+      printLines([{ text: msg('openCv'), cls: 'success' }, { text: '' }], () => {
+        window.open(CONFIG.cvUrl, '_blank', 'noopener,noreferrer');
+        createPromptLine();
+      });
+      return true;
+    }
+  }
 
   if (!window.router) {
-    printLines([{ text: 'router: not available', cls: 'error' }, { text: '' }], createPromptLine);
+    printLines([{ text: msg('routerMissing'), cls: 'error' }, { text: '' }], createPromptLine);
     return true;
   }
 
   if (!args.length || args[0] === '') {
     printLines([
-      { text: cmd + ': missing route argument', cls: 'error' },
-      { text: 'Uso: ' + cmd + ' <ruta>    (ej: ' + cmd + ' experience)', cls: 'muted' },
+      { text: cmd === 'open' ? msg('openMissing') : msg('routeMissing', { cmd }), cls: 'error' },
+      { text: msg('routeUsage', { cmd }), cls: 'muted' },
       { text: '' },
     ], createPromptLine);
     return true;
@@ -1122,18 +1782,20 @@ function handleRouterCommand(cmd, args) {
   const raw        = args[0].replace(/^\/+/, '');
   const path       = (raw === '' || raw === 'home' || raw === '~') ? '/' : '/' + raw;
   const normalized = window.router.normalizeRoute(path);
+  const routes     = getRouteList();
+  const isKnown    = routes.includes(normalized) && (normalized !== '/' || path === '/');
 
-  if (normalized !== path && path !== '/') {
+  if (!isKnown) {
     printLines([
-      { text: cmd + ': no such route: ' + path, cls: 'error' },
-      { text: 'Rutas disponibles: ' + Object.keys(window.router.routes).join('  '), cls: 'muted' },
+      { text: msg('routeNoSuch', { cmd, route: path }), cls: 'error' },
+      { text: msg('routesAvailable', { routes: routes.join('  ') }), cls: 'muted' },
       { text: '' },
     ], createPromptLine);
     return true;
   }
 
   window.router.navigate(normalized);
-  printLines([{ text: 'Navigating to ' + normalized + '\u2026', cls: 'success' }, { text: '' }], createPromptLine);
+  printLines([{ text: (terminalLocale() === 'en' ? 'Navigating to ' : 'Navegando a ') + normalized + '...', cls: 'success' }, { text: '' }], createPromptLine);
   return true;
 }
 
@@ -1142,11 +1804,41 @@ function handleRouterCommand(cmd, args) {
  * ───────────────────────────────────────────────────────────── */
 const ALL_CMDS = [
   'whoami', 'ls', 'cat', 'uname', 'pwd', 'date',
-  'echo', 'neofetch', 'xdg-open', 'clear', 'help',
+  'echo', 'env', 'id', 'hostname', 'man', 'neofetch', 'xdg-open', 'cv', 'clear', 'help',
   'sudo', 'history', 'rm', 'mkdir', 'touch', 'mv',
   'grep', 'tail', 'head', 'ping', 'top', 'htop',
   'vim', 'nano', 'cd', 'go', 'open', 'home', 'back',
 ];
+
+/**
+ * @param {string} partial
+ * @param {{ dirsOnly?: boolean }=} options
+ * @returns {string[]}
+ */
+function getPathCompletions(partial, options = {}) {
+  const slashIdx = partial.lastIndexOf('/');
+  const hasDirPrefix = slashIdx !== -1;
+  const dirPrefix = hasDirPrefix ? partial.slice(0, slashIdx + 1) : '';
+  const namePrefix = (hasDirPrefix ? partial.slice(slashIdx + 1) : partial).toLowerCase();
+  const dirPath = hasDirPrefix ? resolvePath(dirPrefix || '/') : state.cwd;
+  const entries = getDirEntries(dirPath);
+  if (!entries) return [];
+
+  return entries
+    .filter(entry => !options.dirsOnly || entry.type === 'dir')
+    .filter(entry => namePrefix.startsWith('.') || !entry.hidden)
+    .filter(entry => entry.name.toLowerCase().startsWith(namePrefix))
+    .map(entry => dirPrefix + entry.name + (entry.type === 'dir' ? '/' : ''));
+}
+
+/** @param {string} partial @returns {string[]} */
+function getRouteCompletions(partial) {
+  const clean = partial.replace(/^\/+/, '').toLowerCase();
+  return getRouteList().filter(route => {
+    const routeClean = route.replace(/^\/+/, '').toLowerCase();
+    return clean === '' || routeClean.startsWith(clean) || route.toLowerCase().startsWith(partial.toLowerCase());
+  });
+}
 
 /** @param {HTMLInputElement} inp */
 function autocomplete(inp) {
@@ -1154,28 +1846,27 @@ function autocomplete(inp) {
   const lower = raw.toLowerCase();
   if (!lower.trim()) return;
 
-  if (/^(cd|go|open)\s+\S*$/.test(lower)) {
+  if (/^(go)\s+\S*$/.test(lower)) {
     const spaceIdx     = raw.indexOf(' ');
     const cmdPart      = raw.slice(0, spaceIdx);
     const partial      = raw.slice(spaceIdx + 1);
-    const partialClean = partial.replace(/^\/+/, '').toLowerCase();
-    const routes       = window.router ? Object.keys(window.router.routes) : [];
-    const unique       = [...new Set(routes)];
-    const rMatches     = unique.filter(r => {
-      const rClean = r.replace(/^[/]/, '');
-      return partialClean === '' ? true : r.startsWith('/' + partialClean) || rClean.startsWith(partialClean);
-    });
+    const rMatches     = getRouteCompletions(partial);
     if (!rMatches.length) return;
     if (rMatches.length === 1) { inp.value = cmdPart + ' ' + rMatches[0]; updatePromptLine(inp.value); return; }
     showTabMenu(rMatches.map(r => cmdPart + ' ' + r));
     return;
   }
 
-  if (/^cat\s+\S*$/.test(lower)) {
-    const partial2 = raw.slice(raw.indexOf(' ') + 1).toLowerCase();
-    const fMatches = Object.keys(CONFIG.files).filter(f => f.startsWith(partial2));
-    if (fMatches.length === 1) { inp.value = 'cat ' + fMatches[0]; updatePromptLine(inp.value); }
-    else if (fMatches.length > 1) { showTabMenu(fMatches.map(f => 'cat ' + f)); }
+  if (/^(cd|cat|grep|head|tail|xdg-open|open)\s+\S*$/.test(lower)) {
+    const spaceIdx = raw.indexOf(' ');
+    const cmdPart  = raw.slice(0, spaceIdx);
+    const partial  = raw.slice(spaceIdx + 1);
+    const pMatches = getPathCompletions(partial, { dirsOnly: cmdPart.toLowerCase() === 'cd' });
+    const rMatches = cmdPart.toLowerCase() === 'open' ? getRouteCompletions(partial) : [];
+    const matches  = [...new Set([...pMatches, ...rMatches])];
+    if (!matches.length) return;
+    if (matches.length === 1) { inp.value = cmdPart + ' ' + matches[0]; updatePromptLine(inp.value); }
+    else { showTabMenu(matches.map(match => cmdPart + ' ' + match)); }
     return;
   }
 
@@ -1216,7 +1907,7 @@ function execute(raw) {
 
   if (cmd === 'ping') {
     if (!args.length || !args[0]) {
-      printLines([{ text: 'ping: uso: ping <host>', cls: 'error' }, { text: '' }], createPromptLine);
+      printLines([{ text: msg('pingUsage'), cls: 'error' }, { text: '' }], createPromptLine);
       return;
     }
     startPing(args[0]);
@@ -1224,11 +1915,12 @@ function execute(raw) {
   }
 
   if (cmd === 'xdg-open') {
-    if (!args.length || args[0].toLowerCase() !== 'cv.pdf') {
-      printLines([{ text: 'xdg-open: archivo no encontrado', cls: 'error' }, { text: 'Uso: xdg-open cv.pdf', cls: 'muted' }, { text: '' }], createPromptLine);
+    const found = args[0] ? getEntry(resolvePath(args[0])) : null;
+    if (!found || found.entry.name !== 'cv.pdf') {
+      printLines([{ text: msg('xdgNotFound'), cls: 'error' }, { text: msg('xdgUsage'), cls: 'muted' }, { text: '' }], createPromptLine);
       return;
     }
-    printLines([{ text: 'Abriendo cv.pdf\u2026', cls: 'success' }, { text: '' }], () => {
+    printLines([{ text: msg('openCv'), cls: 'success' }, { text: '' }], () => {
       window.open(CONFIG.cvUrl, '_blank', 'noopener,noreferrer');
       createPromptLine();
     });
@@ -1236,7 +1928,7 @@ function execute(raw) {
   }
 
   if (cmd === 'cv') {
-    printLines([{ text: 'Sugerencia: us\u00e1 xdg-open cv.pdf', cls: 'muted' }, { text: 'Abriendo CV\u2026', cls: 'success' }, { text: '' }], () => {
+    printLines([{ text: msg('cvHint'), cls: 'muted' }, { text: msg('openCv'), cls: 'success' }, { text: '' }], () => {
       window.open(CONFIG.cvUrl, '_blank', 'noopener,noreferrer');
       createPromptLine();
     });
@@ -1250,10 +1942,15 @@ function execute(raw) {
     case 'whoami':   lines = cmdWhoami(args);         break;
     case 'ls':       lines = cmdLs(args);             break;
     case 'cat':      lines = cmdCat(args);            break;
+    case 'cd':       lines = cmdCd(args);             break;
     case 'uname':    lines = cmdUname(args);          break;
     case 'pwd':      lines = cmdPwd();                break;
     case 'date':     lines = cmdDate();               break;
     case 'echo':     lines = cmdEcho(args);           break;
+    case 'env':      lines = cmdEnv();                break;
+    case 'id':       lines = cmdId();                 break;
+    case 'hostname': lines = cmdHostname();           break;
+    case 'man':      lines = cmdMan(args);            break;
     case 'neofetch': lines = cmdNeofetch();           break;
     case 'lauti':
     case 'lautaro':  lines = cmdLauti();              break;
@@ -1277,7 +1974,7 @@ function execute(raw) {
 
   printLines([
     { text: cmd + ': command not found', cls: 'error' },
-    { text: "Escrib\u00ed 'help' para ver los comandos disponibles.", cls: 'muted' },
+    { text: msg('commandNotFoundHelp'), cls: 'muted' },
     { text: '' },
   ], createPromptLine);
 }
@@ -1307,11 +2004,12 @@ function onKeyDown(e) {
 
     if (k === 'c') {
       e.preventDefault();
-      inp.value = '';
-      updatePromptLine('');
+      const aborted = inp.value;
+      inp.value = aborted ? aborted + '^C' : '^C';
+      inp.setSelectionRange(inp.value.length, inp.value.length);
+      updatePromptLine(inp.value);
       finalizePromptLine();
-      const out = getOutput();
-      if (out) { out.appendChild(makeLine('^C', 'muted')); scrollBottom(); }
+      inp.value = '';
       createPromptLine();
       return;
     }
@@ -1360,7 +2058,8 @@ function onKeyDown(e) {
     case 'ArrowRight':
       if (!state.animating) {
         const suggestion = getSuggestion(inp.value);
-        if (suggestion && suggestion.length > inp.value.length) {
+        const caret = inp.selectionStart ?? inp.value.length;
+        if (caret === inp.value.length && suggestion && suggestion.length > inp.value.length) {
           e.preventDefault();
           inp.value = suggestion;
           updatePromptLine(suggestion);
@@ -1435,6 +2134,8 @@ function init() {
   const safeWin = /** @type {HTMLElement}      */ (win);
 
   pos.x = 0; pos.y = 0;
+  state.cwd = HOME_DIR;
+  state.previousCwd = HOME_DIR;
   bringToFront(safeWin);
 
   /* ── SSH boot sequence ─────────────────────────────────────
@@ -1491,7 +2192,9 @@ function init() {
     ];
 
     printLines(sshLines, () => {
+      const ctx = _mountCtx;
       setTimeout(() => {
+        if (!ctx || ctx.cancelled) return;
         currentPromptLine = null;
         safeClearOutput();
         printLines(motdLines, createPromptLine);
@@ -1502,6 +2205,10 @@ function init() {
   bootSequence();
 
   const onInput    = () => updatePromptLine(safeInp.value);
+  const onCaretMove = () => {
+    if (tabMenuMatches.length) return;
+    requestAnimationFrame(() => updatePromptLine(safeInp.value));
+  };
   const onWinClick = (/** @type {MouseEvent} */ e) => {
     const t = /** @type {Element} */ (e.target);
     if (t.closest('.kwm-btn')) return;
@@ -1509,6 +2216,9 @@ function init() {
   };
   trackListener(safeInp, 'input',     onInput);
   trackListener(safeInp, 'keydown',   onKeyDown);
+  trackListener(safeInp, 'keyup',     onCaretMove);
+  trackListener(safeInp, 'click',     onCaretMove);
+  trackListener(safeInp, 'select',    onCaretMove);
   trackListener(safeWin, 'mousedown', () => bringToFront(safeWin));
   trackListener(safeWin, 'click',     onWinClick);
   trackListener(window,   'resize',    updateRpromptVisibility);
@@ -1519,22 +2229,19 @@ function init() {
     rawRestore = document.createElement('button');
     rawRestore.id        = 'terminal-restore';
     rawRestore.className = 'terminal-restore-btn';
-    rawRestore.setAttribute('aria-label', 'Abrir terminal');
+    rawRestore.setAttribute('aria-label', terminalLocale() === 'en' ? 'Open terminal' : 'Abrir terminal');
     rawRestore.textContent = '>_';
     document.body.appendChild(rawRestore);
   }
   const rb = /** @type {HTMLElement} */ (rawRestore);
   rb.classList.remove('visible');
 
-  if (!rb.dataset['listenerBound']) {
-    rb.dataset['listenerBound'] = 'true';
-    rb.addEventListener('click', () => {
-      const w = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
-      if (!w) return;
-      restoreTerminal(w, rb);
-      getInput()?.focus();
-    });
-  }
+  trackListener(rb, 'click', () => {
+    const w = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
+    if (!w) return;
+    restoreTerminal(w, rb);
+    getInput()?.focus();
+  });
 
   // ── Fullscreen button ──────────────────────────────────────
   const controls = safeWin.querySelector('.kwm-controls');
@@ -1543,8 +2250,8 @@ function init() {
     btnFs.id        = 'kwm-fullscreen';
     btnFs.type      = 'button';
     btnFs.className = 'kwm-btn kwm-btn--fullscreen';
-    btnFs.title     = 'Pantalla completa';
-    btnFs.setAttribute('aria-label',   'Pantalla completa');
+    btnFs.title     = terminalLocale() === 'en' ? 'Fullscreen' : 'Pantalla completa';
+    btnFs.setAttribute('aria-label',   btnFs.title);
     btnFs.setAttribute('aria-pressed', 'false');
     btnFs.textContent = '⛶';
     controls.appendChild(btnFs);
@@ -1553,7 +2260,7 @@ function init() {
   // ── Drag — con limpieza registrada en _mountCtx ────────────
   const titlebar = /** @type {HTMLElement|null} */ (safeWin.querySelector('.konsole-titlebar'));
   if (titlebar) {
-    titlebar.addEventListener('mousedown', /** @param {MouseEvent} e */ e => {
+    trackListener(titlebar, 'mousedown', /** @param {MouseEvent} e */ e => {
       const target = /** @type {Element} */ (e.target);
       if (target.closest('.kwm-btn')) return;
       if (safeWin.classList.contains('is-fullscreen')) return;
@@ -1600,10 +2307,10 @@ function init() {
   const btnMaximize   = document.getElementById('kwm-maximize');
   const btnFullscreen = /** @type {HTMLElement|null} */ (safeWin.querySelector('#kwm-fullscreen'));
 
-  trackListener(/** @type {EventTarget} */ (btnClose),    'click', () => closeTerminal(safeWin, rb));
-  trackListener(/** @type {EventTarget} */ (btnMinimize), 'click', () => closeTerminal(safeWin, rb));
+  if (btnClose) trackListener(btnClose, 'click', () => closeTerminal(safeWin, rb));
+  if (btnMinimize) trackListener(btnMinimize, 'click', () => closeTerminal(safeWin, rb));
 
-  trackListener(/** @type {EventTarget} */ (btnMaximize), 'click', () => {
+  if (btnMaximize) trackListener(btnMaximize, 'click', () => {
     if (safeWin.classList.contains('is-fullscreen')) {
       setState(safeWin, null);
       btnMaximize?.setAttribute('aria-pressed', 'false');
@@ -1615,7 +2322,7 @@ function init() {
     }
   });
 
-  trackListener(/** @type {EventTarget} */ (btnFullscreen), 'click', () => {
+  if (btnFullscreen) trackListener(btnFullscreen, 'click', () => {
     if (safeWin.classList.contains('is-fullscreen')) {
       setState(safeWin, null);
       btnFullscreen?.setAttribute('aria-pressed', 'false');
@@ -1627,34 +2334,29 @@ function init() {
     }
   });
 
-  if (!document.body.dataset['terminalRestoreBound']) {
-    document.body.dataset['terminalRestoreBound'] = 'true';
-    document.addEventListener('keydown', e => {
-      if (e.key !== '`') return;
-      const w   = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
-      const rbk = /** @type {HTMLElement|null} */ (document.getElementById('terminal-restore'));
-      if (!w || !rbk || !w.classList.contains('is-closed')) return;
-      restoreTerminal(w, rbk);
-      getInput()?.focus();
-    });
-  }
+  trackListener(document, 'keydown', /** @param {Event} e */ e => {
+    if (/** @type {KeyboardEvent} */ (e).key !== '`') return;
+    const w   = /** @type {HTMLElement|null} */ (document.querySelector('.konsole-window'));
+    const rbk = /** @type {HTMLElement|null} */ (document.getElementById('terminal-restore'));
+    if (!w || !rbk || !w.classList.contains('is-closed')) return;
+    restoreTerminal(w, rbk);
+    getInput()?.focus();
+  });
 
-  if (!document.body.dataset['terminalCtrlBound']) {
-    document.body.dataset['terminalCtrlBound'] = 'true';
-    document.addEventListener('keydown', e => {
-      if (!e.ctrlKey || (e.key !== 'c' && e.key !== 'C')) return;
-      if (!pingTimers.length) return;
-      e.preventDefault();
-      pingTimers.forEach(t => clearTimeout(t));
-      pingTimers = [];
-      state.animating = false;
-      const i = getInput();
-      if (i) i.disabled = false;
-      const o = getOutput();
-      if (o) { o.appendChild(makeLine('^C', 'muted')); scrollBottom(); }
-      createPromptLine();
-    });
-  }
+  trackListener(document, 'keydown', /** @param {Event} e */ e => {
+    const keyEvent = /** @type {KeyboardEvent} */ (e);
+    if (!keyEvent.ctrlKey || (keyEvent.key !== 'c' && keyEvent.key !== 'C')) return;
+    if (!pingTimers.length) return;
+    keyEvent.preventDefault();
+    pingTimers.forEach(t => clearTimeout(t));
+    pingTimers = [];
+    state.animating = false;
+    const i = getInput();
+    if (i) i.disabled = false;
+    const o = getOutput();
+    if (o) { o.appendChild(makeLine('^C', 'muted')); scrollBottom(); }
+    createPromptLine();
+  });
 }
 
 /* ─────────────────────────────────────────────────────────────

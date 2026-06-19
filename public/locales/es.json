@@ -60,7 +60,7 @@
       "btn_minimize_label": "Minimizar terminal",
       "btn_maximize_title": "Expandir / contraer",
       "btn_maximize_label": "Expandir terminal",
-      "terminal_title": "guest : bash — Konsole",
+      "terminal_title": "alaska@plasma: ~ — zsh — Konsole",
       "output_label": "Salida del terminal",
       "input_aria": "Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial.",
       "input_placeholder": "escribí un comando..."
