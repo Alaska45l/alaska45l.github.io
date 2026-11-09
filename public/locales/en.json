@@ -42,13 +42,19 @@
     "hero": {
       "avatar_alt": "Photo of Alaska González",
       "cv_btn": "View CV",
-      "cv_aria": "View CV (opens in new tab)",
+      "cv_aria": "View CV",
       "instagram_label": "Instagram",
       "twitter_label": "X (Twitter)",
       "github_label": "GitHub",
       "contact_btn": "Contact",
       "name": "Alaska Elaina Gonzalez",
       "subtitle": "Software Development, QA & IT Support | Automation, Data, Processes & Security"
+    },
+    "cv_dialog": {
+      "title": "Curriculum Vitae removed",
+      "message": "For more information, please get in touch.",
+      "contact_btn": "Go to contact",
+      "close_aria": "Close notice"
     },
     "about": {
       "section_title": "About",

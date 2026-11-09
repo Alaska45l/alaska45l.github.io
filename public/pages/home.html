@@ -22,7 +22,7 @@
 
       <div class="hero-right">
         <div class="cta-buttons">
-          <a href="assets/alaskaGonzalez_cv.pdf" class="btn btn-primary" target="_blank" rel="noopener"
+          <a href="#contacto" id="cv-btn" class="btn btn-primary" aria-haspopup="dialog" aria-controls="cv-removed-dialog"
             data-i18n-attr='{"aria-label":"home.hero.cv_aria"}' aria-label="">
             <i class="fas fa-external-link" aria-hidden="true"></i>
             <span data-i18n="home.hero.cv_btn"></span>
@@ -52,6 +52,24 @@
 
     </div>
   </section>
+
+  <!-- =====================================================
+       CV REMOVED NOTICE — opened by #cv-btn (homeController)
+       ===================================================== -->
+  <dialog id="cv-removed-dialog" class="cv-dialog card" aria-labelledby="cv-dialog-title"
+    aria-describedby="cv-dialog-desc">
+    <button type="button" class="cv-dialog-close" data-cv-dialog-close
+      data-i18n-attr='{"aria-label":"home.cv_dialog.close_aria"}' aria-label="">
+      <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+    <div class="cv-dialog-icon" aria-hidden="true">
+      <i class="fas fa-file-circle-xmark"></i>
+    </div>
+    <h2 id="cv-dialog-title" data-i18n="home.cv_dialog.title"></h2>
+    <p id="cv-dialog-desc" data-i18n="home.cv_dialog.message"></p>
+    <a href="#contacto" class="btn btn-primary" data-router-link data-cv-dialog-close
+      data-i18n="home.cv_dialog.contact_btn"></a>
+  </dialog>
 
   <div class="main-grid">
     <div>

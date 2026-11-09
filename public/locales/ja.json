@@ -42,13 +42,19 @@
     "hero": {
       "avatar_alt": "Alaska Gonzálezの写真",
       "cv_btn": "CVを見る",
-      "cv_aria": "CVを見る（新しいタブで開きます）",
+      "cv_aria": "CVを見る",
       "instagram_label": "Instagram",
       "twitter_label": "X (Twitter)",
       "github_label": "GitHub",
       "contact_btn": "お問い合わせ",
       "name": "Alaska Elaina Gonzalez",
       "subtitle": "ソフトウェア開発・QA・ITサポート | 自動化・データ・プロセス・セキュリティ"
+    },
+    "cv_dialog": {
+      "title": "履歴書は削除されました",
+      "message": "詳細についてはお問い合わせください。",
+      "contact_btn": "お問い合わせへ",
+      "close_aria": "お知らせを閉じる"
     },
     "about": {
       "section_title": "私について",

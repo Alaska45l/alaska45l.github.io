@@ -42,13 +42,19 @@
     "hero": {
       "avatar_alt": "Foto de Alaska González",
       "cv_btn": "Ver CV",
-      "cv_aria": "Ver CV (abre en nueva pestaña)",
+      "cv_aria": "Ver CV",
       "instagram_label": "Instagram",
       "twitter_label": "X (Twitter)",
       "github_label": "GitHub",
       "contact_btn": "Contactar",
       "name": "Alaska Elaina Gonzalez",
       "subtitle": "Desarrollo de software, QA y soporte IT | Automatización, datos, procesos y seguridad"
+    },
+    "cv_dialog": {
+      "title": "Curriculum Vitae eliminado",
+      "message": "Para más información, contactame.",
+      "contact_btn": "Ir a contacto",
+      "close_aria": "Cerrar aviso"
     },
     "about": {
       "section_title": "Sobre mí",

@@ -1,0 +1,203 @@
+<!-- SPA fragment — injected into #app by the router.
+     Does NOT include DOCTYPE, <html>, <head> or <body>.
+     All user-visible strings are resolved at runtime via data-i18n / data-i18n-attr.
+     The router calls i18n.translateDOM(app) immediately after setting innerHTML. -->
+
+<main
+  class="latex-report"
+  id="main-content"
+  aria-label="JobBot v2.4"
+>
+
+  <!-- =====================================================
+       NAVIGATION — BACK
+       ===================================================== -->
+  <nav class="latex-report__nav" aria-label="Document navigation">
+    <a
+      href="/"
+      data-router-link
+      class="latex-report__back-link"
+      aria-label=""
+      data-i18n-attr='{"aria-label":"jobbot.nav.back_aria"}'
+    >
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      <span data-i18n="jobbot.nav.back_label"></span>
+    </a>
+  </nav>
+
+  <!-- =====================================================
+       DOCUMENT PAPER
+       ===================================================== -->
+  <article
+    class="latex-report__paper"
+    aria-labelledby="lr-title"
+    data-i18n-lang
+  >
+
+    <!-- DOCUMENT HEADER -->
+    <header class="latex-report__header">
+      <p class="latex-report__category" data-i18n="jobbot.header.category"></p>
+
+      <h1 class="latex-report__title" id="lr-title" data-i18n="jobbot.header.title"></h1>
+
+      <p class="latex-report__subtitle" data-i18n="jobbot.header.subtitle"></p>
+
+      <div class="latex-report__meta" role="list">
+        <span role="listitem" data-i18n="jobbot.header.author"></span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <span role="listitem" data-i18n="jobbot.header.location"></span>
+        <span class="latex-report__meta-sep" aria-hidden="true">&middot;</span>
+        <time role="listitem" datetime="2025" data-i18n="jobbot.header.year"></time>
+      </div>
+
+      <div class="latex-report__rule" aria-hidden="true"></div>
+    </header>
+
+    <!-- COVER IMAGE -->
+    <figure class="latex-report__cover">
+      <img
+        src="/assets/projects/jobbot-tui.webp"
+        alt=""
+        width="780"
+        height="440"
+        loading="eager"
+        data-i18n-attr='{"alt":"jobbot.cover.alt"}'
+      >
+      <figcaption data-i18n="jobbot.cover.caption"></figcaption>
+    </figure>
+
+    <!-- ABSTRACT -->
+    <section class="latex-report__abstract" aria-labelledby="lr-abstract">
+      <h2 class="latex-report__abstract-title" id="lr-abstract" data-i18n="jobbot.abstract.title"></h2>
+      <p data-i18n="jobbot.abstract.body"></p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         SECTION 1 — MOTIVATION AND CONTEXT
+         =================================================== -->
+    <section aria-labelledby="lr-s1">
+      <h2 id="lr-s1" data-i18n="jobbot.s1.heading"></h2>
+      <p data-i18n="jobbot.s1.p1"></p>
+      <p data-i18n="jobbot.s1.p2"></p>
+      <p data-i18n="jobbot.s1.p3"></p>
+    </section>
+
+    <!-- ===================================================
+         SECTION 2 — PIPELINE ARCHITECTURE
+         =================================================== -->
+    <section aria-labelledby="lr-s2">
+      <h2 id="lr-s2" data-i18n="jobbot.s2.heading"></h2>
+
+      <p data-i18n="jobbot.s2.p1"></p>
+
+      <figure class="latex-report__figure">
+        <img
+          src="/assets/projects/jobbot-pipeline.svg"
+          alt=""
+          width="900"
+          height="420"
+          loading="lazy"
+          data-i18n-attr='{"alt":"jobbot.s2.fig1_alt"}'
+        >
+        <figcaption data-i18n="jobbot.s2.fig1_caption"></figcaption>
+      </figure>
+
+      <p data-i18n="jobbot.s2.p2"></p>
+      <p data-i18n="jobbot.s2.p3"></p>
+      <p data-i18n="jobbot.s2.p4"></p>
+      <p data-i18n="jobbot.s2.p5"></p>
+    </section>
+
+    <!-- ===================================================
+         SECTION 3 — STEALTH EVASION
+         =================================================== -->
+    <section aria-labelledby="lr-s3">
+      <h2 id="lr-s3" data-i18n="jobbot.s3.heading"></h2>
+
+      <p data-i18n="jobbot.s3.p1"></p>
+      <p data-i18n="jobbot.s3.p2"></p>
+
+      <figure class="latex-report__figure">
+        <img
+          src="/assets/projects/jobbot-stealth.webp"
+          alt=""
+          width="700"
+          height="380"
+          loading="lazy"
+          data-i18n-attr='{"alt":"jobbot.s3.fig2_alt"}'
+        >
+        <figcaption data-i18n="jobbot.s3.fig2_caption"></figcaption>
+      </figure>
+
+      <p data-i18n="jobbot.s3.p3"></p>
+    </section>
+
+    <!-- ===================================================
+         SECTION 4 — DYNAMIC CV ENGINE WITH TYPST
+         =================================================== -->
+    <section aria-labelledby="lr-s4">
+      <h2 id="lr-s4" data-i18n="jobbot.s4.heading"></h2>
+      <p data-i18n="jobbot.s4.p1"></p>
+      <p data-i18n="jobbot.s4.p2"></p>
+      <p data-i18n="jobbot.s4.p3"></p>
+    </section>
+
+    <!-- ===================================================
+         SECTION 5 — DAEMON AND OPERATIONAL CONSIDERATIONS
+         =================================================== -->
+    <section aria-labelledby="lr-s5">
+      <h2 id="lr-s5" data-i18n="jobbot.s5.heading"></h2>
+      <p data-i18n="jobbot.s5.p1"></p>
+      <p data-i18n="jobbot.s5.p2"></p>
+    </section>
+
+    <div class="latex-report__rule" aria-hidden="true"></div>
+
+    <!-- ===================================================
+         DOCUMENT FOOTER
+         =================================================== -->
+    <footer class="latex-report__footer">
+      <p class="latex-report__footer-label" data-i18n="jobbot.footer.references_label"></p>
+      <nav
+        class="latex-report__links"
+        aria-label=""
+        data-i18n-attr='{"aria-label":"jobbot.footer.nav_aria"}'
+      >
+        <a
+          href="https://github.com/Alaska45l/jobbot"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label=""
+          data-i18n-attr='{"aria-label":"jobbot.footer.github_aria"}'
+        >
+          <i class="fab fa-github" aria-hidden="true"></i>
+          <span data-i18n="jobbot.footer.github_label"></span>
+        </a>
+        <a
+          href="https://typst.app/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label=""
+          data-i18n-attr='{"aria-label":"jobbot.footer.typst_aria"}'
+        >
+          <span data-i18n="jobbot.footer.typst_label"></span>
+        </a>
+        <a
+          href="https://playwright.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="latex-report__link"
+          aria-label=""
+          data-i18n-attr='{"aria-label":"jobbot.footer.playwright_aria"}'
+        >
+          <span data-i18n="jobbot.footer.playwright_label"></span>
+        </a>
+      </nav>
+    </footer>
+
+  </article>
+</main>
