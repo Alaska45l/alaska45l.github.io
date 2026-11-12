@@ -71,31 +71,6 @@
       "input_aria": "Interactive terminal. Type a command and press Enter. Tab to autocomplete, arrow keys to navigate history.",
       "input_placeholder": "type a command..."
     },
-    "education": {
-      "section_title": "Education",
-      "items": [
-        {
-          "period": "2025 - Present",
-          "degree": "B.Sc. in Physics",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2024 - 2025",
-          "degree": "Medicine — Core Curriculum",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2022 - 2024",
-          "degree": "Associate Degree in Software Application Development — Core Curriculum",
-          "institution": "Universidad Nacional del Centro de Buenos Aires"
-        },
-        {
-          "period": "2015 - 2021",
-          "degree": "Secondary School Diploma — Natural Sciences",
-          "institution": "Escuela Secundaria N°2 \"Florentino Ameghino\""
-        }
-      ]
-    },
     "contact": {
       "section_title": "Contact",
       "form_title": "Send a message",
@@ -149,14 +124,6 @@
     },
     "social": {
       "section_title": "Social Networks & Platforms"
-    },
-    "support": {
-      "section_title": "Support",
-      "description": "If you would like to support me while I study, any contribution goes a long way towards continuing my projects.",
-      "cvu_label": "CVU:",
-      "alias_label": "Alias:",
-      "copy_cvu_title": "Copy CVU",
-      "copy_alias_title": "Copy alias"
     }
   },
   "jobbot": {

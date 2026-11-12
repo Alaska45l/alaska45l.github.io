@@ -71,31 +71,6 @@
       "input_aria": "インタラクティブターミナル。コマンドを入力してEnterを押してください。Tabで自動補完、矢印キーで履歴を移動。",
       "input_placeholder": "コマンドを入力..."
     },
-    "education": {
-      "section_title": "学歴",
-      "items": [
-        {
-          "period": "2025 - 現在",
-          "degree": "物理学学士",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2024 - 2025",
-          "degree": "医学 — 基礎課程",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2022 - 2024",
-          "degree": "ソフトウェアアプリケーション開発准学士 — 基礎課程",
-          "institution": "Universidad Nacional del Centro de Buenos Aires"
-        },
-        {
-          "period": "2015 - 2021",
-          "degree": "自然科学科高等学校卒業",
-          "institution": "Escuela Secundaria N°2 \"Florentino Ameghino\""
-        }
-      ]
-    },
     "contact": {
       "section_title": "連絡先",
       "form_title": "メッセージを送信",
@@ -149,14 +124,6 @@
     },
     "social": {
       "section_title": "ソーシャルネットワーク & プラットフォーム"
-    },
-    "support": {
-      "section_title": "サポート",
-      "description": "私が勉強している間にサポートしてくださる場合、どんな貢献でも私のプロジェクトを続ける上で大きな助けになります。",
-      "cvu_label": "CVU:",
-      "alias_label": "エイリアス:",
-      "copy_cvu_title": "CVUをコピー",
-      "copy_alias_title": "エイリアスをコピー"
     }
   },
   "jobbot": {

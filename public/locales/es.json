@@ -71,31 +71,6 @@
       "input_aria": "Terminal interactivo. Ingresá un comando y presioná Enter. Tab para autocompletar, flechas arriba/abajo para historial.",
       "input_placeholder": "escribí un comando..."
     },
-    "education": {
-      "section_title": "Estudios",
-      "items": [
-        {
-          "period": "2025 - Presente",
-          "degree": "Licenciatura en Física",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2024 - 2025",
-          "degree": "Licenciatura en Medicina — Ciclo Básico",
-          "institution": "Universidad Nacional de Mar del Plata"
-        },
-        {
-          "period": "2022 - 2024",
-          "degree": "Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas — Ciclo Básico",
-          "institution": "Universidad Nacional del Centro de Buenos Aires"
-        },
-        {
-          "period": "2015 - 2021",
-          "degree": "Bachiller en Ciencias Naturales",
-          "institution": "Escuela Secundaria N°2 \"Florentino Ameghino\""
-        }
-      ]
-    },
     "contact": {
       "section_title": "Contacto",
       "form_title": "Enviar mensaje",
@@ -149,14 +124,6 @@
     },
     "social": {
       "section_title": "Redes sociales y plataformas"
-    },
-    "support": {
-      "section_title": "Apoyo",
-      "description": "Si querés apoyarme mientras estudio, cualquier contribución es de gran ayuda para continuar con mis proyectos.",
-      "cvu_label": "CVU:",
-      "alias_label": "Alias:",
-      "copy_cvu_title": "Copiar CVU",
-      "copy_alias_title": "Copiar alias"
     }
   },
   "jobbot": {
