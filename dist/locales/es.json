@@ -120,6 +120,16 @@
         "site_aria": "Visitar sitio web de INVARIANT (abre en nueva pestaña)",
         "detail_btn": "Documentación en curso",
         "detail_aria": "La documentación técnica de INVARIANT aún está en curso"
+      },
+      "math": {
+        "type_badge": "Educación",
+        "type_aria": "Tipo de proyecto: Aplicación web educativa",
+        "status": "En desarrollo",
+        "status_aria": "Estado: En desarrollo",
+        "title": "Laboratorio de Matemáticas",
+        "description": "Laboratorios interactivos de matemática desde primeros principios, con diagnóstico conceptual de errores y una tutora de Visual Novel. Cubre matemática de ingreso y Análisis inicial mediante tableros manipulables, sin dependencias en runtime.",
+        "open_btn": "Abrir laboratorio",
+        "open_aria": "Abrir el Laboratorio de Matemáticas (abre en nueva pestaña)"
       }
     },
     "social": {

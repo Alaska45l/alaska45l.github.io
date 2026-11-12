@@ -120,6 +120,16 @@
         "site_aria": "Visit INVARIANT website (opens in new tab)",
         "detail_btn": "Documentation in progress",
         "detail_aria": "INVARIANT technical documentation is still in progress"
+      },
+      "math": {
+        "type_badge": "Education",
+        "type_aria": "Project type: Educational web app",
+        "status": "In Development",
+        "status_aria": "Status: In Development",
+        "title": "Alaska Math Lab",
+        "description": "Interactive first-principles math laboratories with conceptual error diagnostics and a Visual Novel tutor. Covers college-entry mathematics and introductory Analysis through manipulable boards, with zero runtime dependencies.",
+        "open_btn": "Open lab",
+        "open_aria": "Open Alaska Math Lab (opens in new tab)"
       }
     },
     "social": {
